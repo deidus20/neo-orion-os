@@ -17,8 +17,8 @@ Autor: **Davis Reyes** · Licencia: **GPL-3.0** (software libre: úsalo, cámbia
 - **Guardián:** lo físico (motores, máquinas) y lo irreversible siempre esperan tu aprobación.
 - **Modo patata:** funciona en PC viejos (2 GB de RAM) sin perder la identidad visual.
 
-La documentación completa, con capturas de cada pantalla, está en
-[`docs/biblia/La_biblia_de_Neo_Orion.pdf`](docs/biblia/La_biblia_de_Neo_Orion.pdf).
+La guía de uso, con capturas de cada pantalla, está en
+[`docs/Guia_de_uso_Neo_Orion.pdf`](docs/Guia_de_uso_Neo_Orion.pdf).
 La arquitectura técnica está en [`ARQUITECTURA.md`](ARQUITECTURA.md).
 
 ## Cómo instalarlo
@@ -69,7 +69,7 @@ La ISO queda en `out/`. Ver `config/distro.conf` para cambiar nombre, región y 
 | `config/` | paquetes, catálogo de IA, módulos, identidad |
 | `overlay/` | archivos que se copian tal cual al sistema (servicios, comandos) |
 | `nodos/` | programas para Raspberry/ESP32 (por ejemplo, el nodo que despierta el PC) |
-| `docs/biblia/` | la biblia en PDF y su fuente |
+| `docs/` | la guía de uso en PDF y las notas de cada versión |
 | `instalar.sh` | instalación directa sobre Ubuntu |
 
 ## Pruebas

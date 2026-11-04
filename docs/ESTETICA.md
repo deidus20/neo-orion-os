@@ -1,6 +1,5 @@
 # Lenguaje visual de Neo Orión (reglas para toda interfaz que cree la IA)
 
-Referencia: O.R.C.A. (danneuenhaus) y la "Graphic Realism" de Marathon (Bungie).
 La IA lee este archivo antes de generar cualquier panel, vista de lentes, app o pantalla de robot.
 
 ## Principio
