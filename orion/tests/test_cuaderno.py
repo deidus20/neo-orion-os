@@ -11,12 +11,12 @@ from orion_memoria import Memoria  # noqa: E402
 def test_fuentes_desde_memoria(tmp_path, monkeypatch):
     monkeypatch.setenv("HOME", str(tmp_path))
     mem = Memoria(str(tmp_path / "Orion"), embeddings=None)
-    mem.nota("Exoesqueleto", "Actuación por burbuja en V frontal y suspensión en riel de techo.")
+    mem.nota("Brazo", "Pinza por ventosa frontal y base sobre riel de techo.")
     mem.nota("Cocina", "Receta de galletas.")
-    r = cu.preparar_fuentes("exoesqueleto burbuja", mem, {"Encargo": "hazme una guía de estudio"}, raiz=tmp_path / "Orion")
+    r = cu.preparar_fuentes("brazo ventosa", mem, {"Encargo": "hazme una guía de estudio"}, raiz=tmp_path / "Orion")
     assert r["ok"]
     textos = "".join(Path(f).read_text() for f in r["fuentes"])
-    assert "burbuja" in textos and "galletas" not in textos and "guía de estudio" in textos
+    assert "ventosa" in textos and "galletas" not in textos and "guía de estudio" in textos
     assert (Path(r["carpeta"]) / "00-LEEME.md").exists()
 
 
