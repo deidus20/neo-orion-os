@@ -1,0 +1,47 @@
+# Compila la ISO en GitHub y la publica en Releases al subir una etiqueta vX.Y (o a mano desde «Actions»).
+name: ISO
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      etiqueta:
+        description: "Etiqueta de la versión (ej. v0.1)"
+        required: true
+        default: "v0.1"
+      edicion:
+        description: "Edición: patata | lite | test"
+        required: true
+        default: "patata"
+permissions:
+  contents: write
+jobs:
+  iso:
+    if: github.repository == 'deidus20/neo-orion-os'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - name: Hacer espacio en el disco
+        run: |
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL /usr/local/share/boost
+          sudo docker image prune --all --force || true
+          df -h /
+      - name: Herramientas para compilar
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y debootstrap squashfs-tools xorriso grub-pc-bin grub-efi-amd64-bin grub-common mtools dosfstools
+      - name: Compilar la ISO
+        env:
+          EDITION: ${{ github.event.inputs.edicion || 'patata' }}
+        run: sudo -E env EDITION="$EDITION" WORK_DIR="$PWD/work" OUT_DIR="$PWD/out" ./build.sh
+      - name: Publicar en Releases
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ETIQ: ${{ github.event.inputs.etiqueta || github.ref_name }}
+        run: |
+          cd out
+          sudo chown "$USER" ./*
+          ls -lh
+          gh release view "$ETIQ" >/dev/null 2>&1 || gh release create "$ETIQ" --title "Neo Orión OS ${ETIQ#v}" --notes-file ../docs/NOTAS_VERSION.md
+          gh release upload "$ETIQ" ./*.iso ./*.sha256 --clobber
