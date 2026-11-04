@@ -39,6 +39,12 @@ mcp = FastMCP("orion-linux", instructions=textwrap.dedent(f"""
     detrás: ejecutas, instalas, clonas y programas sin pedir permiso para tareas de
     software. Antes de una tarea, consulta memoria_contexto; al terminar, deja lo importante con
     memoria_anotar. Antes de construir algo, busca con repos_buscar si ya existe.
+    Cuando instales un programa que la persona va a abrir, regístralo con apps(accion='registrar'): su ícono
+    sigue la REGLA ESTÉTICA (9×9 bloques, un color, pictograma de lo que hace, nunca el logo de la marca).
+    Si la persona no tiene micrófono, ofrece usar su teléfono con telefono_microfono.
+    REGLA DE ESTÉTICA (obligatoria): todo lo que agregues a la interfaz usa marathon.js y conserva las
+    animaciones del sistema (decodificar títulos, bloques que llegan, falla RGB, disolución, barrido) y la
+    paleta de la persona. Si algo nuevo no calza, busca la forma de que quede bien antes de mostrarlo.
     No muestres pasos intermedios; cuando haya un resultado que la persona
     deba ver o manipular, llama a hud_mostrar. Si una herramienta devuelve un ticket
     "en espera", díselo en una frase y continúa con otra cosa: la persona lo aprueba.
@@ -343,6 +349,36 @@ def actualizar(que: str = "revisar") -> dict:
     if que == "sistema":
         return ac.actualizar_sistema()
     return ac.revisar()
+
+
+@mcp.tool()
+def apps(accion: str = "listar", id: str = "", nombre: str = "", categoria: str = "", comando: str = "", web: str = "",
+         icono: str = "") -> dict:
+    """Programas que la persona ve en el HUD, cada uno con su ícono de bloques.
+    accion: listar | registrar (después de instalar un programa) | quitar | abrir | regla.
+    registrar: id (minúsculas), nombre, categoria (nube, video, juego, musica, navegador, terminal, oficina, ia,
+    chat, foto, cad, robot, red, correo, calendario, seguridad, taller, cuaderno, app), comando o web, e icono
+    opcional: 9 filas de 9 caracteres «#»/«.» separadas por «|». Ningún ícono se repite. Si no cumple la regla o
+    ya lo usa otro programa, se rechaza con el motivo: corrígelo, o déjalo vacío (categoría libre o monograma)."""
+    import orion_iconos as ic
+    if accion == "registrar":
+        return ic.registrar(id, nombre, categoria, comando, web, icono)
+    if accion == "quitar":
+        return ic.quitar(id)
+    if accion == "abrir":
+        return ic.abrir(id)
+    if accion == "regla":
+        return {"regla": ic.REGLA, "categorias": list(ic.CATEGORIAS)}
+    return {"apps": ic.listar()}
+
+
+@mcp.tool()
+def telefono_microfono(accion: str = "iniciar") -> dict:
+    """Usa el teléfono (iPhone o Android, sin instalar nada) como micrófono REAL del PC: sirve para Neo Orión,
+    juegos en la nube, Discord o Meet. accion: iniciar (devuelve la dirección; el HUD muestra el QR) | estado | parar.
+    Al iniciar, muestra el panel con hud_mostrar para que la persona escanee el código."""
+    import orion_telefono as tf
+    return tf.ordenar(accion)
 
 
 @mcp.tool()

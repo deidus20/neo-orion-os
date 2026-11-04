@@ -165,7 +165,7 @@ pre.json{font-size:10px;color:var(--lime);background:#0a0b0c;border:1px solid va
 <script>
 const $ = s => document.querySelector(s);
 /* ---------------- estado de la instalación ---------------- */
-const C = { idioma: 'es-CL', teclado: 'latam', zona: 'America/Santiago', equipo: null, disco: null, modo: 'borrar', confirmado: false,
+const C = { crt: 'no', idioma: 'es-CL', teclado: 'latam', zona: 'America/Santiago', equipo: null, disco: null, modo: 'borrar', confirmado: false,
   ia: [], nube: [], oido: 'faster-whisper', voz: 'piper', memoriaApp: 'obsidian', nombre: 'Neo Orión', genero: 'femenina', tono: 'cercano',
   color: window.ACC, modulos: ['robotica', 'maker', 'proyectos', 'juegos', 'dev'], capa: 'base', usuario: '', equipoNombre: 'orion', frase: false };
 
@@ -397,6 +397,7 @@ function pIA(m) {
     `<div class="fila"><div style="flex:1;min-width:260px">
       <div class="campo"><label>NOMBRE</label><input id="nom" value="${C.nombre}" maxlength="24"></div>
       <div class="campo"><label>VOZ</label><select id="gen"><option value="femenina">Femenina</option><option value="masculina">Masculina</option><option value="neutra">Neutra / robótica</option></select></div>
+      <div class="campo"><label>EFECTO DE PANTALLA</label><select id="crt"><option value="no">Ninguno (limpio)</option><option value="suave">CRT · tele antigua (líneas y brillo)</option><option value="curva">CRT con curvatura del vidrio</option></select></div>
       <div class="campo"><label>TONO</label><select id="ton"><option value="cercano">Cercano</option><option value="formal">Formal</option><option value="tecnico">Técnico y breve</option></select></div>
       <div class="px dim" style="font-size:9px;margin:6px 0 10px">COLOR DE LA INTERFAZ</div>
       <div style="display:flex;gap:12px;flex-wrap:wrap;padding-bottom:20px">${MX.PALETA.map(([n, c]) => `<div class="sw ${C.color === c ? 'sel' : ''}" data-c="${c}" style="background:${c}" title="${n}"><span>${n}</span></div>`).join('')}
@@ -406,7 +407,8 @@ function pIA(m) {
       <div class="px" style="font-size:22px;margin:10px 0 2px" id="pn">${C.nombre.toUpperCase()}</div><div class="px lime" style="font-size:9px">■ ESCUCHANDO</div>
       <div class="vu" id="vu"></div><div class="dim" style="font-size:11px" id="pfrase"></div>
       <button class="btn" style="margin-top:12px;font-size:10px;padding:9px 12px" id="oir">▶ ESCUCHAR</button></div></div>`;
-  $('#gen').value = C.genero; $('#ton').value = C.tono;
+  $('#gen').value = C.genero; $('#ton').value = C.tono; $('#crt').value = C.crt;
+  $('#crt').onchange = e => { C.crt = MX.crt(e.target.value); };
   const frase = () => ({ cercano: `Hola, soy ${C.nombre}. Estoy escuchando; pídeme lo que necesites.`, formal: `Buenos días. Soy ${C.nombre}, a su disposición.`, tecnico: `${C.nombre} en línea. Sistemas nominales.` })[C.tono];
   const act = () => { $('#pn').textContent = C.nombre.toUpperCase() || '—'; $('#pfrase').textContent = '«' + frase() + '»'; $('#pc').textContent = C.color; nav(); validar(); };
   $('#nom').oninput = e => { C.nombre = e.target.value; act(); };
@@ -529,7 +531,7 @@ function pInstalar(m) {
   }
   function configuracion() {
     return { version: '0.9', idioma: C.idioma, teclado: C.teclado, zona: C.zona, equipo: eq.k, disco: { dispositivo: '/dev/' + C.disco, modo: C.modo },
-      ia: { locales: C.ia.filter(x => !CAT.nube.some(n => n.id === x)), nube: C.nube }, oido: C.oido, voz: C.voz, memoria: { app: C.memoriaApp }, identidad: { nombre: C.nombre, voz: C.genero, tono: C.tono, color: C.color },
+      ia: { locales: C.ia.filter(x => !CAT.nube.some(n => n.id === x)), nube: C.nube }, oido: C.oido, voz: C.voz, memoria: { app: C.memoriaApp }, identidad: { nombre: C.nombre, voz: C.genero, tono: C.tono, color: C.color, crt: C.crt },
       modulos: C.modulos, capa: C.capa, cuenta: { usuario: C.usuario.trim().toLowerCase(), equipo: C.equipoNombre || 'neo-orion', frase: C.desbloqueo === 'clave' ? '' : (C.fraseVoz || '').trim(),
         veces: C.veces || 3, desbloqueo: C.desbloqueo || 'voz_o_clave' } };
   }

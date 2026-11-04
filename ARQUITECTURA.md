@@ -240,3 +240,17 @@ sensibilidad (sensible · normal · firme).
   lo personal, limpia menciones, rearma la biblia limpia y se detiene si queda algo privado.
 - La fuente de la biblia (`docs/biblia/fuente`) ya no depende de rutas fijas: `python3 construir.py && node pdf.js`;
   `SOLO=a,b node capturar.js` recaptura solo esas figuras.
+
+## Efecto CRT, íconos de apps y teléfono como micrófono (4-nov-2026)
+
+- **CRT** (`MX.crt('no'|'suave'|'curva')` en `hud/marathon.js`): líneas de barrido, viñeta, brillo y separación de color;
+  `curva` agrega la curvatura del vidrio con un filtro SVG de desplazamiento (barril). Se guarda por equipo; viene del
+  instalador (`identidad.crt`) y se cambia en el panel de color o por voz. En modo liviano la curva se apaga.
+- **`orion_iconos`**: lista de apps con ícono de bloques 9×9 bajo una regla estética validada (tamaño, un color,
+  20–65 % lleno, sin bloques sueltos, pictograma y no logo, **ningún ícono se repite**). Los programas conocidos tienen
+  su ícono propio; los nuevos usan el de su categoría si está libre o un monograma con su sigla. MCP `apps`, HUD «mis apps»,
+  `/api/accion/apps`. Registro en `~/.orion/apps.json`.
+- **`orion_telefono`**: el teléfono (iPhone o Android, sin app) como micrófono real. Fuente virtual de PipeWire
+  (`module-null-sink media.class=Audio/Source/Virtual`), página HTTPS con certificado propio + WebSocket (PCM 16 bits),
+  `pacat` escribe el audio; mientras está conectado es la fuente predeterminada y al soltar vuelve la anterior. Clave de un
+  solo uso en el QR, apagado tras 30 min. Probado con Chromium y micrófono simulado por TLS (el audio llega).

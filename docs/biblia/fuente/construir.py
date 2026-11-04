@@ -9,7 +9,7 @@ CAT = json.loads((R / "config/ia-catalogo.json").read_text())
 HERR = json.loads((B / "herramientas.json").read_text())
 CMDS = json.loads((B / "comandos.json").read_text())
 TOK = json.loads((B / "tokens.json").read_text())
-ED = "EDICIÓN 03-11-2026 · B"
+ED = "EDICIÓN 04-11-2026"
 e = html.escape
 
 PAGES = []      # (seccion, html)
@@ -225,7 +225,7 @@ pag("14 LLAVE DE VOZ Y CONTROLADORES", seccion("14", "FORMAS DE INICIAR Y REPOSO
     caja("TRES NIVELES DE REPOSO", "<b>Atento</b> (recomendado): pantalla apagada, IA fuera de la memoria, el oído escucha → despierta con tu frase o tus palmadas. <b>Suspendido</b> y <b>apagado</b>: el PC no puede oír; lo despierta un nodo con micrófono (Raspberry o ESP32) que manda la señal de encendido por la red (Wake-on-LAN), el teclado o el teléfono.") +
     '</div><div>' + fig("hud-buenos-dias", "«Buenos días, señoritas»: despertar → saludo → luces → resumen del día.", "64mm") +
     caja("DESBLOQUEO A TU GUSTO", "La frase se graba 1 vez (rápido) o 3 (más preciso). Desbloquear: solo con tu frase · solo con tu clave · frase o clave · frase y clave. Se cambia por voz: «desbloquea solo con clave».") + "</div></div>")
-pag("14 LLAVE DE VOZ Y CONTROLADORES", seccion("14", "LLAVE DE VOZ Y CONTROLADORES",
+pag("15 LLAVE DE VOZ Y CONTROLADORES", seccion("15", "LLAVE DE VOZ Y CONTROLADORES",
     "Tu frase con tu voz para entrar, como «Oye Siri» pero eligiendo la frase. Y la gráfica y el procesador reconocidos con sus drivers al día.", P2) +
     '<div class="g2"><div>' + fig("ins-cuenta-frase", "Instalador, paso «Tu cuenta»: eliges la frase y la dices 3 veces.", "62mm") +
     caja("CÓMO FUNCIONA LA LLAVE", "Calzan dos cosas: <b>la frase</b> (el oído revisa que sea, tolera errores) y <b>la voz</b> (la huella se parece a la guardada más que el umbral, calibrado con tus 3 grabaciones). Sirve para despertar y desbloquear, reconocer al dueño y, junto al botón de mantener, aprobar lo físico. La clave de la cuenta sigue de respaldo y lo irreversible nunca se aprueba solo con la voz. «cambia mi frase» · «olvida mi voz» · «bloquea».") +
@@ -234,7 +234,7 @@ pag("14 LLAVE DE VOZ Y CONTROLADORES", seccion("14", "LLAVE DE VOZ Y CONTROLADOR
 
 # =====================================================================================
 P3 = "PARTE 3 · DISEÑO"
-pag("15 PRINCIPIOS", seccion("15", "DISEÑO: DE DÓNDE VIENE Y SUS PRINCIPIOS",
+pag("16 PRINCIPIOS", seccion("16", "DISEÑO: DE DÓNDE VIENE Y SUS PRINCIPIOS",
     "Marathon (Bungie, 2026) llama a su estilo «Graphic Realism»: lenguaje gráfico simplificado, color sin pudor y pocos materiales, con raíz en el diseño gráfico de los 90 (The Designers Republic). O.R.C.A. de danneuenhaus aporta el movimiento pixel; Rose, el flujo de investigación.", P3) + '<div class="g3">' +
     "".join(caja(t, x) for t, x in [
         ("1 · EL PÍXEL ES EL MATERIAL", "Logos, iconos, títulos, barras y transiciones se arman con cuadrados. Nada redondeado, nada con degradado suave."),
@@ -245,19 +245,19 @@ pag("15 PRINCIPIOS", seccion("15", "DISEÑO: DE DÓNDE VIENE Y SUS PRINCIPIOS",
         ("6 · MOVIMIENTO POR PASOS", "Decodificar, bloques que llegan, disolución por bloques. Nunca suave; una animación protagonista a la vez."),
     ]) + "</div>" + caja("LA LECCIÓN DE MARATHON", "Mucha gente encontró su interfaz difícil de leer. Neo Orión toma la inversa como regla: una pantalla = una idea, y el dato siempre legible. El carácter va en los bordes, rótulos y transiciones."))
 
-pag("16 COLOR", seccion("16", "COLOR", "Un acento elegido por la persona sobre carbón, neutros fríos y un color de peligro que se ajusta solo.", P3) +
+pag("17 COLOR", seccion("17", "COLOR", "Un acento elegido por la persona sobre carbón, neutros fríos y un color de peligro que se ajusta solo.", P3) +
     fig("lam-paleta", "Paleta: 8 acentos (escarlata por defecto) + neutros + peligro (amarillo con acento rojo, rojo en los demás).") + '<div class="g3">' +
     caja("TINTA AUTOMÁTICA", "El texto sobre un bloque de acento es negro si el acento es claro y blanco si es oscuro (marathon.js calcula la luminancia).") +
     caja("CONTRASTE", "Texto y gris sobre fondo ≥ 4,5:1. «Tenue» (#55585e) y acento oscuro solo para decoración.") +
     caja("CAMBIAR", "«cambia el color a magenta» o «pon el color #ff3d9a». Cambia todo: paneles, canvas, 3D, muro.") + "</div>")
 
-pag("17 TIPOGRAFÍA", seccion("17", "TIPOGRAFÍA", "Dos familias libres (OFL) y una fuente de bloques propia.", P3) + '<div class="g2">' +
+pag("18 TIPOGRAFÍA", seccion("18", "TIPOGRAFÍA", "Dos familias libres (OFL) y una fuente de bloques propia.", P3) + '<div class="g2">' +
     fig("lam-tipo", "Silkscreen, JetBrains Mono y la fuente de bloques 5×5 con tildes y Ñ.") + fig("lam-escala", "Escala: marca, titular, dato, etiqueta, micro, cuerpo, dato mono.") + "</div>")
 
-pag("18 PÍXEL", seccion("18", "PÍXEL: LOGO E ICONOS", "El logo, los títulos de pantalla y los iconos se dibujan en canvas con bloques que llegan en desorden.", P3) +
+pag("19 PÍXEL", seccion("19", "PÍXEL: LOGO E ICONOS", "El logo, los títulos de pantalla y los iconos se dibujan en canvas con bloques que llegan en desorden.", P3) +
     fig("lam-logo", "Logo NEO ORIÓN: sobre fondo, sobre acento (tinta automática) y versión mínima.") + fig("lam-iconos", "20 iconos de bloques: check, x, alerta, mic, robot, cpu, disco, ia, candado, mando, radar, onda, globo, mundo, color, llave, play, usuario, carpeta, señal."))
 
-pag("19 COMPONENTES", seccion("19", "COMPONENTES", "Las piezas con que se arma cualquier pantalla.", P3) + '<div class="g2">' +
+pag("20 COMPONENTES", seccion("20", "COMPONENTES", "Las piezas con que se arma cualquier pantalla.", P3) + '<div class="g2">' +
     fig("lam-comp", "Botones (principal, secundario, mantener), chapas, tarjeta normal / elegida / deshabilitada, segmentos, bloques y barra de carga.") +
     fig("lam-hitos", "Confirmación (check sobre acento, 520 ms) y alerta a pantalla completa (1,3–1,5 s, vuelve sola).") + "</div>" + '<div class="g3">' +
     caja("BOTÓN", "Principal lleno de acento, uno por pantalla, abajo a la derecha. Lo irreversible se mantiene apretado 1,6 s.") +
@@ -267,10 +267,10 @@ pag("19 COMPONENTES", seccion("19", "COMPONENTES", "Las piezas con que se arma c
 mov = tabla(["EFECTO", "FUNCIÓN", "DURACIÓN", "CUÁNDO"], [("Decodificar", "MX.scramble", "300–700 ms", "títulos y estados"), ("Bloques que llegan", "MX.pixel", "300–1000 ms", "logo, títulos, iconos"),
     ("Falla RGB", "MX.glitch", "260 ms", "al aparecer; al azar cada ~5 s"), ("Disolución", "MX.disolver", "560 ms", "cambio de pantalla y de color"), ("Barrido", "clase mx-in", "500 ms", "paneles y tarjetas"),
     ("Confirmación", "check sobre acento", "520 ms", "fin de un paso"), ("Mantener", "MX.mantener", "1600 ms", "lo irreversible"), ("Alerta", "MX.alerta", "1300–1500 ms", "peligro y guardián")])
-pag("20 MOVIMIENTO", seccion("20", "MOVIMIENTO", "Todo anima por pasos. Con «reducir movimiento» del sistema, aparece directo; en modo liviano, la disolución usa bloques grandes y no hay fallas al azar.", P3) +
+pag("21 MOVIMIENTO", seccion("21", "MOVIMIENTO", "Todo anima por pasos. Con «reducir movimiento» del sistema, aparece directo; en modo liviano, la disolución usa bloques grandes y no hay fallas al azar.", P3) +
     '<div class="g2"><div>' + mov + "</div><div>" + fig("lam-mov", "Decodificación por etapas y cuatro cuadros de la disolución por bloques.") + "</div></div>")
 
-pag("21 PANTALLAS", seccion("21", "COMPOSICIÓN Y PANTALLAS", "Reglas de armado que se repiten en todo.", P3) + '<div class="g3">' +
+pag("22 PANTALLAS", seccion("22", "COMPOSICIÓN Y PANTALLAS", "Reglas de armado que se repiten en todo.", P3) + '<div class="g3">' +
     "".join(caja(t, x) for t, x in [
         ("GRILLA", "Puntos cada 22 px en el fondo; márgenes y separaciones en múltiplos (3, 6, 10, 14, 22, 44 px)."),
         ("MARCAS", "Escuadras en las 4 esquinas de la pantalla; cruces + en las áreas principales."),
@@ -278,11 +278,51 @@ pag("21 PANTALLAS", seccion("21", "COMPOSICIÓN Y PANTALLAS", "Reglas de armado 
         ("DECORACIÓN", "Máximo dos por pantalla: columna de letras, códigos hex, reloj."),
         ("VOZ DEL TEXTO", "Español de Chile, corto, en segunda persona. Estados de máquina: ESCUCHANDO, [ OK ] copiando sistema."),
         ("APARECER Y IRSE", "La interfaz aparece cuando se pide y se retira; no más de 3 paneles a la vez."),
+        ("REGLA OBLIGATORIA", "Nada nuevo pierde las animaciones (decodificar, bloques, falla RGB, disolución). Si algo no calza, se busca la forma de que quede estético antes de mostrarlo. La IA la recibe en sus instrucciones."),
     ]) + "</div>" + caja("SISTEMA DE DISEÑO VIVO", "Todo esto también está publicado como sistema de diseño («Neo Orión — Sistema de diseño») con tokens, componentes con vista en vivo y la librería <code>marathon.js</code> (window.NeoOrion), para que cualquier IA construya pantallas nuevas iguales."))
+
+
+# ---- íconos de las aplicaciones (se dibujan desde orion_iconos: misma fuente que el HUD)
+import sys as _sys
+_sys.path.insert(0, str(R / "orion"))
+import orion_iconos as _ic
+
+def ico(mapa, lado="13mm"):
+    filas = mapa.split("|")
+    r = "".join(f'<rect x="{x}" y="{y}" width=".86" height=".86"/>' for y, f in enumerate(filas) for x, ch in enumerate(f) if ch == "#")
+    return f'<svg viewBox="0 0 9 9" style="width:{lado};height:{lado};fill:var(--acc);display:block;margin:0 auto">{r}</svg>'
+
+SIGNIFICA = {"nube": "archivos en la nube, respaldo", "video": "series, películas, medios", "juego": "juegos en el PC",
+    "musica": "música y audio", "navegador": "internet", "terminal": "código y consola", "oficina": "documentos y planillas",
+    "ia": "inteligencia artificial", "chat": "mensajes y llamadas", "foto": "fotos y cámara", "cad": "diseño 3D",
+    "robot": "robótica", "red": "control remoto, red", "correo": "correo", "calendario": "agenda",
+    "seguridad": "claves y seguridad", "taller": "electrónica, CNC, impresión 3D", "cuaderno": "notas y estudio", "app": "cualquier otra app"}
+_cel = lambda mapa, t, d: f'<div style="border:1px solid var(--line);background:var(--panel);padding:2.4mm 1.5mm 2mm;text-align:center">{ico(mapa)}<div class="ct" style="margin:2mm 0 .6mm;font-size:6.6pt">{t}</div><div style="font-size:6pt;color:var(--dim);line-height:1.25">{d}</div></div>'
+_grid = lambda celdas, n: f'<div style="display:grid;grid-template-columns:repeat({n},1fr);gap:2mm">{"".join(celdas)}</div>'
+pag("23 ÍCONOS", seccion("23", "ÍCONOS DE LAS APLICACIONES", "Cada programa instalado aparece en el HUD («mis apps») con un ícono de bloques en tu color. Ninguno se repite: cada programa tiene el suyo y muestra lo que hace, así se reconoce de un vistazo sin romper la estética.", P3) +
+    '<div class="g2"><div>' + '<div class="ct" style="margin-bottom:2mm">CATEGORÍAS · PARA LOS PROGRAMAS NUEVOS</div>' +
+    _grid([_cel(v, k.upper(), SIGNIFICA.get(k, "")) for k, v in _ic.CATEGORIAS.items()], 5) + "</div><div>" +
+    '<div class="ct" style="margin-bottom:2mm">PROGRAMAS QUE TRAE O CONOCE NEO ORIÓN · CADA UNO CON EL SUYO</div>' +
+    _grid([_cel(_ic.PROPIOS[a["id"]], a["nombre"].upper(), _ic.SIGNIFICADO[a["id"]]) for a in _ic.CONOCIDAS], 5) +
+    "</div></div>")
+
+pag("24 ÍCONOS 2", seccion("24", "LA REGLA DE LOS ÍCONOS", "Cuando la IA instala un programa nuevo, lo registra con su ícono. Si el ícono no cumple la regla, se rechaza y se usa el de su categoría.", P3) +
+    '<div class="g2"><div>' + caja("LA REGLA (orion_iconos)", "<ol style='margin:0;padding-left:4mm;line-height:1.55'>" + "".join(
+        f"<li>{e(' '.join(x.split()).split('. ', 1)[1])}</li>" for x in __import__('re').split(r'\n\s*(?=\d\. )', '\n' + _ic.REGLA) if x.strip()) + "</ol>") +
+    caja("POR QUÉ NO EL LOGO", "Los logos son marcas de sus dueños y cada uno trae sus colores: copiarlos no corresponde y cien logos distintos rompen la pantalla. El ícono dice qué hace el programa; el nombre y la sigla dicen cuál es. Si llega uno de la misma categoría y no trae ícono, recibe un monograma con su sigla (ej. «MP» para Mi Plex).") +
+    caja("CÓMO SE AGREGA UNO", "La IA usa la herramienta <code>apps</code> (registrar: id, nombre, categoría, comando o web, ícono opcional). Queda en <code>~/.orion/apps.json</code> y aparece al tiro en «mis apps». Por voz: «abre steam», «mis apps».") +
+    "</div><div>" + fig("hud-29-apps", "«mis apps»: cada programa con su ícono, nombre y categoría · sigla.") + "</div></div>")
+
+pag("25 PANTALLA", seccion("25", "EFECTO CRT Y EL TELÉFONO COMO MICRÓFONO", "Dos opciones nuevas: la pantalla como una tele antigua, y el teléfono como micrófono real del PC.", P3) +
+    '<div class="g2"><div>' + fig("hud-30-crt", "CRT con curvatura del vidrio: líneas, brillo, viñeta y la pantalla curvada.", "62mm") +
+    caja("EFECTO CRT", "Tres niveles: <b>ninguno</b>, <b>CRT</b> (líneas de barrido, brillo, leve separación de color, barra que pasa) y <b>CRT + curva</b> (además, la curva del vidrio). Se elige en el instalador (paso 06), en el panel de color o por voz: «efecto tele antigua», «con curvatura», «quita el efecto». En modo liviano la curva se apaga sola.") +
+    "</div><div>" + '<div class="g2">' + fig("hud-32-mic-telefono", "El HUD muestra el QR.", "62mm") + fig("tel-mic-pagina", "Lo que ve el teléfono.", "62mm") + "</div>" +
+    caja("TELÉFONO COMO MICRÓFONO", "Para PC sin micrófono (como una torre). El teléfono, iPhone o Android, escanea el QR y abre una página segura; no se instala nada. Neo Orión crea un micrófono virtual («Micrófono del teléfono») y, mientras está conectado, es el principal: lo usan Neo Orión, los juegos en la nube, Discord y Meet. Al soltarlo vuelve el anterior. Clave de un solo uso, solo en la red de la casa, se apaga tras 30 min sin uso. Por voz: «usa el teléfono como micrófono».") +
+    "</div></div>")
 
 # =====================================================================================
 P4 = "PARTE 4 · CONSTRUCCIÓN"
-pag("22 LA DISTRO", seccion("22", "LA DISTRO", "Cómo se arma la ISO y qué lleva cada edición.", P4) + '<div class="g2"><div>' +
+pag("26 LA DISTRO", seccion("26", "LA DISTRO", "Cómo se arma la ISO y qué lleva cada edición.", P4) + '<div class="g2"><div>' +
     tabla(["EDICIÓN", "PARA", "LLEVA"], [("full", "PC de trabajo", "KDE de respaldo, desarrollo, robótica (ROS 2 Jazzy), taller, IA, juegos, instalador"),
                                          ("lite", "notebook liviano", "sin robótica, IA ni juegos (se instalan después)"),
                                          ("patata", "PC que no rinde", "sin escritorio, quiosco cage + cog, zram, IA mínima + nube"),
@@ -290,9 +330,10 @@ pag("22 LA DISTRO", seccion("22", "LA DISTRO", "Cómo se arma la ISO y qué llev
     caja("PAQUETES", "<code>config/packages/</code>: base, desktop, dev, robotics, maker, ai, gaming, navegador, kiosko. Repos oficiales extra: Google Chrome, Mozilla, ROS 2, flatpak (GeForce NOW desde el repo de NVIDIA).") +
     "</div><div>" + caja("ARRANQUE", "<code>orion-sesion</code> + <code>orion-sesion.service</code>: desde el pendrive abre el instalador; instalado, el HUD. Servicios de usuario: <code>orion-oido</code> (escucha) y <code>orion-vigia</code> (rendimiento).") +
     caja("CAPAS", "Base neutra para regalar o vender. Capa personal opcional: identidad, módulos propios, notas.") +
+    caja("INSTALACIÓN DIRECTA", "En un PC que ya tiene Ubuntu 24.04, sin ISO: <code>curl -fsSL …/instalar.sh | sudo bash</code>. Deja el escritorio igual (Neo Orión en el menú o con <code>orion hud</code>); con <code>--pantalla</code> entra directo al HUD. <code>--quitar</code> lo desinstala y conserva la memoria.") +
     caja("PRUEBAS", "13 pruebas automáticas: MCP (2), voz, hablantes, forma, proyectos, LiDAR, juegos, instalación, rendimiento, puente, navegador (con Chrome real) e instalación de la capa.") + "</div></div>")
 
-pag("23 LA ISO PROBADA", seccion("23", "LA ISO, PROBADA DE PUNTA A PUNTA",
+pag("27 LA ISO PROBADA", seccion("27", "LA ISO, PROBADA DE PUNTA A PUNTA",
     "Edición patata (1,4 GB) arrancada en una máquina virtual sin aceleración: el instalador real, la instalación en un disco y el equipo instalado arrancando solo.", P4) +
     '<div class="g3">' + fig("vm-01-inicio", "Arranque desde el pendrive: «firmware bios», equipo medido de verdad (2,9 GB, 1 disco).", "40mm") +
     fig("vm-03-equipo", "Escaneo real: nivel PATATA, IA recomendada qwen3:1.7b.", "40mm") + fig("vm-00-grub", "Menú de arranque de la ISO: probar o instalar, modo patata, modo seguro y cargar en RAM.", "40mm") + "</div>" +
@@ -300,19 +341,21 @@ pag("23 LA ISO PROBADA", seccion("23", "LA ISO, PROBADA DE PUNTA A PUNTA",
     fig("vm-11-drivers", "Controladores reales del equipo instalado (driver bochs-drm de la máquina virtual).", "40mm") +
     fig("vm-12-ric", "Calculadora RIC respondiendo desde el servidor del equipo instalado.", "40mm") + "</div>" +
     caja("LO QUE SE ENCONTRÓ Y SE CORRIGIÓ", "cog no existe en Ubuntu 24.04 → pantalla propia (GTK + WebKit) · casper renombraba al usuario → FLAVOUR · menú GRUB invisible en BIOS → letra cargada · barra de título de GTK → sin decoración · letras desde internet → incluidas · GRUB con root=/dev/loop0p3 → root=UUID · listas de apt borradas al retomar → apt update."))
-pag("24 SEGURIDAD", seccion("24", "SEGURIDAD Y PERMISOS", "Poder completo con frenos donde importan.", P4) + '<div class="g2"><div>' +
+pag("28 SEGURIDAD", seccion("28", "SEGURIDAD Y PERMISOS", "Poder completo con frenos donde importan.", P4) + '<div class="g2"><div>' +
     tabla(["RIESGO", "EJEMPLO", "QUÉ PASA"], [("LEER", "listar archivos, leer memoria", "se hace"), ("ESCRIBIR", "crear un archivo en el espacio de trabajo", "se hace y queda registrado"),
         ("SISTEMA", "instalar paquetes, clonar", "se hace (modo libre) o pregunta (modo asistido)"), ("IRREVERSIBLE", "borrar fuera del espacio, formatear", "ticket: solo la persona aprueba"),
         ("FÍSICO", "motores, PLC, máquinas", "ticket: solo la persona aprueba")]) + "</div><div>" +
     caja("LO QUE NO HACE", "No integra fuentes de juegos crackeados ni IPTV sin licencia. No maneja por código los chats web de IA (sus términos lo prohíben). Las claves de servicios en la nube las pega la persona; nunca pasan por un chat ni por el instalador.") +
     caja("RED", "El control remoto del navegador escucha solo en 127.0.0.1 y con un perfil propio. El MCP corre en el equipo; conectar otra IA es decisión de la persona.") + "</div></div>")
 
-pag("25 PENDIENTES", seccion("25", "PENDIENTES", "Lo que falta para que la ISO arranque en un PC real.", P4) + tabla(["#", "PENDIENTE", "POR QUÉ IMPORTA"], [
+pag("29 PENDIENTES", seccion("29", "PENDIENTES", "Lo que falta para que la ISO arranque en un PC real.", P4) + tabla(["#", "PENDIENTE", "POR QUÉ IMPORTA"], [
     ("1", "Probar en hardware real: PC patata, notebook UEFI con arranque seguro, torre con NVIDIA", "aquí se probó en máquina virtual BIOS sin aceleración"),
     ("2", "Compilar las ediciones full y lite en un equipo con acceso a los repos de Google, Mozilla y ROS", "este entorno no llega a esos servidores"),
     ("3", "Primer arranque con internet: Ollama, modelos, oído (Vosk/Whisper), voz y driver NVIDIA", "se bajan solos; falta verlos en un equipo real"),
     ("4", "Publicar un canal de actualizaciones (canal.json + .deb) en GitHub Releases", "el mecanismo está listo y probado"),
     ("5", "Estudio de video, orion_cuerpo (maniquí, medidas, dieta) y visores de cartón para la CNC", "acordados, aún sin construir"),
+    ("6", "Probar el micrófono del teléfono con un iPhone y un Android reales, y con un juego en la nube", "probado con navegador simulado: el audio llega al micrófono virtual"),
+    ("7", "Probar el efecto CRT con curva en una GPU real (cuesta más que el modo normal)", "en modo liviano se apaga solo"),
 ], ["5%", "55%", "40%"]))
 
 glos = [("ACENTO", "el color de la persona; manda en toda la interfaz"), ("CAPA", "conjunto de cosas personales que se activa aparte de la base"), ("CDP", "protocolo para manejar Chrome desde código"),
@@ -320,7 +363,7 @@ glos = [("ACENTO", "el color de la persona; manda en toda la interfaz"), ("CAPA"
         ("MARIONETTE", "vía oficial para manejar Firefox desde código"), ("MoE", "modelo de «mezcla de expertos»: grande pero rápido"), ("ORION-FIT", "programa que dice qué IA cabe en el equipo"),
         ("PATATA", "estado de un equipo que no está rindiendo"), ("PSI", "medida del kernel de cuánto se espera por memoria o CPU"), ("STT / TTS", "voz a texto / texto a voz"),
         ("VAD", "detector de cuándo alguien está hablando"), ("ABLITERADO", "modelo al que se le quitó la «dirección de rechazo»")]
-pag("26 GLOSARIO", seccion("26", "GLOSARIO", "Palabras que aparecen en el sistema.", P4) + '<div class="g2">' + tabla(["PALABRA", "QUÉ ES"], glos[:7]) + tabla(["PALABRA", "QUÉ ES"], glos[7:]) + "</div>")
+pag("30 GLOSARIO", seccion("30", "GLOSARIO", "Palabras que aparecen en el sistema.", P4) + '<div class="g2">' + tabla(["PALABRA", "QUÉ ES"], glos[:7]) + tabla(["PALABRA", "QUÉ ES"], glos[7:]) + "</div>")
 
 # =====================================================================================
 PA = "ANEXOS"

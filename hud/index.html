@@ -199,6 +199,7 @@ canvas.mx-px{width:auto;max-width:100%;background:transparent;border:0}
 #dock button{font-family:var(--px);background:var(--lime);color:var(--ink);border:0;padding:0 16px;cursor:pointer}
 #sugg{max-width:760px;margin:0 auto 8px;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}
 #sugg .chip{white-space:nowrap;margin:0}
+.chip.on{background:var(--lime);color:var(--ink,#111);border-color:var(--lime)}
 .mic{max-width:760px;margin:6px auto 0;font-size:10px;color:var(--grey);text-align:center}
 @media (max-width:560px){header{padding:12px 16px 8px}.ticker{display:none}main{padding:0 10px 150px}}
 /* ---------- MODO LIVIANO (PC patata): sin brillos, sin desenfoques, animación mínima ---------- */
@@ -1123,7 +1124,11 @@ addEventListener('keydown', e => { if (e.key === 'Escape' && RS) RS.det ? desenf
 function colorPanel() {
   const p = panel('color', 'COLOR', 'Color de la interfaz'); if (!p) return;
   p.insertAdjacentHTML('beforeend', `<div style="display:flex;gap:12px;flex-wrap:wrap;padding:6px 0 22px">${MX.PALETA.map(([n, c]) => `<button class="swc" data-c="${c}" title="${n}" style="width:44px;height:44px;border:1px solid #3a3d42;background:${c};cursor:pointer;position:relative"><span class="px" style="position:absolute;left:0;right:0;bottom:-16px;font-size:7px;color:var(--grey)">${n}</span></button>`).join('')}</div>
-    <div class="dim" style="font-size:11px">También por voz: «cambia el color a rojo» o «pon el color #ff3d9a».</div>`);
+    <div class="dim" style="font-size:11px">También por voz: «cambia el color a rojo» o «pon el color #ff3d9a».</div>
+    <div class="px dim" style="font-size:9px;margin:18px 0 8px">EFECTO DE PANTALLA</div>
+    <div class="row" style="gap:8px;flex-wrap:wrap" id="crtsel">${[['no', 'NINGUNO'], ['suave', 'CRT'], ['curva', 'CRT + CURVA']].map(([v, n]) => `<button class="chip${(window.CRT || 'no') === v ? ' on' : ''}" data-crt="${v}">${n}</button>`).join('')}</div>
+    <div class="dim" style="font-size:11px;margin-top:8px">Como las teles antiguas: líneas, brillo y, si quieres, la curva del vidrio. Por voz: «efecto tele antigua», «con curvatura», «quita el efecto».</div>`);
+  p.querySelectorAll('[data-crt]').forEach(b => b.onclick = () => { MX.crt(b.dataset.crt); p.querySelectorAll('[data-crt]').forEach(x => x.classList.toggle('on', x === b)); say(b.dataset.crt === 'no' ? 'Efecto quitado.' : 'Efecto de tele antigua activado.'); });
   p.querySelectorAll('.swc').forEach(b => b.onclick = () => MX.corte(() => { MX.acento(b.dataset.c); say('Color cambiado.'); }));
 }
 
@@ -1352,7 +1357,7 @@ function cargarThree() {   // three.js solo se descarga cuando se abre el CAD (a
 }
 const PEL = () => window.PEL || '#ff4a2a';
 const RGB = a => { const n = parseInt(ACC.slice(1), 16); return `rgba(${n >> 16},${(n >> 8) & 255},${n & 255},${a})`; };
-const SUGG = ['abre chrome', 'abre firefox', 'maneja tú', 'busca en google normativa RIC 18', 'usa claude para crear el informe del robot', 'cambia el color a magenta', 'abre el instalador', 'investiga lidar para robots', 'quiero jugar', 'abre geforce now', 'pon mis series', 'muéstrame el lidar del robot', 'muéstrame la carta gantt de la oficina', 'muéstrame el proyecto del brazo', 'dame alternativas del robot', 'diseña una placa de control de bajo costo', 'vista de los lentes', 'radar del entorno', 'conéctate a mi-proyecto', 'muéstrame el soporte del servo', 'reduce el grosor a 3', 'vincular teléfono', 'escanea el hardware', 'muéstrame el robot', 'mueve el hombro a 45 grados', 'onda en el codo amplitud 25 frecuencia 0.5', 'quiero calibrar con una foto', 'muestra los nodos', 'abre la memoria', 'detente'];
+const SUGG = ['abre chrome', 'abre firefox', 'maneja tú', 'busca en google normativa RIC 18', 'usa claude para crear el informe del robot', 'cambia el color a magenta', 'efecto tele antigua', 'abre el instalador', 'investiga lidar para robots', 'quiero jugar', 'abre geforce now', 'pon mis series', 'muéstrame el lidar del robot', 'muéstrame la carta gantt de la oficina', 'muéstrame el proyecto del brazo', 'dame alternativas del robot', 'diseña una placa de control de bajo costo', 'vista de los lentes', 'radar del entorno', 'conéctate a mi-proyecto', 'muéstrame el soporte del servo', 'reduce el grosor a 3', 'vincular teléfono', 'usa el teléfono como micrófono', 'mis apps', 'escanea el hardware', 'muéstrame el robot', 'mueve el hombro a 45 grados', 'onda en el codo amplitud 25 frecuencia 0.5', 'quiero calibrar con una foto', 'muestra los nodos', 'abre la memoria', 'detente'];
 $('#sugg').innerHTML = SUGG.map(s => `<span class="chip">${s}</span>`).join('');
 $('#sugg').querySelectorAll('.chip').forEach(c => c.onclick = () => handle(c.textContent));
 function say(t) { $('#heard').innerHTML = `<span class="lime">ORION ›</span> ${t}`; if (typeof logChat === 'function') logChat('ia', t); }
@@ -1538,6 +1543,66 @@ function traductorPanel(raw) {
 
 
 /* ---- controladores: procesador, gráfica y si los drivers están al día ---- */
+/* ---- el teléfono como micrófono real del PC (iPhone o Android, sin app) ---- */
+let MICTEL_T = null;
+async function micTelPanel() {
+  const p = panel('mictel', 'MIC', 'El teléfono como micrófono'); if (!p) return;
+  const caja = el('div', ''); p.appendChild(caja);
+  const pinta = r => {
+    if (!document.body.contains(p)) return clearInterval(MICTEL_T);
+    if (!r || r.ok === false) { caja.innerHTML = errHtml(r || { ok: false }); return; }
+    const vu = Math.round((r.nivel || 0) * 24);
+    caja.innerHTML = `<div style="display:flex;gap:18px;flex-wrap:wrap;align-items:flex-start">
+      <div class="qrbox" id="mtqr" style="margin:0"></div>
+      <div style="flex:1;min-width:220px">
+        ${fila('ESTADO', r.conectado ? '<span class="lime">TELÉFONO CONECTADO</span>' : r.activo ? 'ESPERANDO EL TELÉFONO…' : 'APAGADO')}
+        ${fila('MICRÓFONO', r.nombre_mic || 'Micrófono del teléfono')}
+        <div style="display:flex;gap:3px;height:22px;align-items:flex-end;margin:10px 0">${Array.from({ length: 24 }, (_, i) => `<i style="flex:1;height:100%;display:block;background:${i < vu ? 'var(--lime)' : '#24272b'}"></i>`).join('')}</div>
+        <div class="dim" style="font-size:11px;line-height:1.6">1 · Teléfono y PC en la misma red Wi-Fi.<br>2 · Escanea el código con la cámara (iPhone o Android).<br>3 · La primera vez el teléfono avisa «conexión no privada»: es el certificado propio de este PC → «Mostrar detalles» / «Avanzado» → «Visitar».<br>4 · Toca «USAR COMO MICRÓFONO» y deja la página abierta.</div>
+        <div class="dim" style="font-size:11px;margin-top:8px">Mientras está conectado es el micrófono principal: lo usan Neo Orión, los juegos en la nube, Discord y Meet. Usa audífonos en el PC para que no haya eco.</div>
+        <button class="chip" id="mtoff" style="margin-top:10px">${r.activo ? 'APAGAR' : 'ENCENDER'}</button></div></div>`;
+    if (r.url && window.QRCode && r.activo) new QRCode(q('#mtqr'), { text: r.url, width: 168, height: 168, colorDark: '#111111', colorLight: '#ffffff' });
+    else q('#mtqr').innerHTML = `<div class="dim" style="font-size:10px;width:168px;word-break:break-all">${r.url || ''}</div>`;
+    q('#mtoff').onclick = async () => pinta(await accion('telefono', { accion: r.activo ? 'parar' : 'iniciar' }, { ok: true, activo: !r.activo, url: 'https://192.168.1.20:7743/mic?t=demo' }));
+  };
+  const q = s => p.querySelector(s);
+  pinta(await accion('telefono', { accion: 'iniciar' }, { ok: true, activo: true, conectado: false, url: 'https://192.168.1.20:7743/mic?t=demo', nombre_mic: 'Micrófono del teléfono' }));
+  let antes = '';
+  MICTEL_T = setInterval(async () => { const r = await accion('telefono', { accion: 'estado' }, null); if (!r) return;
+    const k = [r.activo, r.conectado, Math.round((r.nivel || 0) * 24)].join(); if (k !== antes) { antes = k; pinta(r); } }, 700);
+}
+
+/* ---- aplicaciones instaladas, cada una con su ícono de bloques (regla estética de orion_iconos) ---- */
+const APPS_DEMO = [['nube', 'Mi nube', 'nube'], ['jellyfin', 'Series', 'video'], ['steam', 'Steam', 'juego'], ['geforcenow', 'GeForce Now', 'juego'],
+  ['chrome', 'Chrome', 'navegador'], ['libreoffice', 'Oficina', 'oficina'], ['freecad', 'FreeCAD', 'cad'], ['gemini-notebook', 'Gemini Notebook', 'cuaderno']];
+const ICO_CAT = {
+  'nube': '...###...|..#...#..|.#.....##|#.......#|.#######.|....#....|...###...|..#.#.#..|....#....',
+  'jellyfin': '#.#.#.#.#|#########|#.......#|#..#....#|#..##...#|#..###..#|#..##...#|#..#....#|#########',
+  'steam': '..#####..|.#.....#.|#.......#|#..###..#|#..#.#..#|#..###..#|#.......#|.#.....#.|..#####..',
+  'geforcenow': '...###...|..#...##.|.#......#|#..#....#|#..##...#|#..###..#|#..##...#|.###.###.|.........',
+  'chrome': '..#####..|.##...##.|#..#.#..#|#...#...#|#########|#...#...#|#..#.#..#|.##...##.|..#####..',
+  'libreoffice': '#########|#...#...#|#########|#...#...#|#########|#...#...#|#########|.........|.........',
+  'freecad': '..######.|.#....##.|########.|#.....#.#|#.....#.#|#.....#.#|#.....##.|#######..|.........',
+  'gemini-notebook': '....#....|...###...|....#....|.........|#########|#.......#|#.#####.#|#.......#|#########' };
+async function appsPanel() {
+  const p = panel('apps', 'APPS', 'Aplicaciones', true); if (!p) return;
+  const sig = n => { const w = n.replace(/[^\p{L}\p{N}]+/gu, ' ').trim().split(/\s+/); return (w.length > 1 ? w[0][0] + w[1][0] : w[0].slice(0, 2)).toUpperCase(); };
+  const r = await accion('apps', { accion: 'listar' }, () => ({ ok: true, apps: APPS_DEMO.map(([id, nombre, categoria]) => ({ id, nombre, categoria, icono: ICO_CAT[id], sigla: sig(nombre) })) }));
+  if (!r || r.ok === false) { p.insertAdjacentHTML('beforeend', errHtml(r)); return; }
+  const g = el('div', ''); g.style.cssText = 'display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:10px;margin:6px 0 10px';
+  (r.apps || []).forEach(a => {
+    const c = el('button', 'appc'); c.title = a.nombre;
+    c.style.cssText = 'background:#0b0c0d;border:1px solid #2c2f33;padding:14px 8px 10px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:8px;color:inherit';
+    c.appendChild(MX.pixel(a.icono.split('|'), { px: 5, anim: true }));
+    c.insertAdjacentHTML('beforeend', `<span class="px" style="font-size:9px;letter-spacing:.08em;color:#fff;text-align:center;line-height:1.3">${a.nombre.toUpperCase()}</span><span class="px dim" style="font-size:7px">${a.categoria.toUpperCase()} · ${a.sigla}</span>`);
+    c.onmouseenter = () => c.style.borderColor = 'var(--lime)'; c.onmouseleave = () => c.style.borderColor = '#2c2f33';
+    c.onclick = async () => { MX.glitch(c); const x = await accion('apps', { accion: 'abrir', id: a.id }, { ok: true, abierta: a.nombre }); say(x.ok ? `Abriendo ${x.abierta}.` : x.error); };
+    g.appendChild(c);
+  });
+  p.appendChild(g);
+  p.insertAdjacentHTML('beforeend', `<div class="dim" style="font-size:11px">Cada programa que Neo Orión instala aparece aquí con un ícono de bloques de 9×9, en tu color. Ninguno se repite: cada uno muestra lo que hace el programa. Di «abre steam» o toca el ícono.</div>`);
+}
+
 async function drvPanel() {
   const r = await accion('controladores', {}, { ok: true, cpu: { fabricante: 'AMD', modelo: 'AMD Ryzen 5 5600X 6-Core Processor', avx2: true, microcodigo: 'amd64-microcode' },
     gpus: [{ fabricante: 'NVIDIA', modelo: 'GeForce RTX 3060 Lite Hash Rate', id: '10de:2504', driver: 'nvidia' }],
@@ -1722,6 +1787,9 @@ const SERV = { si: false, hist: [] };
 if (location.protocol.startsWith('http')) fetch('/api/estado', { headers: { 'X-Orion': '1' } }).then(r => r.json()).then(e => {
   SERV.si = true; SERV.ia = e.ia_local || [];
   if (e.acento && /^#[0-9a-f]{6}$/i.test(e.acento) && typeof MX !== 'undefined') MX.acento(e.acento, false);
+  let crtGuardado = null; try { crtGuardado = localStorage.getItem('orion.crt'); } catch (x) {}
+  const crtIns = ((e.instalacion || {}).identidad || {}).crt;   // lo elegido en el instalador, mientras la persona no lo cambie
+  if (!crtGuardado && crtIns && typeof MX !== 'undefined') MX.crt(crtIns);
 }).catch(() => {});
 async function conversar(raw) {
   setState('PENSANDO', true);
@@ -1773,6 +1841,11 @@ function handle(raw) {
     if (/^(usa|pidele a|preguntale a|dile a)\s+(claude|gemini|chatgpt|codex|openai|gpt|opencode|ollama|la ia local)\b|que lo haga (claude|gemini|chatgpt)/.test(t)) { colaborarPanel(raw); say('Le paso el encargo con el contexto de lo que hemos hablado.'); return; }
     if (/(modo (liviano|patata|ligero)|ahorra(r)? recursos)/.test(t)) { MX.liviano(true); say('Modo liviano: sin 3D, sin brillos y animaciones mínimas.'); return; }
     if (/modo completo/.test(t)) { MX.liviano(false); say('Modo completo activado.'); return; }
+    if (/(crt|tele (antigua|vieja)|television antigua|pantalla antigua|efecto retro)/.test(t) || (/curvatura|curva(do)? del vidrio/.test(t) && /(efecto|pon|activa|con)/.test(t))) {
+      if (/(quita|saca|apaga|sin|desactiva)/.test(t)) { MX.crt('no'); say('Efecto quitado: pantalla limpia.'); return; }
+      const curva = /curv/.test(t); MX.corte(() => MX.crt(curva ? 'curva' : 'suave'));
+      say(curva ? 'Tele antigua con la curva del vidrio.' : 'Efecto de tele antigua activado. Di «con curvatura» para curvar el vidrio.'); return; }
+    if (/(quita|saca|apaga) (el )?efecto/.test(t)) { MX.crt('no'); say('Efecto quitado: pantalla limpia.'); return; }
     if (/(color|colou?r)/.test(t) && /(cambia|pon|usa|quiero)/.test(t)) {
       const mapa = { 'acido': '#cdf564', 'neon': '#c6ff00', 'verde': '#c6ff00', 'rojo': PEL(), 'cian': '#3ef0ff', 'celeste': '#3ef0ff', 'azul': '#3ef0ff', 'magenta': '#ff3d9a', 'rosado': '#ff3d9a', 'rosa': '#ff3d9a', 'ambar': '#ffb000', 'naranjo': '#ffb000', 'amarillo': '#ffb000', 'violeta': '#9d7bff', 'morado': '#9d7bff', 'blanco': '#e6e8ea', 'hielo': '#e6e8ea' };
       const hex = (raw.match(/#[0-9a-f]{6}/i) || [])[0] || mapa[Object.keys(mapa).find(k => t.includes(k))];
@@ -1799,6 +1872,8 @@ function handle(raw) {
       say(`Trabajando con ${name} por detrás. Te muestro el resultado al terminar.`); return; }
     if (/(soporte|pieza|modelo 3d|\bcad\b|3d)/.test(t) && !/(grosor|pared|largo|ancho|alto|tornillo)\D*\d/.test(t)) { cadPanel(); say('Pieza generada por código. Pídeme cambios: «reduce el grosor a 3».'); return; }
     if (/(grosor|espesor|pared|largo|ancho|alto|tornillo|perforacion|agujero)\D*?\d/.test(t) && cadEdit(t)) return;
+    if (/(telefono|celular|movil|iphone|android).*(microfono|mic\b)|(microfono|mic) (del|con el) (telefono|celular)/.test(t)) { micTelPanel(); say('Escanea el código con el teléfono: será el micrófono del PC mientras la página esté abierta.'); return; }
+    if (/(mis apps|aplicaciones|programas instalados|que (apps|programas) tengo|lanzador)/.test(t)) { appsPanel(); say('Tus aplicaciones.'); return; }
     if (/(vincul|qr|telefono|celular|empareja)/.test(t)) { pairPanel(); say('Escanea el código con el teléfono para vincularlo.'); return; }
     if (/(plc|siemens|s7|tia portal)/.test(t)) {
       job('PLC Siemens · análisis de línea', ['analizando fotos del tablero', 'identificando CPU S7-1200 y módulos', 'leyendo variables por red (solo lectura)', 'generando programa SCL'],

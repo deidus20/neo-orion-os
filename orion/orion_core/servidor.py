@@ -13,7 +13,7 @@ Escucha solo en 127.0.0.1 (nada sale a la red). Todas las llamadas /api/* exigen
   POST /api/chat            → conversa con la IA local (Ollama) con la identidad y la memoria
   GET  /api/eventos?desde=n → frases y palmadas que activaron rutinas
   GET  /api/rendimiento     → último nivel del vigía (completo / liviano / patata)
-  POST /api/accion/<módulo> → activacion | llave | controladores | electrica | respaldo | remoto | cnc | casa | dictado | actualizar | traductor
+  POST /api/accion/<módulo> → activacion | llave | controladores | electrica | respaldo | remoto | cnc | casa | dictado | actualizar | traductor | telefono | apps
 
 Uso: python3 -m orion_core.servidor [--puerto 7700] [--modo auto|instalador|hud] [--raiz /usr/share/orion]
 """
@@ -307,6 +307,14 @@ def accion(modulo: str, datos: dict) -> dict:
             import orion_traductor as tr
             c = tr.Conversacion(str(datos.get("a", "es")), str(datos.get("b", "en")), hablar=lambda *x: None)
             return c.turno(str(datos.get("texto", "")))
+        if modulo == "telefono":                    # el teléfono como micrófono real del PC
+            import orion_telefono as tf
+            return tf.ordenar(a if a in ("iniciar", "parar") else "estado")
+        if modulo == "apps":                        # programas instalados con su ícono (regla estética)
+            import orion_iconos as ic
+            if a == "abrir":
+                return ic.abrir(str(datos.get("id", "")))
+            return {"ok": True, "apps": ic.listar(), "regla": ic.REGLA}
     except (PermissionError, ValueError) as e:
         return {"ok": False, "error": str(e)}
     except Exception as e:                       # la interfaz muestra el error en una línea

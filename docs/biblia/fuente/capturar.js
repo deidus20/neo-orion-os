@@ -39,6 +39,10 @@ const SOLO=(process.env.SOLO||'').split(',').filter(Boolean), quiero=n=>!SOLO.le
  await hud('hud-21-piloto',['abre chrome','maneja tú'],2600);
  await hud('hud-22-puente',['usa claude para crear el informe del robot con lo que hemos hablado'],5000);
  await hud('hud-23-color',['muéstrame el lidar del robot','cambia el color a #b14bff'],1800);
+ await hud('hud-29-apps',['mis apps'],2200);
+ await hud('hud-30-crt',['muéstrame el robot','efecto tele antigua con curvatura'],1800);
+ await hud('hud-31-crt-suave',['abre la memoria','efecto tele antigua'],1800);
+ await hud('hud-32-mic-telefono',['usa el teléfono como micrófono'],2200);
  await hud('hud-24-patata',['modo patata','muéstrame el soporte del servo'],1800);
  // investigación por fases
  for(const [n,t] of [['hud-25-investigacion-1',2300],['hud-26-investigacion-2',6000],['hud-27-investigacion-3',12000]]){ if(!quiero(n)) continue;

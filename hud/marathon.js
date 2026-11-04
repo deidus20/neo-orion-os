@@ -108,7 +108,8 @@
   function pixel(lineasOIcono, o = {}) {
     const px = o.px || 6, gap = o.gap ?? Math.max(1, Math.round(px / 6)), color = o.color || (() => W.ACC), sombra = o.sombra;
     let mapa;
-    if (ICONOS[lineasOIcono]) mapa = ICONOS[lineasOIcono].split('|');
+    if (Array.isArray(lineasOIcono)) mapa = lineasOIcono;            // ícono propio: filas de «#» y «.»
+    else if (ICONOS[lineasOIcono]) mapa = ICONOS[lineasOIcono].split('|');
     else {
       const lineas = String(lineasOIcono).split('\n'); mapa = [];
       lineas.forEach((ln, li) => { const fs = [...ln].map(filas); for (let r = 0; r < 6; r++) mapa.push(fs.map(f => f[r]).join('.')); if (li < lineas.length - 1) mapa.push(''); });
@@ -233,6 +234,37 @@
       requestAnimationFrame(cuadro);
     })(t0);
   })();
+
+  // ---------- EFECTO CRT (tele antigua): 'no' | 'suave' (líneas + viñeta + brillo) | 'curva' (además, la curvatura del vidrio)
+  // Se guarda por equipo; en modo liviano la curvatura se apaga sola porque cuesta GPU.
+  function mapaBarril(w, h, k) {
+    const c = document.createElement('canvas'); c.width = w; c.height = h; const g = c.getContext('2d'), im = g.createImageData(w, h), d = im.data;
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+      const nx = x / (w - 1) * 2 - 1, ny = y / (h - 1) * 2 - 1, r2 = nx * nx + ny * ny, i = (y * w + x) * 4;
+      d[i] = 128 + 127 * Math.max(-1, Math.min(1, nx * r2 * k)); d[i + 1] = 128 + 127 * Math.max(-1, Math.min(1, ny * r2 * k)); d[i + 2] = 128; d[i + 3] = 255;
+    }
+    g.putImageData(im, 0, 0); return c.toDataURL();
+  }
+  function curvaSVG() {
+    if (document.getElementById('mx-crt-svg')) return;
+    const ns = 'http://www.w3.org/2000/svg', svg = document.createElementNS(ns, 'svg');
+    svg.id = 'mx-crt-svg'; svg.setAttribute('width', 0); svg.setAttribute('height', 0); svg.style.position = 'absolute';
+    svg.innerHTML = `<filter id="mx-barril" x="0" y="0" width="1" height="1" filterUnits="objectBoundingBox" primitiveUnits="objectBoundingBox" color-interpolation-filters="sRGB">
+      <feImage href="${mapaBarril(128, 128, .5)}" x="0" y="0" width="1" height="1" preserveAspectRatio="none" result="m"/>
+      <feDisplacementMap in="SourceGraphic" in2="m" scale=".09" xChannelSelector="R" yChannelSelector="G"/></filter>`;
+    document.body.appendChild(svg);
+  }
+  function crt(modo) {
+    const OK = ['no', 'suave', 'curva'];
+    if (modo === undefined) { try { modo = localStorage.getItem('orion.crt'); } catch (e) {} modo = OK.includes(modo) ? modo : 'no'; }
+    else { if (modo === true) modo = 'suave'; if (modo === false) modo = 'no'; if (!OK.includes(modo)) modo = 'no'; try { localStorage.setItem('orion.crt', modo); } catch (e) {} }
+    const H = document.documentElement;
+    let capa = document.getElementById('mx-crt');
+    if (modo !== 'no' && !capa && document.body) { capa = document.createElement('div'); capa.id = 'mx-crt'; document.body.appendChild(capa); }
+    if (modo === 'curva' && document.body) curvaSVG();
+    H.classList.toggle('crt', modo !== 'no'); H.classList.toggle('crt-curva', modo === 'curva');
+    W.CRT = modo; W.dispatchEvent(new CustomEvent('orion:crt', { detail: modo })); return modo;
+  }
   acento(guardado || W.ACC, false);
 
   const PALETA = [['ESCARLATA', '#ff2438'], ['MORADO', '#b14bff'], ['MAGENTA', '#ff3d9a'], ['CIAN', '#3ef0ff'],
@@ -264,8 +296,24 @@
   @keyframes mxin{0%{clip-path:inset(0 100% 0 0);opacity:.2}40%{opacity:1}100%{clip-path:inset(0 0 0 0)}}
   .mx-flick{animation:mxf .4s steps(4) both}
   @keyframes mxf{0%{opacity:0}25%{opacity:1}50%{opacity:.2}75%{opacity:1}100%{opacity:1}}
-  @media (prefers-reduced-motion: reduce){.mx-in,.mx-flick,.mx-glitch{animation:none!important}}`;
+  @media (prefers-reduced-motion: reduce){.mx-in,.mx-flick,.mx-glitch{animation:none!important}}
+  #mx-crt{position:fixed;inset:0;z-index:997;pointer-events:none;border-radius:2.2vmin;
+    background:repeating-linear-gradient(to bottom,rgba(0,0,0,0) 0,rgba(0,0,0,0) 2px,rgba(0,0,0,.28) 3px,rgba(0,0,0,0) 4px),
+      radial-gradient(ellipse at center,rgba(0,0,0,0) 58%,rgba(0,0,0,.55) 100%);
+    box-shadow:inset 0 0 6vmin rgba(0,0,0,.7),inset 0 0 1.4vmin rgba(0,0,0,.9);animation:mxcrt 6s steps(60) infinite}
+  #mx-crt::after{content:'';position:absolute;inset:0;background:linear-gradient(to bottom,rgba(255,255,255,0) 0,rgba(255,255,255,.035) 50%,rgba(255,255,255,0) 100%);
+    background-size:100% 18vh;background-repeat:no-repeat;animation:mxbarre 7s linear infinite}
+  @keyframes mxcrt{0%,100%{opacity:1}48%{opacity:.94}50%{opacity:1}73%{opacity:.97}}
+  @keyframes mxbarre{from{background-position:0 -20vh}to{background-position:0 120vh}}
+  html.crt body{text-shadow:.6px 0 rgba(255,40,80,.35),-.6px 0 rgba(40,220,255,.3),0 0 6px color-mix(in srgb,var(--lime) 35%,transparent)}
+  html.crt-curva body{filter:url(#mx-barril);min-height:100vh}
+  html.crt-curva #mx-crt{border-radius:6vmin/9vmin}
+  html.ligero.crt-curva body{filter:none}
+  html.ligero #mx-crt,html.ligero #mx-crt::after{animation:none}
+  @media (prefers-reduced-motion: reduce){#mx-crt,#mx-crt::after{animation:none}}`;
   const st = document.createElement('style'); st.textContent = css; document.head.appendChild(st);
 
-  W.MX = { liviano, scramble, glitch, glitchAzar, corte: disolver, franjas: corte, disolver, mantener, acento, PALETA, mezcla, pixel, alerta, columna, ICONOS };
+  if (document.body) crt(); else document.addEventListener('DOMContentLoaded', () => crt());
+  try { const q = new URLSearchParams(location.search); if (q.has('crt')) crt(q.get('crt')); } catch (e) {}
+  W.MX = { liviano, crt, scramble, glitch, glitchAzar, corte: disolver, franjas: corte, disolver, mantener, acento, PALETA, mezcla, pixel, alerta, columna, ICONOS };
 })(window);

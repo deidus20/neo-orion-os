@@ -9,3 +9,4 @@ unattended-upgrades             # parches de seguridad automáticos
 pci.ids usb.ids                 # nombres reales de GPU y dispositivos en el escaneo del equipo
 ubuntu-drivers-common fwupd     # controladores: driver NVIDIA recomendado por modelo; firmware/BIOS por LVFS (con permiso)
 wlopm brightnessctl ethtool wakeonlan   # reposo atento (pantalla), brillo, encendido por red
+pulseaudio-utils   # pactl/pacat: micrófono del teléfono
