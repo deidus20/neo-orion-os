@@ -132,12 +132,6 @@ El color de acento es uno solo para todo (`marathon.js` → `MX.acento`), se cam
 - Automatización en segundo plano con Playwright para tareas largas.
 - Chats de IA (claude.ai, chatgpt.com, gemini…) no se manejan por código; se abren a la vista o se usa la extensión oficial Claude in Chrome.
 
-## La biblia de Neo Orión (`docs/biblia/`)
-Documento maestro en PDF horizontal (45 páginas, modo oscuro, escarlata, Silkscreen + JetBrains Mono): qué es, recorrido
-completo con 63 capturas reales del HUD y del instalador, diseño (principios, color, tipografía, píxel, componentes,
-movimiento, composición), la distro, seguridad, pendientes, glosario y anexos (catálogo de IA, herramientas MCP,
-comandos de voz, tokens). Se regenera con `docs/biblia/fuente/construir.py` (HTML) y `pdf.js` (Playwright); las capturas
-con `capturar*.js`. Regla: una sola versión, siempre la más reciente, todo escrito dentro de la biblia.
 
 ## La ISO: cómo se construye (`build.sh` + `stages/`)
 `sudo EDITION=patata ./build.sh` (o full | lite | test). Etapas: **00** revisa espacio · **10** Ubuntu 24.04 mínimo
@@ -236,10 +230,7 @@ sensibilidad (sensible · normal · firme).
   `--capa NOMBRE`, `--quitar`. Se puede repetir para actualizar. Probado en un Ubuntu noble limpio (chroot): HUD 200, MCP OK, `--quitar` OK.
 - **`orion hud`**: abre la interfaz en una ventana dentro del escritorio que ya tenga la persona.
 - **Capa personal genérica**: `CAPA=<nombre>` en el build y `capas/<nombre>/aplicar.sh`; el instalador aplica la que traiga la ISO.
-- **Dos repos**: el privado tiene todo; el público (GPL-3.0) se genera con `herramientas/hacer-publico.py`, que excluye
-  lo personal, limpia menciones, rearma la biblia limpia y se detiene si queda algo privado.
-- La fuente de la biblia (`docs/biblia/fuente`) ya no depende de rutas fijas: `python3 construir.py && node pdf.js`;
-  `SOLO=a,b node capturar.js` recaptura solo esas figuras.
+- **Guía de uso**: `docs/Guia_de_uso_Neo_Orion.pdf`.
 
 ## Efecto CRT, íconos de apps y teléfono como micrófono (4-nov-2026)
 
