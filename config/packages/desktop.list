@@ -1,0 +1,6 @@
+# KDE Plasma (se instala CON recomendados para que quede completo)
+kde-plasma-desktop sddm sddm-theme-breeze plasma-nm plasma-pa bluedevil powerdevil kscreen
+konsole dolphin kate ark okular gwenview kde-spectacle kcalc partitionmanager kinfocenter
+plasma-discover plasma-discover-backend-flatpak flatpak xdg-desktop-portal-kde
+pipewire-audio wireplumber
+fonts-noto fonts-noto-color-emoji fonts-jetbrains-mono fonts-firacode

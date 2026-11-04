@@ -1,0 +1,17 @@
+{
+  "nombre": "Brazo 6 DOF (tipo SO-101)",
+  "_nota": "dh: parámetros Denavit-Hartenberg [a_mm, alpha_deg, d_mm, theta_offset_deg] por articulación. Ajusta tras medir tu brazo.",
+  "articulaciones": [
+    {"id": "A1", "alias": ["base", "cintura", "giro"],         "min": -150, "max": 150, "home": 0,   "vel_max": 180, "dh": [0,   90, 120, 0]},
+    {"id": "A2", "alias": ["hombro", "brazo"],                 "min": -90,  "max": 90,  "home": 0,   "vel_max": 120, "dh": [116, 0,  0,   90]},
+    {"id": "A3", "alias": ["codo", "antebrazo"],               "min": -120, "max": 120, "home": 0,   "vel_max": 150, "dh": [135, 0,  0,   0]},
+    {"id": "A4", "alias": ["muñeca", "muneca", "pitch"],       "min": -100, "max": 100, "home": 0,   "vel_max": 200, "dh": [0,   90, 0,   90]},
+    {"id": "A5", "alias": ["rotación muñeca", "roll", "rotacion"], "min": -170, "max": 170, "home": 0, "vel_max": 250, "dh": [0, 0, 100, 0]},
+    {"id": "A6", "alias": ["pinza", "garra", "gripper", "mano"], "min": 0,   "max": 100, "home": 10,  "vel_max": 300, "dh": null}
+  ],
+  "seguridad": {
+    "altura_minima_mm": 10,
+    "zonas_prohibidas": [{"nombre": "monitor", "x": [250, 400], "y": [-150, 150], "z": [0, 400]}],
+    "distancia_frenado_mm": 150
+  }
+}

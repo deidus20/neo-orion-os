@@ -1,0 +1,9 @@
+# Juegos y medios (WITH_GAMING). Steam necesita i386: lo habilita la etapa de paquetes.
+steam-installer steam-devices
+gamemode mangohud
+lutris retroarch
+kodi
+antimicrox joystick
+flatpak
+# Por flatpak en el primer arranque (ver orion_juegos): GeForce NOW (repo oficial NVIDIA),
+# Heroic, Moonlight, Sunshine, Jellyfin.

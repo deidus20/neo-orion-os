@@ -1,0 +1,50 @@
+#!/usr/bin/env bash
+# Neo Orión · primer arranque. Baja lo que no cabe en el pendrive: motor de IA (Ollama), los modelos
+# elegidos, el oído (voz a texto) y la voz. Si no hay internet, sale con error y systemd reintenta.
+set -uo pipefail
+CFG=/etc/orion/instalacion.json
+USR="$(cat /etc/orion/usuario 2>/dev/null || echo orion)"
+log() { echo "[orion-primer-arranque] $*"; }
+curl -fsI -m 10 https://ollama.com >/dev/null 2>&1 || curl -fsI -m 10 http://archive.ubuntu.com >/dev/null 2>&1 || { log "sin internet, reintento después"; exit 1; }
+fallas=0
+if ! command -v ollama >/dev/null; then
+  log "instalando Ollama"
+  curl -fsSL https://ollama.com/install.sh | sh || fallas=$((fallas+1))
+fi
+if command -v ollama >/dev/null; then
+  systemctl enable --now ollama.service 2>/dev/null || true
+  for _ in $(seq 1 30); do curl -fs http://127.0.0.1:11434/api/tags >/dev/null && break; sleep 1; done
+  for m in $(python3 -c "import json;print(' '.join(json.load(open('$CFG')).get('ia',{}).get('locales',[])))"); do
+    log "bajando IA $m"; ollama pull "$m" || fallas=$((fallas+1))
+  done
+fi
+# controladores de ESTE equipo (gráfica y procesador): los paquetes del plan + el driver NVIDIA recomendado
+if [ -f /etc/orion/controladores.json ]; then
+  PAQ=$(python3 -c "import json;print(' '.join(json.load(open('/etc/orion/controladores.json')).get('plan',{}).get('paquetes',[])))")
+  [ -n "$PAQ" ] && { log "controladores: $PAQ"; DEBIAN_FRONTEND=noninteractive apt-get install -y $PAQ || fallas=$((fallas+1)); }
+  if grep -q '"NVIDIA"' /etc/orion/controladores.json && command -v ubuntu-drivers >/dev/null; then
+    log "controlador NVIDIA recomendado"; ubuntu-drivers install || fallas=$((fallas+1))
+  fi
+fi
+# oído y voz en el entorno de Neo Orión
+OIDO=$(python3 -c "import json;print(json.load(open('$CFG')).get('oido','vosk'))")
+VOZ=$(python3 -c "import json;print(json.load(open('$CFG')).get('voz','espeak-ng'))")
+PIP=/opt/orion/venv/bin/pip
+/opt/orion/venv/bin/python3 -c "import mcp" 2>/dev/null || $PIP install -q mcp || fallas=$((fallas+1))
+case "$OIDO" in faster-whisper) $PIP install -q faster-whisper || fallas=$((fallas+1)) ;; vosk) $PIP install -q vosk || fallas=$((fallas+1)) ;; esac
+case "$VOZ" in piper) $PIP install -q piper-tts || fallas=$((fallas+1)) ;; kokoro) $PIP install -q kokoro || fallas=$((fallas+1)) ;; esac
+# llave de voz: las frases grabadas en el instalador (1 o 3) y cómo se desbloquea (voz, clave, voz o clave, voz y clave)
+H=$(getent passwd "$USR" | cut -d: -f6)
+if [ ! -f "$H/.orion/llave-voz.json" ]; then
+  FRASE=$(python3 -c "import json;print(json.load(open('$CFG')).get('cuenta',{}).get('frase',''))")
+  MODO=$(python3 -c "import json;print(json.load(open('$CFG')).get('cuenta',{}).get('desbloqueo','voz_o_clave'))")
+  sudo -u "$USR" HOME="$H" PYTHONPATH=/opt/orion /opt/orion/venv/bin/python3 -c "
+import glob,sys; from orion_voz.llave import configurar_desde_archivos
+w = sorted(glob.glob('$H/.orion/voz/frase-*.wav')) if sys.argv[1] else []
+print(configurar_desde_archivos(sys.argv[1], w, sys.argv[2]))" "$FRASE" "$MODO" || true
+fi
+# el oído de la cuenta del dueño
+loginctl enable-linger "$USR" 2>/dev/null || true
+sudo -u "$USR" XDG_RUNTIME_DIR="/run/user/$(id -u "$USR")" systemctl --user enable orion-oido.service orion-vigia.service orion-respaldo.timer 2>/dev/null || true
+if [ "$fallas" -eq 0 ]; then mkdir -p /var/lib/orion; date -Is > /var/lib/orion/primer-arranque.hecho; log "listo"; exit 0; fi
+log "$fallas paso(s) fallaron; reintento después"; exit 1

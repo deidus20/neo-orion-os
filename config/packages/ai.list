@@ -1,0 +1,3 @@
+# Visión, audio y GPU
+python3-opencv ffmpeg v4l-utils guvcview portaudio19-dev espeak-ng
+ubuntu-drivers-common nvtop

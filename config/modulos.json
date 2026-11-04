@@ -1,0 +1,15 @@
+{
+  "_nota": "Módulos que la IA puede usar. 'mostrar_marca': false → la interfaz usa 'nombre_visible' y la IA no nombra la marca salvo que la persona lo pida.",
+  "orion-linux": {
+    "tipo": "mcp",
+    "comando": [
+      "python3",
+      "-m",
+      "orion_mcp.server"
+    ],
+    "cwd": "/usr/lib/orion",
+    "nombre_visible": "sistema",
+    "mostrar_marca": true,
+    "siempre": true
+  }
+}

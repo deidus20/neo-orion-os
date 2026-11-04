@@ -1,0 +1,17 @@
+[Unit]
+Description=Neo Orión · primer arranque (bajar las IA, oído y voz elegidos al instalar)
+Wants=network-online.target
+After=network-online.target
+ConditionPathExists=/etc/orion/instalacion.json
+ConditionPathExists=!/var/lib/orion/primer-arranque.hecho
+
+[Service]
+Type=oneshot
+Environment=PYTHONPATH=/opt/orion
+ExecStart=/usr/local/bin/orion-primer-arranque
+# sin internet todavía: reintenta cada 10 min hasta que lo logre
+Restart=on-failure
+RestartSec=600
+
+[Install]
+WantedBy=multi-user.target

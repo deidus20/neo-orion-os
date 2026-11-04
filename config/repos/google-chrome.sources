@@ -1,0 +1,8 @@
+# Repositorio oficial de Google Chrome (lo usa la etapa de paquetes; la llave se baja de
+# https://dl.google.com/linux/linux_signing_key.pub y se guarda en /usr/share/keyrings/google-chrome.gpg)
+Types: deb
+URIs: https://dl.google.com/linux/chrome/deb/
+Suites: stable
+Components: main
+Architectures: amd64
+Signed-By: /usr/share/keyrings/google-chrome.gpg

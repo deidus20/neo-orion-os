@@ -1,0 +1,9 @@
+# Microcontroladores (ESP32, Arduino, STM32, AVR)
+esptool picocom minicom cutecom screen dfu-util avrdude
+stlink-tools openocd gcc-arm-none-eabi binutils-arm-none-eabi libnewlib-arm-none-eabi
+# Buses y analizadores
+can-utils i2c-tools sigrok-cli pulseview
+# Diseño: PCB, CAD mecánico, CAD paramétrico, 3D/animación
+kicad freecad openscad blender
+# Impresión 3D
+prusa-slicer

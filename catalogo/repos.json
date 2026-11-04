@@ -1,0 +1,1889 @@
+{
+ "Oído: voz a texto local": [
+  {
+   "repo": "ggml-org/whisper.cpp",
+   "estrellas": 54881,
+   "licencia": "mit",
+   "comercial": "sí",
+   "ultimo_cambio_dias": 0,
+   "lenguaje": "C++",
+   "que_es": "Port of OpenAI's Whisper model in C/C++",
+   "url": "https://github.com/ggml-org/whisper.cpp",
+   "puntaje": 100,
+   "referente": true
+  },
+  {
+   "repo": "SYSTRAN/faster-whisper",
+   "estrellas": 26441,
+   "licencia": "mit",
+   "comercial": "sí",
+   "ultimo_cambio_dias": 1,
+   "lenguaje": "Python",
+   "que_es": "Faster Whisper transcription with CTranslate2",
+   "url": "https://github.com/SYSTRAN/faster-whisper",
+   "puntaje": 100,
+   "referente": true
+  },
+  {
+   "repo": "k2-fsa/sherpa-onnx",
+   "estrellas": 15705,
+   "licencia": "apache-2.0",
+   "comercial": "sí",
+   "ultimo_cambio_dias": 0,
+   "lenguaje": "C++",
+   "que_es": "Speech-to-text, text-to-speech, speaker diarization, speech enhancement, source separation, and VAD using next-gen Kaldi with onnxruntime without Internet conne",
+   "url": "https://github.com/k2-fsa/sherpa-onnx",
+   "puntaje": 100,
+   "referente": true
+  },
+  {
+   "repo": "alphacep/vosk-api",
+   "estrellas": 15224,
+   "licencia": "apache-2.0",
+   "comercial": "sí",
+   "ultimo_cambio_dias": 19,
+   "lenguaje": "Jupyter Notebook",
+   "que_es": "Offline speech recognition API for Android, iOS, Raspberry Pi and servers with Python, Java, C# and Node",
+   "url": "https://github.com/alphacep/vosk-api",
+   "puntaje": 100,
+   "referente": true
+  },
+  {
+   "repo": "moonshine-ai/moonshine",
+   "estrellas": 11393,
+   "licencia": "other",
+   "comercial": "revisar",
+   "ultimo_cambio_dias": 0,
+   "lenguaje": "C++",
+   "que_es": "Very low latency speech to text, intent recognition, and text to speech, for building voice agents and interfaces",
+   "url": "https://github.com/moonshine-ai/moonshine",
+   "puntaje": 100,
+   "referente": true
+  }
+ ],
+ "Voz: texto a voz local": [
+  {
+   "repo": "coqui-ai/TTS",
+   "estrellas": 46180,
+   "licencia": "mpl-2.0",
+   "comercial": "sí",
+   "ultimo_cambio_dias": 809,
+   "lenguaje": "Python",
+   "que_es": "🐸💬 - a deep learning toolkit for Text-to-Speech, battle-tested in research and production",
+   "url": "https://github.com/coqui-ai/TTS",
+   "puntaje": 100,
+   "referente": true
+  },
+  {
+   "repo": "hexgrad/kokoro",
+   "estrellas": 9889,
+   "licencia": "apache-2.0",
+   "comercial": "sí",
+   "ultimo_cambio_dias": 453,
+   "lenguaje": "JavaScript",
+   "que_es": "https://hf.co/hexgrad/Kokoro-82M",
+   "url": "https://github.com/hexgrad/kokoro",
+   "puntaje": 100,
+   "referente": true
+  },
+  {
+   "repo": "espeak-ng/espeak-ng",
+   "estrellas": 6992,
+   "licencia": "gpl-3.0",
+   "comercial": "sí, compartiendo el código",
+   "ultimo_cambio_dias": 0,
+   "lenguaje": "C",
+   "que_es": "eSpeak NG is an open source speech synthesizer that supports more than hundred languages and accents.",
+   "url": "https://github.com/espeak-ng/espeak-ng",
+   "puntaje": 100,
+   "referente": true
+  },
+  {
+   "repo": "OHF-Voice/piper1-gpl",
+   "estrellas": 6146,
+   "licencia": "gpl-3.0",
+   "comercial": "sí, compartiendo el código",
+   "ultimo_cambio_dias": 0,
+   "lenguaje": "C++",
+   "que_es": "Fast and local neural text-to-speech engine",
+   "url": "https://github.com/OHF-Voice/piper1-gpl",
+   "puntaje": 100,
+   "referente": true
+  }
+ ],
+ "Clonación de voz (la tuya)": [],
+ "Detección de voz (VAD)": [
+  {
+   "repo": "snakers4/silero-vad",
+   "estrellas": 10587,
+   "licencia": "mit",
+   "comercial": "sí",
+   "ultimo_cambio_dias": 12,
+   "lenguaje": "Python",
+   "que_es": "Silero VAD: pre-trained enterprise-grade Voice Activity Detector",
+   "url": "https://github.com/snakers4/silero-vad",
+   "puntaje": 100,
+   "referente": true
+  },
+  {
+   "repo": "wiseman/py-webrtcvad",
+   "estrellas": 2503,
+   "licencia": "other",
+   "comercial": "revisar",
+   "ultimo_cambio_dias": 852,
+   "lenguaje": "C",
+   "que_es": "Python interface to the WebRTC Voice Activity Detector ",
+   "url": "https://github.com/wiseman/py-webrtcvad",
+   "puntaje": 100,
+   "referente": true
+  },
+  {
+   "repo": "KoljaB/RealtimeSTT",
+   "estrellas": 10228,
+   "licencia": "mit",
+   "comercial": "sí",
+   "ultimo_cambio_dias": 3,
+   "lenguaje": "Python",
+   "que_es": "A robust, efficient, low-latency speech-to-text library with advanced voice activity detection, wake word activation and instant transcription.",
+   "url": "https://github.com/KoljaB/RealtimeSTT",
+   "puntaje": 43.1
+  },
+  {
+   "repo": "FluidInference/FluidAudio",
+   "estrellas": 3255,
+   "licencia": "apache-2.0",
+   "comercial": "sí",
+   "ultimo_cambio_dias": 0,
+   "lenguaje": "Swift",
+   "que_es": "Frontier CoreML audio models in your apps — text-to-speech, speech-to-text, voice activity detection, and speaker diarization. In Swift, powered by SOTA open so",
+   "url": "https://github.com/FluidInference/FluidAudio",
+   "puntaje": 38.1
+  },
+  {
+   "repo": "amsehili/auditok",
+   "estrellas": 862,
+   "licencia": "mit",
+   "comercial": "sí",
+   "ultimo_cambio_dias": 97,
+   "lenguaje": "Python",
+   "que_es": "An voice activity detection and audio segmentation tool",
+   "url": "https://github.com/amsehili/auditok",
+   "puntaje": 31.0
+  },
+  {
+   "repo": "k2-fsa/sherpa-ncnn",
+   "estrellas": 1798,
+   "licencia": "apache-2.0",
+   "comercial": "sí",
+   "ultimo_cambio_dias": 379,
+   "lenguaje": "C++",
+   "que_es": "Real-time speech recognition and voice activity detection (VAD) using next-gen Kaldi with ncnn without Internet connection. Support iOS, Android, Linux, macOS, ",
+   "url": "https://github.com/k2-fsa/sherpa-ncnn",
+   "puntaje": 30.3
+  },
+  {
+   "repo": "FireRedTeam/FireRedVAD",
+   "estrellas": 557,
+   "licencia": "apache-2.0",
+   "comercial": "sí",
+   "ultimo_cambio_dias": 181,
+   "lenguaje": "Python",
+   "que_es": "A SOTA Industrial-Grade Voice Activity Detection & Audio Event Detection, supporting 100+ languages, outperforming Silero-VAD, TEN-VAD, FunASR-VAD and WebRTC-VA",
+   "url": "https://github.com/FireRedTeam/FireRedVAD",
+   "puntaje": 28.0
+  },
+  {
+   "repo": "filippogiruzzi/voice_activity_detection",
+   "estrellas": 372,
+   "licencia": "gpl-3.0",
+   "comercial": "sí, compartiendo el código",
+   "ultimo_cambio_dias": 103,
+   "lenguaje": "Python",
+   "que_es": "Voice Activity Detection based on Deep Learning & TensorFlow",
+   "url": "https://github.com/filippogiruzzi/voice_activity_detection",
+   "puntaje": 24.3
+  }
+ ],
+ "Quién habla (diarización / huella de voz)": [
+  {
+   "repo": "speechbrain/speechbrain",
+   "estrellas": 11919,
+   "licencia": "apache-2.0",
+   "comercial": "sí",
+   "ultimo_cambio_dias": 19,
+   "lenguaje": "Python",
+   "que_es": "A PyTorch-based Speech Toolkit",
+   "url": "https://github.com/speechbrain/speechbrain",
+   "puntaje": 100,
+   "referente": true
+  },
+  {
+   "repo": "resemble-ai/Resemblyzer",
+   "estrellas": 3309,
+   "licencia": "apache-2.0",
+   "comercial": "sí",
+   "ultimo_cambio_dias": 1118,
+   "lenguaje": "Python",
+   "que_es": "A python package to analyze and compare voices with deep learning",
+   "url": "https://github.com/resemble-ai/Resemblyzer",
+   "puntaje": 100,
+   "referente": true
+  },
+  {
+   "repo": "Zackriya-Solutions/meetily",
+   "estrellas": 32405,
+   "licencia": "mit",
+   "comercial": "sí",
+   "ultimo_cambio_dias": 0,
+   "lenguaje": "Rust",
+   "que_es": "Privacy-first AI meeting note taker for Windows and macOS. Free, open source (MIT). On-device Whisper/Parakeet transcription and speaker diarization, no meeting",
+   "url": "https://github.com/Zackriya-Solutions/meetily",
+   "puntaje": 48.1
+  },
+  {
+   "repo": "modelscope/FunASR",
+   "estrellas": 20922,
+   "licencia": "mit",
+   "comercial": "sí",
+   "ultimo_cambio_dias": 0,
+   "lenguaje": "Python",
+   "que_es": "Open-source speech recognition toolkit for training, inference, streaming ASR, VAD, punctuation, speaker diarization pipelines, and OpenAI-compatible/MCP servin",
+   "url": "https://github.com/modelscope/FunASR",
+   "puntaje": 46.2
+  },
+  {
+   "repo": "k2-fsa/sherpa-onnx",
+   "estrellas": 15705,
+   "licencia": "apache-2.0",
+   "comercial": "sí",
+   "ultimo_cambio_dias": 0,
+   "lenguaje": "C++",
+   "que_es": "Speech-to-text, text-to-speech, speaker diarization, speech enhancement, source separation, and VAD using next-gen Kaldi with onnxruntime without Internet conne",
+   "url": "https://github.com/k2-fsa/sherpa-onnx",
+   "puntaje": 45.0
+  },
+  {
+   "repo": "QuentinFuxa/WhisperLiveKit",
+   "estrellas": 11206,
+   "licencia": "apache-2.0",
+   "comercial": "sí",
+   "ultimo_cambio_dias": 2,
+   "lenguaje": "Python",
+   "que_es": "Real-time, local speech-to-text with streaming ASR, speaker diarization, translation, and OpenAI/Deepgram-compatible APIs.",
+   "url": "https://github.com/QuentinFuxa/WhisperLiveKit",
+   "puntaje": 43.5
+  },
+  {
+   "repo": "pyannote/pyannote-audio",
+   "estrellas": 10755,
+   "licencia": "mit",
+   "comercial": "sí",
+   "ultimo_cambio_dias": 0,
+   "lenguaje": "Jupyter Notebook",
+   "que_es": "Neural building blocks for speaker diarization: speech activity detection, speaker change detection, overlapped speech detection, speaker embedding ",
+   "url": "https://github.com/pyannote/pyannote-audio",
+   "puntaje": 43.3
+  },
+  {
+   "repo": "MahmoudAshraf97/whisper-diarization",
+   "estrellas": 5673,
+   "licencia": "bsd-2-clause",
+   "comercial": "sí",
+   "ultimo_cambio_dias": 80,
+   "lenguaje": "Jupyter Notebook",
+   "que_es": "Automatic Speech Recognition with Speaker Diarization based on OpenAI Whisper",
+   "url": "https://github.com/MahmoudAshraf97/whisper-diarization",
+   "puntaje": 39.4
+  }
+ ],
+ "Memoria tipo Obsidian / notas Markdown": [
+  {
+   "repo": "laurent22/joplin",
+   "estrellas": 57007,
+   "licencia": "other",
+   "comercial": "revisar",
+   "ultimo_cambio_dias": 0,
+   "lenguaje": "TypeScript",
+   "que_es": "Joplin - the privacy-focused note taking app with sync capabilities for Windows, macOS, Linux, Android and iOS.",
+   "url": "https://github.com/laurent22/joplin",
+   "puntaje": 100,
+   "referente": true
+  },
+  {
+   "repo": "siyuan-note/siyuan",
+   "estrellas": 47053,
+   "licencia": "agpl-3.0",
+   "comercial": "sí, compartiendo el código",
+   "ultimo_cambio_dias": 0,
+   "lenguaje": "TypeScript",
+   "que_es": "An open-source, privacy-first, self-hosted knowledge workspace where humans and AI agents work together 开源、隐私优先、自托管的知识工作空间，让人与智能体在此协作",
+   "url": "https://github.com/siyuan-note/siyuan",
+   "puntaje": 100,
+   "referente": true
+  },
+  {
+   "repo": "logseq/logseq",
+   "estrellas": 45464,
+   "licencia": "agpl-3.0",
+   "comercial": "sí, compartiendo el código",
+   "ultimo_cambio_dias": 0,
+   "lenguaje": "Clojure",
+   "que_es": "A privacy-first, open-source platform for knowledge management and collaboration. Download link:  http://github.com/logseq/logseq/releases. roadmap: https://log",
+   "url": "https://github.com/logseq/logseq",
+   "puntaje": 100,
+   "referente": true
+  },
+  {
+   "repo": "TriliumNext/Trilium",
+   "estrellas": 38683,
+   "licencia": "agpl-3.0",
+   "comercial": "sí, compartiendo el código",
+   "ultimo_cambio_dias": 0,
+   "lenguaje": "TypeScript",
+   "que_es": "Build your personal knowledge base with Trilium Notes",
+   "url": "https://github.com/TriliumNext/Trilium",
+   "puntaje": 100,
+   "referente": true
+  },
+  {
+   "repo": "silverbulletmd/silverbullet",
+   "estrellas": 6451,
+   "licencia": "mit",
+   "comercial": "sí",
+   "ultimo_cambio_dias": 0,
+   "lenguaje": "TypeScript",
+   "que_es": "The malleable knowledge base for you and your team. Powered by Markdown and Lua.",
+   "url": "https://github.com/silverbulletmd/silverbullet",
+   "puntaje": 100,
+   "referente": true
+  },
+  {
+   "repo": "Zettlr/Zettlr",
+   "estrellas": 13858,
+   "licencia": "gpl-3.0",
+   "comercial": "sí, compartiendo el código",
+   "ultimo_cambio_dias": 0,
+   "lenguaje": "TypeScript",
+   "que_es": "Your One-Stop Publication Workbench",
+   "url": "https://github.com/Zettlr/Zettlr",
+   "puntaje": 100,
+   "referente": true
+  }
+ ],
+ "Memoria para IA (RAG / grafos)": [
+  {
+   "repo": "mem0ai/mem0",
+   "estrellas": 68329,
+   "licencia": "apache-2.0",
+   "comercial": "sí",
+   "ultimo_cambio_dias": 3,
+   "lenguaje": "Python",
+   "que_es": "The Memory Layer for AI Agents - Drop-in memory infrastructure for AI agents and apps. Context that persists. Built for production.",
+   "url": "https://github.com/mem0ai/mem0",
+   "puntaje": 100,
+   "referente": true
+  },
+  {
+   "repo": "qdrant/qdrant",
+   "estrellas": 35408,
+   "licencia": "apache-2.0",
+   "comercial": "sí",
+   "ultimo_cambio_dias": 0,
+   "lenguaje": "Rust",
+   "que_es": "Qdrant - High-performance, massive-scale Vector Database and Vector Search Engine for the next generation of AI. Also available in the cloud https://cloud.qdran",
+   "url": "https://github.com/qdrant/qdrant",
+   "puntaje": 100,
+   "referente": true
+  },
+  {
+   "repo": "letta-ai/letta",
+   "estrellas": 25331,
+   "licencia": "apache-2.0",
+   "comercial": "sí",
+   "ultimo_cambio_dias": 15,
+   "lenguaje": null,
+   "que_es": "Platform for stateful agents: AI with advanced memory that can learn and self-improve over time.",
+   "url": "https://github.com/letta-ai/letta",
+   "puntaje": 100,
+   "referente": true
+  },
+  {
+   "repo": "lancedb/lancedb",
+   "estrellas": 11838,
+   "licencia": "apache-2.0",
+   "comercial": "sí",
+   "ultimo_cambio_dias": 0,
+   "lenguaje": "Rust",
+   "que_es": "Developer-friendly OSS embedded retrieval library for multimodal AI. Search More; Manage Less.",
+   "url": "https://github.com/lancedb/lancedb",
+   "puntaje": 100,
+   "referente": true
+  },
+  {
+   "repo": "asg017/sqlite-vec",
+   "estrellas": 8236,
+   "licencia": "apache-2.0",
+   "comercial": "sí",
+   "ultimo_cambio_dias": 169,
+   "lenguaje": "C",
+   "que_es": "A vector search SQLite extension that runs anywhere!",
+   "url": "https://github.com/asg017/sqlite-vec",
+   "puntaje": 100,
+   "referente": true
+  },
+  {
+   "repo": "Wrste/pheromone-network",
+   "estrellas": 94,
+   "licencia": "mit",
+   "comercial": "sí",
+   "ultimo_cambio_dias": 30,
+   "lenguaje": "TypeScript",
+   "que_es": "A zero-dependency TypeScript memory kernel that gives any agent long-term memory. No training or backpropagation: each output reads a few tag-compatible neighbo",
+   "url": "https://github.com/Wrste/pheromone-network",
+   "puntaje": 22.4
+  },
+  {
+   "repo": "jakops88-hub/Long-Term-Memory-API",
+   "estrellas": 73,
+   "licencia": "sin-licencia",
+   "comercial": "revisar",
+   "ultimo_cambio_dias": 321,
+   "lenguaje": "TypeScript",
+   "que_es": "Production-grade API to give your AI agents long-term memory without the boilerplate.",
+   "url": "https://github.com/jakops88-hub/Long-Term-Memory-API",
+   "puntaje": 6.2
+  }
+ ],
+ "IA local (motores de modelos)": [
+  {
+   "repo": "ollama/ollama",
+   "estrellas": 185781,
+   "licencia": "mit",
+   "comercial": "sí",
+   "ultimo_cambio_dias": 0,
+   "lenguaje": "Go",
+   "que_es": "Get up and running with Kimi, GLM, MiniMax, DeepSeek, gpt-oss, Qwen, Gemma and other models.",
+   "url": "https://github.com/ollama/ollama",
+   "puntaje": 100,
+   "referente": true
+  },
+  {
+   "repo": "ggml-org/llama.cpp",
+   "estrellas": 133256,
+   "licencia": "mit",
+   "comercial": "sí",
+   "ultimo_cambio_dias": 0,
+   "lenguaje": "C++",
+   "que_es": "LLM inference in C/C++",
+   "url": "https://github.com/ggml-org/llama.cpp",
+   "puntaje": 100,
+   "referente": true
+  },
+  {
+   "repo": "vllm-project/vllm",
+   "estrellas": 96220,
+   "licencia": "apache-2.0",
+   "comercial": "sí",
+   "ultimo_cambio_dias": 0,
+   "lenguaje": "Python",
+   "que_es": "A high-throughput and memory-efficient inference and serving engine for LLMs",
+   "url": "https://github.com/vllm-project/vllm",
+   "puntaje": 100,
+   "referente": true
+  },
+  {
+   "repo": "rafska/awesome-local-llm",
+   "estrellas": 3026,
+   "licencia": "mit",
+   "comercial": "sí",
+   "ultimo_cambio_dias": 0,
+   "lenguaje": "",
+   "que_es": "A curated list of awesome platforms, tools, practices and resources that helps run LLMs locally",
+   "url": "https://github.com/rafska/awesome-local-llm",
+   "puntaje": 37.8
+  },
+  {
+   "repo": "nobodywho-ooo/nobodywho",
+   "estrellas": 1664,
+   "licencia": "eupl-1.2",
+   "comercial": "revisar",
+   "ultimo_cambio_dias": 0,
+   "lenguaje": "Rust",
+   "que_es": "NobodyWho is an inference engine that lets you run LLMs locally and efficiently on any device.  ",
+   "url": "https://github.com/nobodywho-ooo/nobodywho",
+   "puntaje": 32.2
+  },
+  {
+   "repo": "rileycleavenger/Silicon-Studio",
+   "estrellas": 299,
+   "licencia": "mit",
+   "comercial": "sí",
+   "ultimo_cambio_dias": 296,
+   "lenguaje": "TypeScript",
+   "que_es": "Fine-tune and run LLMs locally on your M-series Mac. A powerful desktop interface built on Apple's MLX framework for zero-setup AI.",
+   "url": "https://github.com/rileycleavenger/Silicon-Studio",
+   "puntaje": 23.7
+  },
+  {
+   "repo": "phronmophobic/llama.clj",
+   "estrellas": 178,
+   "licencia": "mit",
+   "comercial": "sí",
+   "ultimo_cambio_dias": 196,
+   "lenguaje": "Clojure",
+   "que_es": "Run LLMs locally. A clojure wrapper for llama.cpp.",
+   "url": "https://github.com/phronmophobic/llama.clj",
+   "puntaje": 22.8
+  },
+  {
+   "repo": "adammikulis/local-agents",
+   "estrellas": 77,
+   "licencia": "mit",
+   "comercial": "sí",
+   "ultimo_cambio_dias": 11,
+   "lenguaje": "GDScript",
+   "que_es": "Local Agents is an add-on for Godot 4.5 to run LLMs locally in games",
+   "url": "https://github.com/adammikulis/local-agents",
+   "puntaje": 21.8
+  },
+  {
+   "repo": "di37/running-llms-locally",
+   "estrellas": 100,
+   "licencia": "mit",
+   "comercial": "sí",
+   "ultimo_cambio_dias": 134,
+   "lenguaje": "Markdown",
+   "que_es": "A comprehensive guide for running Large Language Models on your local hardware using popular frameworks like llama.cpp, Ollama, HuggingFace Transformers, vLLM, ",
+   "url": "https://github.com/di37/running-llms-locally",
+   "puntaje": 21.2
+  }
+ ],
+ "Elegir IA según hardware": [
+  {
+   "repo": "AlexsJones/llmfit",
+   "estrellas": 38602,
+   "licencia": "mit",
+   "comercial": "sí",
+   "ultimo_cambio_dias": 0,
+   "lenguaje": "Rust",
+   "que_es": "Hundreds of models & providers. One command to find what runs on your hardware.",
+   "url": "https://github.com/AlexsJones/llmfit",
+   "puntaje": 100,
+   "referente": true
+  }
+ ],
+ "IA que controla el PC (MCP / agentes)": [
+  {
+   "repo": "modelcontextprotocol/servers",
+   "estrellas": 91768,
+   "licencia": "other",
+   "comercial": "revisar",
+   "ultimo_cambio_dias": 5,
+   "lenguaje": "TypeScript",
+   "que_es": "Model Context Protocol Servers",
+   "url": "https://github.com/modelcontextprotocol/servers",
+   "puntaje": 100,
+   "referente": true
+  },
+  {
+   "repo": "modelcontextprotocol/python-sdk",
+   "estrellas": 24746,
+   "licencia": "mit",
+   "comercial": "sí",
+   "ultimo_cambio_dias": 0,
+   "lenguaje": "Python",
+   "que_es": "The official Python SDK for Model Context Protocol servers and clients",
+   "url": "https://github.com/modelcontextprotocol/python-sdk",
+   "puntaje": 100,
+   "referente": true
+  }
+ ],
+ "Asistente de voz completo": [],
+ "CAD por código": [
+  {
+   "repo": "FreeCAD/FreeCAD",
+   "estrellas": 35089,
+   "licencia": "lgpl-2.1",
+   "comercial": "sí, compartiendo el código",
+   "ultimo_cambio_dias": 0,
+   "lenguaje": "C++",
+   "que_es": "Official source code of FreeCAD, a free and opensource multiplatform 3D parametric modeler.",
+   "url": "https://github.com/FreeCAD/FreeCAD",
+   "puntaje": 100,
+   "referente": true
+  },
+  {
+   "repo": "openscad/openscad",
+   "estrellas": 10580,
+   "licencia": "other",
+   "comercial": "revisar",
+   "ultimo_cambio_dias": 1,
+   "lenguaje": "C++",
+   "que_es": "OpenSCAD - The Programmers Solid 3D CAD Modeller  ",
+   "url": "https://github.com/openscad/openscad",
+   "puntaje": 100,
+   "referente": true
+  },
+  {
+   "repo": "CadQuery/cadquery",
+   "estrellas": 6051,
+   "licencia": "other",
+   "comercial": "revisar",
+   "ultimo_cambio_dias": 9,
+   "lenguaje": "Python",
+   "que_es": "A python parametric CAD scripting framework based on OCCT",
+   "url": "https://github.com/CadQuery/cadquery",
+   "puntaje": 100,
+   "referente": true
+  },
+  {
+   "repo": "gumyr/build123d",
+   "estrellas": 3607,
+   "licencia": "apache-2.0",
+   "comercial": "sí",
+   "ultimo_cambio_dias": 0,
+   "lenguaje": "Python",
+   "que_es": "A python CAD programming library",
+   "url": "https://github.com/gumyr/build123d",
+   "puntaje": 100,
+   "referente": true
+  }
+ ],
+ "Foto a 3D": [
+  {
+   "repo": "Tencent-Hunyuan/Hunyuan3D-2",
+   "estrellas": 15313,
+   "licencia": "other",
+   "comercial": "revisar",
+   "ultimo_cambio_dias": 371,
+   "lenguaje": "Python",
+   "que_es": "High-Resolution 3D Assets Generation with Large Scale Hunyuan3D Diffusion Models.",
+   "url": "https://github.com/Tencent-Hunyuan/Hunyuan3D-2",
+   "puntaje": 100,
+   "referente": true
+  },
+  {
+   "repo": "microsoft/TRELLIS",
+   "estrellas": 14186,
+   "licencia": "mit",
+   "comercial": "sí",
+   "ultimo_cambio_dias": 7,
+   "lenguaje": "Python",
+   "que_es": "Official repo for paper \"Structured 3D Latents for Scalable and Versatile 3D Generation\" (CVPR'25 Spotlight).",
+   "url": "https://github.com/microsoft/TRELLIS",
+   "puntaje": 100,
+   "referente": true
+  },
+  {
+   "repo": "microsoft/TRELLIS.2",
+   "estrellas": 12640,
+   "licencia": "mit",
+   "comercial": "sí",
+   "ultimo_cambio_dias": 116,
+   "lenguaje": "Python",
+   "que_es": "Native and Compact Structured Latents for 3D Generation",
+   "url": "https://github.com/microsoft/TRELLIS.2",
+   "puntaje": 100,
+   "referente": true
+  },
+  {
+   "repo": "VAST-AI-Research/TripoSR",
+   "estrellas": 7283,
+   "licencia": "mit",
+   "comercial": "sí",
+   "ultimo_cambio_dias": 152,
+   "lenguaje": "Python",
+   "que_es": "TripoSR: Fast 3D Object Reconstruction from a Single Image",
+   "url": "https://github.com/VAST-AI-Research/TripoSR",
+   "puntaje": 100,
+   "referente": true
+  },
+  {
+   "repo": "Stability-AI/stable-fast-3d",
+   "estrellas": 1921,
+   "licencia": "other",
+   "comercial": "revisar",
+   "ultimo_cambio_dias": 649,
+   "lenguaje": "Python",
+   "que_es": "SF3D: Stable Fast 3D Mesh Reconstruction with UV-unwrapping and Illumination Disentanglement",
+   "url": "https://github.com/Stability-AI/stable-fast-3d",
+   "puntaje": 100,
+   "referente": true
+  },
+  {
+   "repo": "img2threejs/img2threejs",
+   "estrellas": 20172,
+   "licencia": "apache-2.0",
+   "comercial": "sí",
+   "ultimo_cambio_dias": 6,
+   "lenguaje": "Python",
+   "que_es": "Rebuild the object in a reference image as a code-only, procedural, quality-gated, animation-ready Three.js model. Token-efficient image-to-3D.",
+   "url": "https://github.com/img2threejs/img2threejs",
+   "puntaje": 46.0
+  },
+  {
+   "repo": "Tencent-Hunyuan/Hunyuan3D-1",
+   "estrellas": 3504,
+   "licencia": "other",
+   "comercial": "revisar",
+   "ultimo_cambio_dias": 1,
+   "lenguaje": "Python",
+   "que_es": "Tencent Hunyuan3D-1.0: A Unified Framework for Text-to-3D and Image-to-3D Generation",
+   "url": "https://github.com/Tencent-Hunyuan/Hunyuan3D-1",
+   "puntaje": 35.4
+  },
+  {
+   "repo": "Bingeljell/image-to-3dlab",
+   "estrellas": 1074,
+   "licencia": "apache-2.0",
+   "comercial": "sí",
+   "ultimo_cambio_dias": 0,
+   "lenguaje": "Python",
+   "que_es": "AssetFurnace: the most complete open-source image-to-3D pipeline (Oct 2026). Prompt or picture → textured, rigged, animated game character, locally on Apple Sil",
+   "url": "https://github.com/Bingeljell/image-to-3dlab",
+   "puntaje": 33.3
+  },
+  {
+   "repo": "ashawkey/stable-dreamfusion",
+   "estrellas": 8874,
+   "licencia": "apache-2.0",
+   "comercial": "sí",
+   "ultimo_cambio_dias": 1058,
+   "lenguaje": "Python",
+   "que_es": "Text-to-3D & Image-to-3D & Mesh Exportation with NeRF + Diffusion.",
+   "url": "https://github.com/ashawkey/stable-dreamfusion",
+   "puntaje": 32.5
+  },
+  {
+   "repo": "xxlong0/Wonder3D",
+   "estrellas": 5451,
+   "licencia": "mit",
+   "comercial": "sí",
+   "ultimo_cambio_dias": 599,
+   "lenguaje": "Python",
+   "que_es": "Single Image to 3D using Cross-Domain Diffusion for 3D Generation",
+   "url": "https://github.com/xxlong0/Wonder3D",
+   "puntaje": 32.0
+  },
+  {
+   "repo": "BrokenSource/DepthFlow",
+   "estrellas": 1577,
+   "licencia": "agpl-3.0",
+   "comercial": "sí, compartiendo el código",
+   "ultimo_cambio_dias": 6,
+   "lenguaje": "Python",
+   "que_es": "🌊 Images to 3D parallax videos",
+   "url": "https://github.com/BrokenSource/DepthFlow",
+   "puntaje": 31.9
+  }
+ ],
+ "Escaneo 3D (fotogrametría / splatting)": [
+  {
+   "repo": "colmap/colmap",
+   "estrellas": 13140,
+   "licencia": "other",
+   "comercial": "revisar",
+   "ultimo_cambio_dias": 0,
+   "lenguaje": "C++",
+   "que_es": "COLMAP - Structure-from-Motion and Multi-View Stereo",
+   "url": "https://github.com/colmap/colmap",
+   "puntaje": 100,
+   "referente": true
+  },
+  {
+   "repo": "cdcseacave/openMVS",
+   "estrellas": 4186,
+   "licencia": "agpl-3.0",
+   "comercial": "sí, compartiendo el código",
+   "ultimo_cambio_dias": 0,
+   "lenguaje": "C++",
+   "que_es": "open Structure-fom-Motion and Multi-View Stereo reconstruction library",
+   "url": "https://github.com/cdcseacave/openMVS",
+   "puntaje": 100,
+   "referente": true
+  },
+  {
+   "repo": "bilawalsidhu/gods-eye-view",
+   "estrellas": 62444,
+   "licencia": "other",
+   "comercial": "revisar",
+   "ultimo_cambio_dias": 0,
+   "lenguaje": "JavaScript",
+   "que_es": "A spy satellite simulator in your browser, except the data is real. Live open source spatial intelligence on a photorealistic 3D globe.",
+   "url": "https://github.com/bilawalsidhu/gods-eye-view",
+   "puntaje": 48.0
+  },
+  {
+   "repo": "playcanvas/supersplat",
+   "estrellas": 10577,
+   "licencia": "mit",
+   "comercial": "sí",
+   "ultimo_cambio_dias": 2,
+   "lenguaje": "TypeScript",
+   "que_es": "3D Gaussian Splat Editor",
+   "url": "https://github.com/playcanvas/supersplat",
+   "puntaje": 43.2
+  },
+  {
+   "repo": "MrNeRF/awesome-3D-gaussian-splatting",
+   "estrellas": 8984,
+   "licencia": "mit",
+   "comercial": "sí",
+   "ultimo_cambio_dias": 30,
+   "lenguaje": "Python",
+   "que_es": "Curated list of papers and resources focused on 3D Gaussian Splatting, intended to keep pace with the anticipated surge of research in the coming months.",
+   "url": "https://github.com/MrNeRF/awesome-3D-gaussian-splatting",
+   "puntaje": 42.1
+  },
+  {
+   "repo": "alicevision/Meshroom",
+   "estrellas": 13060,
+   "licencia": "other",
+   "comercial": "revisar",
+   "ultimo_cambio_dias": 0,
+   "lenguaje": "Python",
+   "que_es": "Node-based Visual Programming Toolbox",
+   "url": "https://github.com/alicevision/Meshroom",
+   "puntaje": 41.2
+  },
+  {
+   "repo": "openMVG/openMVG",
+   "estrellas": 6585,
+   "licencia": "mpl-2.0",
+   "comercial": "sí",
+   "ultimo_cambio_dias": 64,
+   "lenguaje": "C++",
+   "que_es": "open Multiple View Geometry library. Basis for 3D computer vision and Structure from Motion.",
+   "url": "https://github.com/openMVG/openMVG",
+   "puntaje": 40.3
+  },
+  {
+   "repo": "nerfstudio-project/gsplat",
+   "estrellas": 5859,
+   "licencia": "apache-2.0",
+   "comercial": "sí",
+   "ultimo_cambio_dias": 45,
+   "lenguaje": "Python",
+   "que_es": "CUDA accelerated rasterization of gaussian splatting",
+   "url": "https://github.com/nerfstudio-project/gsplat",
+   "puntaje": 40.1
+  },
+  {
+   "repo": "sparkjsdev/spark",
+   "estrellas": 3867,
+   "licencia": "mit",
+   "comercial": "sí",
+   "ultimo_cambio_dias": 14,
+   "lenguaje": "TypeScript",
+   "que_es": ":sparkles:  An advanced 3D Gaussian Splatting renderer for THREE.js",
+   "url": "https://github.com/sparkjsdev/spark",
+   "puntaje": 38.7
+  },
+  {
+   "repo": "graphdeco-inria/gaussian-splatting",
+   "estrellas": 24406,
+   "licencia": "other",
+   "comercial": "revisar",
+   "ultimo_cambio_dias": 381,
+   "lenguaje": "Python",
+   "que_es": "Original reference implementation of \"3D Gaussian Splatting for Real-Time Radiance Field Rendering\"",
+   "url": "https://github.com/graphdeco-inria/gaussian-splatting",
+   "puntaje": 38.6
+  },
+  {
+   "repo": "aras-p/UnityGaussianSplatting",
+   "estrellas": 3458,
+   "licencia": "mit",
+   "comercial": "sí",
+   "ultimo_cambio_dias": 0,
+   "lenguaje": "C#",
+   "que_es": "Gaussian Splatting visualization for Unity",
+   "url": "https://github.com/aras-p/UnityGaussianSplatting",
+   "puntaje": 38.4
+  },
+  {
+   "repo": "OpenDroneMap/ODM",
+   "estrellas": 6577,
+   "licencia": "agpl-3.0",
+   "comercial": "sí, compartiendo el código",
+   "ultimo_cambio_dias": 4,
+   "lenguaje": "Python",
+   "que_es": "A command line toolkit to generate maps, point clouds, 3D models and DEMs from drone, balloon or kite images. 📷",
+   "url": "https://github.com/OpenDroneMap/ODM",
+   "puntaje": 38.1
+  },
+  {
+   "repo": "nerfstudio-project/nerfstudio",
+   "estrellas": 12142,
+   "licencia": "apache-2.0",
+   "comercial": "sí",
+   "ultimo_cambio_dias": 462,
+   "lenguaje": "Python",
+   "que_es": "A collaboration friendly studio for NeRFs",
+   "url": "https://github.com/nerfstudio-project/nerfstudio",
+   "puntaje": 37.4
+  },
+  {
+   "repo": "WebODM/WebODM",
+   "estrellas": 4250,
+   "licencia": "agpl-3.0",
+   "comercial": "sí, compartiendo el código",
+   "ultimo_cambio_dias": 2,
+   "lenguaje": "Python",
+   "que_es": "User-friendly, commercial-grade software for processing aerial imagery. ✈️ Download it for free!",
+   "url": "https://github.com/WebODM/WebODM",
+   "puntaje": 36.3
+  }
+ ],
+ "Cuerpo humano 3D / pose": [
+  {
+   "repo": "google-ai-edge/mediapipe",
+   "estrellas": 37532,
+   "licencia": "apache-2.0",
+   "comercial": "sí",
+   "ultimo_cambio_dias": 0,
+   "lenguaje": "C++",
+   "que_es": "Cross-platform, customizable ML solutions for live and streaming media.",
+   "url": "https://github.com/google-ai-edge/mediapipe",
+   "puntaje": 100,
+   "referente": true
+  },
+  {
+   "repo": "CMU-Perceptual-Computing-Lab/openpose",
+   "estrellas": 34553,
+   "licencia": "other",
+   "comercial": "revisar",
+   "ultimo_cambio_dias": 822,
+   "lenguaje": "C++",
+   "que_es": "OpenPose: Real-time multi-person keypoint detection library for body, face, hands, and foot estimation",
+   "url": "https://github.com/CMU-Perceptual-Computing-Lab/openpose",
+   "puntaje": 100,
+   "referente": true
+  },
+  {
+   "repo": "vchoutas/smplx",
+   "estrellas": 2751,
+   "licencia": "other",
+   "comercial": "revisar",
+   "ultimo_cambio_dias": 813,
+   "lenguaje": "Python",
+   "que_es": "SMPL-X",
+   "url": "https://github.com/vchoutas/smplx",
+   "puntaje": 100,
+   "referente": true
+  },
+  {
+   "repo": "ViTAE-Transformer/ViTPose",
+   "estrellas": 2214,
+   "licencia": "apache-2.0",
+   "comercial": "sí",
+   "ultimo_cambio_dias": 312,
+   "lenguaje": "Python",
+   "que_es": "The official repo for [NeurIPS'22] \"ViTPose: Simple Vision Transformer Baselines for Human Pose Estimation\" and [TPAMI'23] \"ViTPose++: Vision Transformer for Ge",
+   "url": "https://github.com/ViTAE-Transformer/ViTPose",
+   "puntaje": 32.1
+  },
+  {
+   "repo": "leoxiaobin/deep-high-resolution-net.pytorch",
+   "estrellas": 4477,
+   "licencia": "mit",
+   "comercial": "sí",
+   "ultimo_cambio_dias": 794,
+   "lenguaje": "Cuda",
+   "que_es": "The project is an official implementation of our CVPR2019 paper \"Deep High-Resolution Representation Learning for Human Pose Estimation\"",
+   "url": "https://github.com/leoxiaobin/deep-high-resolution-net.pytorch",
+   "puntaje": 29.5
+  },
+  {
+   "repo": "open-mmlab/mmskeleton",
+   "estrellas": 3134,
+   "licencia": "apache-2.0",
+   "comercial": "sí",
+   "ultimo_cambio_dias": 1438,
+   "lenguaje": "Python",
+   "que_es": "A OpenMMLAB toolbox  for human pose estimation, skeleton-based action recognition, and action synthesis.",
+   "url": "https://github.com/open-mmlab/mmskeleton",
+   "puntaje": 28.0
+  },
+  {
+   "repo": "Daniil-Osokin/lightweight-human-pose-estimation.pytorch",
+   "estrellas": 2236,
+   "licencia": "apache-2.0",
+   "comercial": "sí",
+   "ultimo_cambio_dias": 917,
+   "lenguaje": "Python",
+   "que_es": "Fast and accurate human pose estimation in PyTorch. Contains implementation of \"Real-time 2D Multi-Person Pose Estimation on CPU: Lightweight OpenPose\" paper.",
+   "url": "https://github.com/Daniil-Osokin/lightweight-human-pose-estimation.pytorch",
+   "puntaje": 26.5
+  },
+  {
+   "repo": "HRNet/HigherHRNet-Human-Pose-Estimation",
+   "estrellas": 1466,
+   "licencia": "mit",
+   "comercial": "sí",
+   "ultimo_cambio_dias": 2031,
+   "lenguaje": "Python",
+   "que_es": "This is an official implementation of our CVPR 2020 paper \"HigherHRNet: Scale-Aware Representation Learning for Bottom-Up Human Pose Estimation\" (https://arxiv.",
+   "url": "https://github.com/HRNet/HigherHRNet-Human-Pose-Estimation",
+   "puntaje": 24.7
+  },
+  {
+   "repo": "una-dinosauria/3d-pose-baseline",
+   "estrellas": 1466,
+   "licencia": "mit",
+   "comercial": "sí",
+   "ultimo_cambio_dias": 2229,
+   "lenguaje": "Python",
+   "que_es": "A simple baseline for 3d human pose estimation in tensorflow. Presented at ICCV 17.",
+   "url": "https://github.com/una-dinosauria/3d-pose-baseline",
+   "puntaje": 24.7
+  },
+  {
+   "repo": "thmoa/smpl_viewer",
+   "estrellas": 85,
+   "licencia": "mit",
+   "comercial": "sí",
+   "ultimo_cambio_dias": 2874,
+   "lenguaje": "Python",
+   "que_es": "A simple tool for rendering and manipulation of the parameteric 3D human body model SMPL.",
+   "url": "https://github.com/thmoa/smpl_viewer",
+   "puntaje": 12.3
+  }
+ ],
+ "Avatar y gesticulación": [
+  {
+   "repo": "OpenTalker/SadTalker",
+   "estrellas": 14175,
+   "licencia": "other",
+   "comercial": "revisar",
+   "ultimo_cambio_dias": 860,
+   "lenguaje": "Python",
+   "que_es": "[CVPR 2023] SadTalker：Learning Realistic 3D Motion Coefficients for Stylized Audio-Driven Single Image Talking Face Animation",
+   "url": "https://github.com/OpenTalker/SadTalker",
+   "puntaje": 100,
+   "referente": true
+  }
+ ],
+ "Generar y editar imágenes": [],
+ "Placas electrónicas por código": [
+  {
+   "repo": "atopile/atopile",
+   "estrellas": 4041,
+   "licencia": "mit",
+   "comercial": "sí",
+   "ultimo_cambio_dias": 19,
+   "lenguaje": "Python",
+   "que_es": "Design circuit boards with code! ✨ Get software-like design reuse 🚀, validation, version control and collaboration in hardware; starting with electronics ⚡️",
+   "url": "https://github.com/atopile/atopile",
+   "puntaje": 100,
+   "referente": true
+  },
+  {
+   "repo": "devbisme/skidl",
+   "estrellas": 1712,
+   "licencia": "mit",
+   "comercial": "sí",
+   "ultimo_cambio_dias": 16,
+   "lenguaje": "Python",
+   "que_es": "SKiDL is a library that lets you design electronic circuits using Python.",
+   "url": "https://github.com/devbisme/skidl",
+   "puntaje": 100,
+   "referente": true
+  }
+ ],
+ "Robots: brazos y aprendizaje": [
+  {
+   "repo": "huggingface/lerobot",
+   "estrellas": 28660,
+   "licencia": "apache-2.0",
+   "comercial": "sí",
+   "ultimo_cambio_dias": 0,
+   "lenguaje": "Python",
+   "que_es": "🤗 LeRobot: Making AI for Robotics more accessible with end-to-end learning",
+   "url": "https://github.com/huggingface/lerobot",
+   "puntaje": 100,
+   "referente": true
+  },
+  {
+   "repo": "TheRobotStudio/SO-ARM100",
+   "estrellas": 7975,
+   "licencia": "apache-2.0",
+   "comercial": "sí",
+   "ultimo_cambio_dias": 28,
+   "lenguaje": null,
+   "que_es": "Standard Open Arm 100",
+   "url": "https://github.com/TheRobotStudio/SO-ARM100",
+   "puntaje": 100,
+   "referente": true
+  },
+  {
+   "repo": "Vector-Wangel/XLeRobot",
+   "estrellas": 5692,
+   "licencia": "apache-2.0",
+   "comercial": "sí",
+   "ultimo_cambio_dias": 27,
+   "lenguaje": "Python",
+   "que_es": "XLeRobot: Practical Dual-Arm Mobile Home Robot for $660",
+   "url": "https://github.com/Vector-Wangel/XLeRobot",
+   "puntaje": 100,
+   "referente": true
+  },
+  {
+   "repo": "dorianborian/sesame-robot",
+   "estrellas": 4932,
+   "licencia": "apache-2.0",
+   "comercial": "sí",
+   "ultimo_cambio_dias": 18,
+   "lenguaje": "C",
+   "que_es": "An open and affordable mini quadruped robot based on ESP32.",
+   "url": "https://github.com/dorianborian/sesame-robot",
+   "puntaje": 100,
+   "referente": true
+  },
+  {
+   "repo": "apirrone/Open_Duck_Mini",
+   "estrellas": 4630,
+   "licencia": "apache-2.0",
+   "comercial": "sí",
+   "ultimo_cambio_dias": 276,
+   "lenguaje": "Python",
+   "que_es": "Making a mini version of the BDX droid. https://discord.gg/UtJZsgfQGe",
+   "url": "https://github.com/apirrone/Open_Duck_Mini",
+   "puntaje": 100,
+   "referente": true
+  }
+ ],
+ "ROS 2 y simulación": [
+  {
+   "repo": "google-deepmind/mujoco",
+   "estrellas": 16046,
+   "licencia": "apache-2.0",
+   "comercial": "sí",
+   "ultimo_cambio_dias": 0,
+   "lenguaje": "C++",
+   "que_es": "Multi-Joint dynamics with Contact. A general purpose physics simulator.",
+   "url": "https://github.com/google-deepmind/mujoco",
+   "puntaje": 100,
+   "referente": true
+  },
+  {
+   "repo": "ros2/ros2",
+   "estrellas": 6272,
+   "licencia": "sin-licencia",
+   "comercial": "revisar",
+   "ultimo_cambio_dias": 13,
+   "lenguaje": null,
+   "que_es": "The Robot Operating System, is a meta operating system for robots.",
+   "url": "https://github.com/ros2/ros2",
+   "puntaje": 100,
+   "referente": true
+  },
+  {
+   "repo": "gazebosim/gz-sim",
+   "estrellas": 1565,
+   "licencia": "apache-2.0",
+   "comercial": "sí",
+   "ultimo_cambio_dias": 0,
+   "lenguaje": "C++",
+   "que_es": "Open source robotics simulator. The latest version of Gazebo.",
+   "url": "https://github.com/gazebosim/gz-sim",
+   "puntaje": 100,
+   "referente": true
+  },
+  {
+   "repo": "PX4/PX4-Autopilot",
+   "estrellas": 12958,
+   "licencia": "bsd-3-clause",
+   "comercial": "sí",
+   "ultimo_cambio_dias": 0,
+   "lenguaje": "C++",
+   "que_es": "PX4 Autopilot Software",
+   "url": "https://github.com/PX4/PX4-Autopilot",
+   "puntaje": 44.1
+  },
+  {
+   "repo": "makerspet/oomwoo",
+   "estrellas": 12952,
+   "licencia": "apache-2.0",
+   "comercial": "sí",
+   "ultimo_cambio_dias": 1,
+   "lenguaje": "Python",
+   "que_es": "Open-source vacuum robot cleaner",
+   "url": "https://github.com/makerspet/oomwoo",
+   "puntaje": 44.1
+  },
+  {
+   "repo": "autowarefoundation/autoware",
+   "estrellas": 12213,
+   "licencia": "apache-2.0",
+   "comercial": "sí",
+   "ultimo_cambio_dias": 0,
+   "lenguaje": "Dockerfile",
+   "que_es": "Autoware - the world's leading open-source software project for autonomous driving",
+   "url": "https://github.com/autowarefoundation/autoware",
+   "puntaje": 43.9
+  },
+  {
+   "repo": "cyberbotics/webots",
+   "estrellas": 4746,
+   "licencia": "apache-2.0",
+   "comercial": "sí",
+   "ultimo_cambio_dias": 0,
+   "lenguaje": "C++",
+   "que_es": "Webots Robot Simulator",
+   "url": "https://github.com/cyberbotics/webots",
+   "puntaje": 39.8
+  },
+  {
+   "repo": "enactic/openarm",
+   "estrellas": 3669,
+   "licencia": "apache-2.0",
+   "comercial": "sí",
+   "ultimo_cambio_dias": 0,
+   "lenguaje": "MDX",
+   "que_es": "A fully open-source humanoid arm for physical AI research and deployment in contact-rich environments.",
+   "url": "https://github.com/enactic/openarm",
+   "puntaje": 38.6
+  },
+  {
+   "repo": "OpenMind/OM1",
+   "estrellas": 2960,
+   "licencia": "mit",
+   "comercial": "sí",
+   "ultimo_cambio_dias": 20,
+   "lenguaje": "Go",
+   "que_es": "Modular AI HAL (Hardware Abstraction Layer) for Robots",
+   "url": "https://github.com/OpenMind/OM1",
+   "puntaje": 37.4
+  }
+ ],
+ "SLAM / lidar / navegación": [
+  {
+   "repo": "ros-navigation/navigation2",
+   "estrellas": 4990,
+   "licencia": "other",
+   "comercial": "revisar",
+   "ultimo_cambio_dias": 0,
+   "lenguaje": "C++",
+   "que_es": "ROS 2 Navigation Framework and System",
+   "url": "https://github.com/ros-navigation/navigation2",
+   "puntaje": 100,
+   "referente": true
+  },
+  {
+   "repo": "SteveMacenski/slam_toolbox",
+   "estrellas": 2700,
+   "licencia": "lgpl-2.1",
+   "comercial": "sí, compartiendo el código",
+   "ultimo_cambio_dias": 0,
+   "lenguaje": "C++",
+   "que_es": "Slam Toolbox for lifelong mapping and localization in potentially massive maps with ROS",
+   "url": "https://github.com/SteveMacenski/slam_toolbox",
+   "puntaje": 100,
+   "referente": true
+  },
+  {
+   "repo": "naturerobots/mesh_navigation",
+   "estrellas": 915,
+   "licencia": "bsd-3-clause",
+   "comercial": "sí",
+   "ultimo_cambio_dias": 21,
+   "lenguaje": "C++",
+   "que_es": "The Mesh Navigation Stack: Efficient Mobile Robot Navigation in Uneven Terrain",
+   "url": "https://github.com/naturerobots/mesh_navigation",
+   "puntaje": 32.3
+  },
+  {
+   "repo": "hanruihua/NeuPAN",
+   "estrellas": 1140,
+   "licencia": "gpl-3.0",
+   "comercial": "sí, compartiendo el código",
+   "ultimo_cambio_dias": 13,
+   "lenguaje": "Python",
+   "que_es": "[TRO 2025] NeuPAN: Direct Point Robot Navigation with End-to-End Model-based Learning.",
+   "url": "https://github.com/hanruihua/NeuPAN",
+   "puntaje": 30.4
+  },
+  {
+   "repo": "reiniscimurs/DRL-robot-navigation",
+   "estrellas": 1378,
+   "licencia": "mit",
+   "comercial": "sí",
+   "ultimo_cambio_dias": 324,
+   "lenguaje": "Python",
+   "que_es": "Deep Reinforcement Learning for mobile robot navigation in ROS Gazebo simulator. Using Twin Delayed Deep Deterministic Policy Gradient (TD3) neural network, a r",
+   "url": "https://github.com/reiniscimurs/DRL-robot-navigation",
+   "puntaje": 29.9
+  },
+  {
+   "repo": "hovsg/HOV-SG",
+   "estrellas": 564,
+   "licencia": "mit",
+   "comercial": "sí",
+   "ultimo_cambio_dias": 288,
+   "lenguaje": "Python",
+   "que_es": "[RSS2024] Official implementation of \"Hierarchical Open-Vocabulary 3D Scene Graphs for Language-Grounded Robot Navigation\"",
+   "url": "https://github.com/hovsg/HOV-SG",
+   "puntaje": 26.5
+  },
+  {
+   "repo": "PRBonn/PIN_SLAM",
+   "estrellas": 632,
+   "licencia": "mit",
+   "comercial": "sí",
+   "ultimo_cambio_dias": 402,
+   "lenguaje": "Python",
+   "que_es": "📍PIN-SLAM: LiDAR SLAM Using a Point-Based Implicit Neural Representation for Achieving Global Map Consistency [TRO 24]",
+   "url": "https://github.com/PRBonn/PIN_SLAM",
+   "puntaje": 25.4
+  },
+  {
+   "repo": "vita-epfl/CrowdNav",
+   "estrellas": 739,
+   "licencia": "mit",
+   "comercial": "sí",
+   "ultimo_cambio_dias": 1529,
+   "lenguaje": "Python",
+   "que_es": "[ICRA] Crowd-aware Robot Navigation",
+   "url": "https://github.com/vita-epfl/CrowdNav",
+   "puntaje": 21.7
+  },
+  {
+   "repo": "vlmaps/vlmaps",
+   "estrellas": 732,
+   "licencia": "mit",
+   "comercial": "sí",
+   "ultimo_cambio_dias": 846,
+   "lenguaje": "Python",
+   "que_es": "[ICRA2023] Implementation of Visual Language Maps for Robot Navigation",
+   "url": "https://github.com/vlmaps/vlmaps",
+   "puntaje": 21.7
+  }
+ ],
+ "PLC y automatización industrial": [
+  {
+   "repo": "pymodbus-dev/pymodbus",
+   "estrellas": 2788,
+   "licencia": "other",
+   "comercial": "revisar",
+   "ultimo_cambio_dias": 0,
+   "lenguaje": "Python",
+   "que_es": "A full modbus protocol written in python",
+   "url": "https://github.com/pymodbus-dev/pymodbus",
+   "puntaje": 100,
+   "referente": true
+  },
+  {
+   "repo": "gijzelaerr/python-snap7",
+   "estrellas": 868,
+   "licencia": "mit",
+   "comercial": "sí",
+   "ultimo_cambio_dias": 0,
+   "lenguaje": "Python",
+   "que_es": "a pure Python S7 communication library for interfacing with Siemens S7 PLCs",
+   "url": "https://github.com/gijzelaerr/python-snap7",
+   "puntaje": 100,
+   "referente": true
+  },
+  {
+   "repo": "influxdata/telegraf",
+   "estrellas": 17894,
+   "licencia": "mit",
+   "comercial": "sí",
+   "ultimo_cambio_dias": 0,
+   "lenguaje": "Go",
+   "que_es": "Agent for collecting, processing, aggregating, and writing metrics, logs, and other arbitrary data.",
+   "url": "https://github.com/influxdata/telegraf",
+   "puntaje": 45.5
+  },
+  {
+   "repo": "evcc-io/evcc",
+   "estrellas": 7506,
+   "licencia": "mit",
+   "comercial": "sí",
+   "ultimo_cambio_dias": 0,
+   "lenguaje": "Go",
+   "que_es": "smart charging ☀️🚘",
+   "url": "https://github.com/evcc-io/evcc",
+   "puntaje": 41.8
+  },
+  {
+   "repo": "frangoteam/FUXA",
+   "estrellas": 5251,
+   "licencia": "mit",
+   "comercial": "sí",
+   "ultimo_cambio_dias": 1,
+   "lenguaje": "JavaScript",
+   "que_es": "Web-based Process Visualization (SCADA/HMI/Dashboard) software",
+   "url": "https://github.com/frangoteam/FUXA",
+   "puntaje": 40.2
+  },
+  {
+   "repo": "dgiot/dgiot",
+   "estrellas": 4862,
+   "licencia": "apache-2.0",
+   "comercial": "sí",
+   "ultimo_cambio_dias": 20,
+   "lenguaje": "Erlang",
+   "que_es": "Open Source Industrial IoT Platform | 300+ protocols | 6-min deploy | Modbus OPC UA MQTT | 12K Stars",
+   "url": "https://github.com/dgiot/dgiot",
+   "puntaje": 39.6
+  },
+  {
+   "repo": "Serial-Studio/Serial-Studio",
+   "estrellas": 7297,
+   "licencia": "other",
+   "comercial": "revisar",
+   "ultimo_cambio_dias": 0,
+   "lenguaje": "C",
+   "que_es": "Open-source telemetry dashboard. Supports UART, BLE, MQTT, Modbus, CAN Bus and more. ",
+   "url": "https://github.com/Serial-Studio/Serial-Studio",
+   "puntaje": 38.6
+  },
+  {
+   "repo": "networkupstools/nut",
+   "estrellas": 4477,
+   "licencia": "other",
+   "comercial": "revisar",
+   "ultimo_cambio_dias": 6,
+   "lenguaje": "C",
+   "que_es": "The Network UPS Tools repository. UPS management protocol Informational RFC 9271 published by IETF at https://www.rfc-editor.org/info/rfc9271 Please star NUT on",
+   "url": "https://github.com/networkupstools/nut",
+   "puntaje": 36.4
+  },
+  {
+   "repo": "beremiz/beremiz",
+   "estrellas": 455,
+   "licencia": "gpl-3.0",
+   "comercial": "sí, compartiendo el código",
+   "ultimo_cambio_dias": 3,
+   "lenguaje": "Python",
+   "que_es": "Beremiz is Free Software for machine automation.",
+   "url": "https://github.com/beremiz/beremiz",
+   "puntaje": 26.5
+  },
+  {
+   "repo": "Autonomy-Logic/openplc-editor",
+   "estrellas": 426,
+   "licencia": "gpl-3.0",
+   "comercial": "sí, compartiendo el código",
+   "ultimo_cambio_dias": 0,
+   "lenguaje": "TypeScript",
+   "que_es": "OpenPLC Editor - IDE capable of creating programs for the OpenPLC Runtime.",
+   "url": "https://github.com/Autonomy-Logic/openplc-editor",
+   "puntaje": 26.3
+  },
+  {
+   "repo": "Autonomy-Logic/openplc-runtime",
+   "estrellas": 420,
+   "licencia": "gpl-3.0",
+   "comercial": "sí, compartiendo el código",
+   "ultimo_cambio_dias": 0,
+   "lenguaje": "Python",
+   "que_es": "OpenPLC Runtime v4 designed to run programs built on OpenPLC Editor v4",
+   "url": "https://github.com/Autonomy-Logic/openplc-runtime",
+   "puntaje": 26.2
+  },
+  {
+   "repo": "Fortiphyd/GRFICSv3",
+   "estrellas": 280,
+   "licencia": "gpl-3.0",
+   "comercial": "sí, compartiendo el código",
+   "ultimo_cambio_dias": 13,
+   "lenguaje": "C++",
+   "que_es": "GRFICSv3 is a FREE and open source OT security lab with realistic networking and a 3D process simulation for training and learning ICS security",
+   "url": "https://github.com/Fortiphyd/GRFICSv3",
+   "puntaje": 24.3
+  },
+  {
+   "repo": "mniedermaier/CybICS",
+   "estrellas": 76,
+   "licencia": "mit",
+   "comercial": "sí",
+   "ultimo_cambio_dias": 4,
+   "lenguaje": "G-code",
+   "que_es": "Understanding industrial Cybersecurity.",
+   "url": "https://github.com/mniedermaier/CybICS",
+   "puntaje": 21.8
+  },
+  {
+   "repo": "thiagoralves/OpenPLC_v2",
+   "estrellas": 208,
+   "licencia": "gpl-3.0",
+   "comercial": "sí, compartiendo el código",
+   "ultimo_cambio_dias": 3055,
+   "lenguaje": "C++",
+   "que_es": "OpenPLC with the new IEC ST to C compiler",
+   "url": "https://github.com/thiagoralves/OpenPLC_v2",
+   "puntaje": 13.2
+  }
+ ],
+ "Visión por computadora": [
+  {
+   "repo": "opencv/opencv",
+   "estrellas": 91423,
+   "licencia": "apache-2.0",
+   "comercial": "sí",
+   "ultimo_cambio_dias": 0,
+   "lenguaje": "C++",
+   "que_es": "Open Source Computer Vision Library",
+   "url": "https://github.com/opencv/opencv",
+   "puntaje": 100,
+   "referente": true
+  },
+  {
+   "repo": "ultralytics/ultralytics",
+   "estrellas": 63081,
+   "licencia": "agpl-3.0",
+   "comercial": "sí, compartiendo el código",
+   "ultimo_cambio_dias": 0,
+   "lenguaje": "Python",
+   "que_es": "Ultralytics YOLO27, YOLO26, YOLO11, YOLOv8 — object detection, instance segmentation, semantic segmentation, image classification, pose estimation, object track",
+   "url": "https://github.com/ultralytics/ultralytics",
+   "puntaje": 100,
+   "referente": true
+  },
+  {
+   "repo": "facebookresearch/sam2",
+   "estrellas": 20096,
+   "licencia": "apache-2.0",
+   "comercial": "sí",
+   "ultimo_cambio_dias": 157,
+   "lenguaje": "Jupyter Notebook",
+   "que_es": "The repository provides code for running inference with the Meta Segment Anything Model 2 (SAM 2), links for downloading the trained model checkpoints, and exam",
+   "url": "https://github.com/facebookresearch/sam2",
+   "puntaje": 43.9
+  },
+  {
+   "repo": "geekyutao/Inpaint-Anything",
+   "estrellas": 7730,
+   "licencia": "apache-2.0",
+   "comercial": "sí",
+   "ultimo_cambio_dias": 73,
+   "lenguaje": "Jupyter Notebook",
+   "que_es": "Inpaint anything using Segment Anything and inpainting models.",
+   "url": "https://github.com/geekyutao/Inpaint-Anything",
+   "puntaje": 40.9
+  },
+  {
+   "repo": "facebookresearch/sam3",
+   "estrellas": 12189,
+   "licencia": "other",
+   "comercial": "revisar",
+   "ultimo_cambio_dias": 10,
+   "lenguaje": "Python",
+   "que_es": "The repository provides code for running inference and finetuning with the Meta Segment Anything Model 3 (SAM 3), links for downloading the trained model checkp",
+   "url": "https://github.com/facebookresearch/sam3",
+   "puntaje": 40.7
+  },
+  {
+   "repo": "facebookresearch/segment-anything",
+   "estrellas": 55098,
+   "licencia": "apache-2.0",
+   "comercial": "sí",
+   "ultimo_cambio_dias": 775,
+   "lenguaje": "Jupyter Notebook",
+   "que_es": "The repository provides code for running inference with the SegmentAnything Model (SAM), links for downloading the trained model checkpoints, and example notebo",
+   "url": "https://github.com/facebookresearch/segment-anything",
+   "puntaje": 40.4
+  },
+  {
+   "repo": "opengeos/segment-geospatial",
+   "estrellas": 4191,
+   "licencia": "mit",
+   "comercial": "sí",
+   "ultimo_cambio_dias": 0,
+   "lenguaje": "Python",
+   "que_es": "A Python package for segmenting geospatial data with the Segment Anything Model (SAM)",
+   "url": "https://github.com/opengeos/segment-geospatial",
+   "puntaje": 39.2
+  },
+  {
+   "repo": "gaomingqi/Track-Anything",
+   "estrellas": 7016,
+   "licencia": "mit",
+   "comercial": "sí",
+   "ultimo_cambio_dias": 325,
+   "lenguaje": "Python",
+   "que_es": "Track-Anything is a flexible and interactive tool for video object tracking and segmentation, based on Segment Anything, XMem, and E2FGVI.",
+   "url": "https://github.com/gaomingqi/Track-Anything",
+   "puntaje": 36.9
+  },
+  {
+   "repo": "maverickjoy/pepper-robot-programming",
+   "estrellas": 62,
+   "licencia": "mit",
+   "comercial": "sí",
+   "ultimo_cambio_dias": 1426,
+   "lenguaje": "Python",
+   "que_es": "Pepper Programs : Object Detection Real Time without ROS",
+   "url": "https://github.com/maverickjoy/pepper-robot-programming",
+   "puntaje": 11.0
+  }
+ ],
+ "Microcontroladores (ESP32/Arduino)": [
+  {
+   "repo": "espressif/esp-idf",
+   "estrellas": 19413,
+   "licencia": "apache-2.0",
+   "comercial": "sí",
+   "ultimo_cambio_dias": 0,
+   "lenguaje": "C",
+   "que_es": "Espressif IoT Development Framework. Official development framework for Espressif SoCs.",
+   "url": "https://github.com/espressif/esp-idf",
+   "puntaje": 100,
+   "referente": true
+  },
+  {
+   "repo": "esphome/esphome",
+   "estrellas": 12006,
+   "licencia": "other",
+   "comercial": "revisar",
+   "ultimo_cambio_dias": 0,
+   "lenguaje": "C++",
+   "que_es": "ESPHome is a system to control your ESP32, ESP8266, BK72xx, RP2040 by simple yet powerful configuration files and control them remotely through Home Automation ",
+   "url": "https://github.com/esphome/esphome",
+   "puntaje": 100,
+   "referente": true
+  },
+  {
+   "repo": "platformio/platformio-core",
+   "estrellas": 9579,
+   "licencia": "apache-2.0",
+   "comercial": "sí",
+   "ultimo_cambio_dias": 18,
+   "lenguaje": "Python",
+   "que_es": "Your Gateway to Embedded Software Development Excellence :alien:",
+   "url": "https://github.com/platformio/platformio-core",
+   "puntaje": 100,
+   "referente": true
+  }
+ ],
+ "Gestión de proyectos": [
+  {
+   "repo": "plankanban/planka",
+   "estrellas": 12665,
+   "licencia": "other",
+   "comercial": "revisar",
+   "ultimo_cambio_dias": 0,
+   "lenguaje": "JavaScript",
+   "que_es": "Elegant open source project tracking. Self-hosted Kanban for teams — free Community edition, with PLANKA Pro for organisations.",
+   "url": "https://github.com/plankanban/planka",
+   "puntaje": 100,
+   "referente": true
+  },
+  {
+   "repo": "frappe/gantt",
+   "estrellas": 6158,
+   "licencia": "mit",
+   "comercial": "sí",
+   "ultimo_cambio_dias": 138,
+   "lenguaje": "JavaScript",
+   "que_es": "Open Source Javascript Gantt",
+   "url": "https://github.com/frappe/gantt",
+   "puntaje": 100,
+   "referente": true
+  },
+  {
+   "repo": "usekaneo/kaneo",
+   "estrellas": 9703,
+   "licencia": "mit",
+   "comercial": "sí",
+   "ultimo_cambio_dias": 0,
+   "lenguaje": "TypeScript",
+   "que_es": "⚡ Project management that doesn't become the project. Boards, Gantt charts, and GitHub integration. Self-host it or use Kaneo Cloud.",
+   "url": "https://github.com/usekaneo/kaneo",
+   "puntaje": 42.9
+  },
+  {
+   "repo": "opf/openproject",
+   "estrellas": 16952,
+   "licencia": "gpl-3.0",
+   "comercial": "sí, compartiendo el código",
+   "ultimo_cambio_dias": 0,
+   "lenguaje": "Ruby",
+   "que_es": "OpenProject is the leading open source project management software for product, project and portfolio management. A powerful Jira alternative with agile plannin",
+   "url": "https://github.com/opf/openproject",
+   "puntaje": 42.3
+  },
+  {
+   "repo": "AhmadHassan-BTed/Jantt",
+   "estrellas": 6200,
+   "licencia": "mit",
+   "comercial": "sí",
+   "ultimo_cambio_dias": 0,
+   "lenguaje": "TypeScript",
+   "que_es": "The AI-native JSON Gantt chart engine. Dependency-free interactive timelines with React, script-tag, CLI, topological DAG solver, and formal JSON schema.",
+   "url": "https://github.com/AhmadHassan-BTed/Jantt",
+   "puntaje": 40.9
+  },
+  {
+   "repo": "DHTMLX/gantt",
+   "estrellas": 1868,
+   "licencia": "mit",
+   "comercial": "sí",
+   "ultimo_cambio_dias": 61,
+   "lenguaje": "JavaScript",
+   "que_es": "JavaScript Gantt Chart",
+   "url": "https://github.com/DHTMLX/gantt",
+   "puntaje": 34.9
+  },
+  {
+   "repo": "bannzai/SpreadsheetView",
+   "estrellas": 3533,
+   "licencia": "mit",
+   "comercial": "sí",
+   "ultimo_cambio_dias": 907,
+   "lenguaje": "HTML",
+   "que_es": "Full configurable spreadsheet view user interfaces for iOS applications. With this framework, you can easily create complex layouts like schedule, gantt chart o",
+   "url": "https://github.com/bannzai/SpreadsheetView",
+   "puntaje": 28.5
+  },
+  {
+   "repo": "giocomai/ganttrify",
+   "estrellas": 726,
+   "licencia": "gpl-3.0",
+   "comercial": "sí, compartiendo el código",
+   "ultimo_cambio_dias": 377,
+   "lenguaje": "R",
+   "que_es": "Create beautiful Gantt charts with ggplot2",
+   "url": "https://github.com/giocomai/ganttrify",
+   "puntaje": 23.4
+  }
+ ],
+ "Diseño eléctrico / esquemas": [
+  {
+   "repo": "qelectrotech/qelectrotech-source-mirror",
+   "estrellas": 606,
+   "licencia": "gpl-2.0",
+   "comercial": "sí, compartiendo el código",
+   "ultimo_cambio_dias": 0,
+   "lenguaje": "C++",
+   "que_es": "Main QET repository, Bugtracker: https://qelectrotech.org/bugtracker/          Nightly Windows Builds : https://qelectrotech.github.io/qelectrotech-source-mirro",
+   "url": "https://github.com/qelectrotech/qelectrotech-source-mirror",
+   "puntaje": 100,
+   "referente": true
+  }
+ ],
+ "Construir distros Linux": [
+  {
+   "repo": "mvallim/live-custom-ubuntu-from-scratch",
+   "estrellas": 565,
+   "licencia": "gpl-3.0",
+   "comercial": "sí, compartiendo el código",
+   "ultimo_cambio_dias": 277,
+   "lenguaje": "Shell",
+   "que_es": "(Yes, the project is still alive 😃) This procedure shows how to create a bootable and installable Ubuntu Live (along with the automatic hardware detection and c",
+   "url": "https://github.com/mvallim/live-custom-ubuntu-from-scratch",
+   "puntaje": 100,
+   "referente": true
+  },
+  {
+   "repo": "PJ-Singh-001/Cubic",
+   "estrellas": 1507,
+   "licencia": "sin-licencia",
+   "comercial": "revisar",
+   "ultimo_cambio_dias": 104,
+   "lenguaje": "",
+   "que_es": "The Official Web Site for Cubic (Custom Ubuntu ISO Creator) (https://github.com/PJ-Singh-001/Cubic)",
+   "url": "https://github.com/PJ-Singh-001/Cubic",
+   "puntaje": 22.3
+  }
+ ],
+ "Interfaces HUD / kiosko": [
+  {
+   "repo": "UthkarshMandloi/Spdeey-lama-based-persional-assistent",
+   "estrellas": 0,
+   "licencia": "mit",
+   "comercial": "sí",
+   "ultimo_cambio_dias": 164,
+   "lenguaje": "Python",
+   "que_es": " Fully Offline J.A.R.V.I.S.-style AI assistant built with Python, Ollama & Llama 3 featuring voice control, sci-fi HUD UI, live hardware telemetry, and privacy ",
+   "url": "https://github.com/UthkarshMandloi/Spdeey-lama-based-persional-assistent",
+   "puntaje": 0.7
+  },
+  {
+   "repo": "eriquechen23-cyl/mergetoolbox",
+   "estrellas": 0,
+   "licencia": "bsd-3-clause",
+   "comercial": "sí",
+   "ultimo_cambio_dias": 435,
+   "lenguaje": "",
+   "que_es": "中文  MergeToolBox：完全離線的圖片與 PDF 轉檔／合併工具箱（批次、配方、科幻 HUD 介面）  English  MergeToolBox: Offline image & PDF conversion/merge toolbox (batch, recipes, sci-fi HUD UI)",
+   "url": "https://github.com/eriquechen23-cyl/mergetoolbox",
+   "puntaje": -3.0
+  },
+  {
+   "repo": "allenxhsu/ui-kit",
+   "estrellas": 0,
+   "licencia": "sin-licencia",
+   "comercial": "revisar",
+   "ultimo_cambio_dias": 32,
+   "lenguaje": "JavaScript",
+   "que_es": "Shared sci-fi HUD UI kit (tokens, CSS, theme runtime, Swift mirror) for the toolkit apps: Heptabase, IDEF0, Pyramid, Metropolis.",
+   "url": "https://github.com/allenxhsu/ui-kit",
+   "puntaje": -8.4
+  },
+  {
+   "repo": "Atulsingh1307/Atul_Kumar_Singh_Portfolio",
+   "estrellas": 0,
+   "licencia": "sin-licencia",
+   "comercial": "revisar",
+   "ultimo_cambio_dias": 39,
+   "lenguaje": "",
+   "que_es": "Official portfolio of Atul Kumar Singh — Full-Stack Developer & Tech Enthusiast. Building modern, responsive web applications with React, Next.js, Node.js, and ",
+   "url": "https://github.com/Atulsingh1307/Atul_Kumar_Singh_Portfolio",
+   "puntaje": -8.5
+  }
+ ],
+ "Lentes inteligentes": [
+  {
+   "repo": "ManuGrig/roamer-lens-guard",
+   "estrellas": 1,
+   "licencia": "apache-2.0",
+   "comercial": "sí",
+   "ultimo_cambio_dias": 86,
+   "lenguaje": "Kotlin",
+   "que_es": "Privacy-first Android research tool for detecting and validating nearby camera-capable smart glasses. Open source by Roamer.one.",
+   "url": "https://github.com/ManuGrig/roamer-lens-guard",
+   "puntaje": 4.8
+  },
+  {
+   "repo": "YusukeIt0/dot-link",
+   "estrellas": 0,
+   "licencia": "mit",
+   "comercial": "sí",
+   "ultimo_cambio_dias": 1,
+   "lenguaje": "TypeScript",
+   "que_es": "Connect your existing ChatGPT Dot to Even Realities G2 smart glasses. Open-source Even Hub app with a Mac relay. No Chrome required.",
+   "url": "https://github.com/YusukeIt0/dot-link",
+   "puntaje": 3.0
+  }
+ ],
+ "Gemelo digital personal / clon de IA": [
+  {
+   "repo": "letta-ai/letta",
+   "estrellas": 25331,
+   "licencia": "apache-2.0",
+   "comercial": "sí",
+   "ultimo_cambio_dias": 15,
+   "lenguaje": null,
+   "que_es": "Platform for stateful agents: AI with advanced memory that can learn and self-improve over time.",
+   "url": "https://github.com/letta-ai/letta",
+   "puntaje": 100,
+   "referente": true
+  },
+  {
+   "repo": "mindverse/Second-Me",
+   "estrellas": 15694,
+   "licencia": "apache-2.0",
+   "comercial": "sí",
+   "ultimo_cambio_dias": 399,
+   "lenguaje": "Python",
+   "que_es": "Train your AI self, amplify you, bridge the world",
+   "url": "https://github.com/mindverse/Second-Me",
+   "puntaje": 100,
+   "referente": true
+  }
+ ]
+}

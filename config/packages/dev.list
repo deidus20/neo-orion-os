@@ -1,0 +1,13 @@
+# Compiladores, depuración y build
+build-essential gdb clang clangd lldb valgrind cmake ninja-build meson pkg-config
+# Control de versiones
+git git-lfs gh
+# Lenguajes
+python3-full python3-dev python3-pip python3-venv pipx ipython3
+golang-go nodejs npm default-jdk-headless
+# Librerías comunes para hardware/USB
+libssl-dev libudev-dev libusb-1.0-0-dev libserialport-dev
+# Terminal productiva
+tmux zsh fzf ripgrep fd-find bat jq direnv shellcheck sqlite3 httpie
+# Contenedores sin Docker (Docker CE se agrega desde su repo oficial)
+podman distrobox

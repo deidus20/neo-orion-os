@@ -1,0 +1,18 @@
+# compilación de la ISO (pesa GB: va en Releases, no en el repo)
+work/
+out/
+*.iso
+*.iso.sha256
+*.img
+# Python / Node
+__pycache__/
+*.pyc
+.pytest_cache/
+node_modules/
+# secretos: nunca al repositorio
+.env
+*.key
+*.pem
+secretos/
+docs/biblia/fuente/biblia.html
+img2/

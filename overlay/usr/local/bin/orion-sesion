@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+# Neo Orión · qué se muestra al encender (lo lanza orion-sesion.service en tty1).
+#  - Arrancó desde el pendrive (boot=casper): el INSTALADOR primero, a pantalla completa.
+#  - Ya instalado: el HUD (pantalla vacía escuchando).
+# Corre en un compositor mínimo (cage) con orion-pantalla (WebKit sin barras): sin escritorio,
+# ~150 MB de RAM, sirve en PC patata. La interfaz habla con orion_core.servidor (127.0.0.1:7700).
+set -uo pipefail
+export PYTHONPATH=/opt/orion XDG_SESSION_TYPE=wayland GTK_THEME=Adwaita:dark
+PY=/opt/orion/venv/bin/python3; [ -x "$PY" ] || PY=python3
+PUERTO=7700
+CMD="$(cat /proc/cmdline)"
+if grep -qw "boot=casper" <<<"$CMD"; then
+  MODO=instalador
+  # el instalador necesita root (particiona); el usuario del pendrive tiene sudo sin clave
+  sudo -n env PYTHONPATH=/opt/orion "$PY" -m orion_core.servidor --modo instalador --puerto $PUERTO &
+else
+  MODO=hud
+  "$PY" -m orion_core.servidor --modo hud --puerto $PUERTO &
+fi
+SERV=$!
+trap 'kill $SERV 2>/dev/null' EXIT
+for _ in $(seq 1 50); do curl -fs -o /dev/null "http://127.0.0.1:$PUERTO/" && break; sleep 0.2; done
+
+Q=""
+grep -qw "orion.patata=1" <<<"$CMD" && Q="?liviano=1"
+URL="http://127.0.0.1:$PUERTO/$([ $MODO = instalador ] && echo instalador || echo hud)/$Q"
+
+# sin aceleración 3D (máquinas virtuales, GPU sin controlador): render por software
+if ! ls /dev/dri/renderD* >/dev/null 2>&1; then export WLR_RENDERER=pixman WLR_NO_HARDWARE_CURSORS=1 LIBGL_ALWAYS_SOFTWARE=1; fi
+
+if [ -x /usr/local/bin/orion-pantalla ] && python3 -c "import gi; gi.require_version('WebKit2','4.1')" 2>/dev/null; then
+  cage -s -- /usr/local/bin/orion-pantalla "$URL"; exit $?
+fi
+for b in google-chrome-stable chromium firefox; do
+  command -v "$b" >/dev/null || continue
+  case "$b" in firefox) cage -s -- firefox --kiosk "$URL" ;; *) cage -s -- "$b" --kiosk --no-first-run "$URL" ;; esac
+  exit $?
+done
+echo "No hay navegador para mostrar la interfaz: $URL" >&2; exit 1

@@ -1,0 +1,1835 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Neo Orión OS — HUD</title>
+<style>/* letras locales: funcionan sin internet (instalador en el pendrive); Google Fonts queda de respaldo */
+@font-face{font-family:'Silkscreen';font-weight:400;src:url(fuentes/silkscreen-latin-400-normal.woff2) format('woff2')}
+@font-face{font-family:'Silkscreen';font-weight:700;src:url(fuentes/silkscreen-latin-700-normal.woff2) format('woff2')}
+@font-face{font-family:'JetBrains Mono';font-weight:400;src:url(fuentes/jetbrains-mono-latin-400-normal.woff2) format('woff2')}
+@font-face{font-family:'JetBrains Mono';font-weight:600;src:url(fuentes/jetbrains-mono-latin-600-normal.woff2) format('woff2')}
+@font-face{font-family:'JetBrains Mono';font-weight:700;src:url(fuentes/jetbrains-mono-latin-700-normal.woff2) format('woff2')}
+/* controles nativos en oscuro (WebKitGTK usa el tema de GTK si no se le dice nada) */
+:root{color-scheme:dark}
+select{-webkit-appearance:none;appearance:none;background:#0b0c0d url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0h10L5 6z' fill='%238b8e94'/%3E%3C/svg%3E") no-repeat right 10px center;color:var(--txt);border:1px solid #3a3d42;border-radius:0;padding-right:28px}
+input,textarea{-webkit-appearance:none;appearance:none;border-radius:0;color:var(--txt);background:#0b0c0d}
+option{background:#0b0c0d;color:#e6e8ea}
+[hidden]{display:none!important}
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<script src="lib/qrcode.min.js"></script><script>window.QRCode || document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"><\/script>')</script>
+<link href="https://fonts.googleapis.com/css2?family=Silkscreen&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#101113; --panel:#17181b; --panel2:#1d1f22; --line:#2a2c30;
+  --lime:#ff2438; --lime-d:#9e1624; --red:#ffd400; --ink:#111; --grey:#8b8e94; --txt:#e6e8ea;
+  --px:'Silkscreen',monospace; --mono:'JetBrains Mono',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:var(--bg);color:var(--txt);font-family:var(--mono);font-size:13px;overflow-x:hidden}
+body{background-image:radial-gradient(#25272b 1px,transparent 1.2px);background-size:22px 22px}
+button,input,select{font:inherit;color:inherit}
+.px{font-family:var(--px);letter-spacing:.08em;text-transform:uppercase}
+.dim{color:var(--grey)} .lime{color:var(--lime)} .red{color:var(--red)}
+/* esquinas tipo mira */
+.frame{position:fixed;inset:10px;pointer-events:none;z-index:1}
+.frame i{position:absolute;width:14px;height:14px;border-color:var(--grey);opacity:.6}
+.frame i:nth-child(1){left:0;top:0;border-left:1px solid;border-top:1px solid}
+.frame i:nth-child(2){right:0;top:0;border-right:1px solid;border-top:1px solid}
+.frame i:nth-child(3){left:0;bottom:0;border-left:1px solid;border-bottom:1px solid}
+.frame i:nth-child(4){right:0;bottom:0;border-right:1px solid;border-bottom:1px solid}
+/* ---------- arranque ---------- */
+#boot{position:fixed;inset:0;z-index:50;background:var(--bg);display:grid;place-items:center;transition:opacity .5s}
+#boot .logo{font-family:var(--px);font-size:clamp(44px,13vw,96px);line-height:.9;color:#fff;text-shadow:0 0 18px #ffffff55;text-align:center}
+#boot .bar{width:min(320px,70vw);height:16px;border:1px solid #fff;margin:28px auto 10px;padding:2px}
+#boot .bar div{height:100%;width:0;background:#fff;transition:width .15s steps(4)}
+#bootcode{position:absolute;left:18px;top:18px;bottom:18px;width:min(46vw,520px);opacity:.55;overflow:hidden;font-size:10px;line-height:1.5;color:#4a4d52;white-space:pre-wrap}
+#bootcode b{color:var(--lime);font-weight:400}
+#login{text-align:center}
+#bootmain,#login{position:relative;z-index:1;background:var(--bg);padding:18px 22px;box-shadow:0 0 0 1px #2a2c30}
+@media (max-width:560px){#bootcode{width:auto;right:18px;opacity:.35}}
+#pass{display:flex;gap:10px;justify-content:center;margin:26px 0 18px}
+#pass i{width:34px;height:34px;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr)}
+#pass i span{background:transparent}#pass i.on span:nth-child(odd){background:#fff;box-shadow:0 0 8px #fff8}
+#pass.ok i.on span:nth-child(odd){background:var(--lime);box-shadow:0 0 8px var(--lime)}
+#boot .msg{font-family:var(--px);font-size:11px;color:var(--grey);text-align:center;min-height:14px}
+/* ---------- barra superior ---------- */
+header{position:sticky;top:0;z-index:5;display:flex;gap:14px;align-items:center;justify-content:space-between;padding:14px 22px 10px;background:linear-gradient(var(--bg) 70%,transparent)}
+.brand{display:flex;align-items:center;gap:10px}
+.brand b{font-family:var(--px);background:var(--lime);color:var(--ink);padding:3px 7px;font-size:12px}
+.brand span{font-family:var(--px);font-size:10px;color:var(--grey)}
+.ticker{font-family:var(--px);font-size:9px;color:var(--grey);display:flex;gap:14px;overflow:hidden;white-space:nowrap}
+.ticker em{font-style:normal;color:var(--lime)}
+/* ---------- núcleo central ---------- */
+main{max-width:1180px;margin:0 auto;padding:0 18px 140px}
+#core{display:flex;flex-direction:column;align-items:center;padding:28vh 0 4px;transition:padding .5s}
+body.busy #core{padding:8px 0 4px}
+#vu{display:flex;gap:3px;align-items:center;height:34px}
+#vu i{width:3px;background:var(--lime);opacity:.8}
+#radar{width:min(360px,78vw);height:auto;overflow:visible}
+#radar .arc{fill:none;stroke:var(--lime);stroke-width:1.4;opacity:.85}
+#radar .guide{stroke:var(--lime);stroke-width:1.2}
+#radar .tick{fill:var(--lime)}
+#radar .blip{fill:var(--red)}
+.state{font-family:var(--px);font-size:11px;margin-top:6px;display:flex;align-items:center;gap:8px}
+.state .dot{width:8px;height:8px;background:var(--lime);box-shadow:0 0 10px var(--lime);animation:blink 1.2s steps(2) infinite}
+.state.think .dot{background:#fff;box-shadow:0 0 10px #fff}
+@keyframes blink{50%{opacity:.15}}
+#heard{min-height:20px;margin-top:8px;color:var(--grey);text-align:center;max-width:640px;font-size:12px}
+/* ---------- paneles generados ---------- */
+#panels{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,360px),1fr));gap:14px;margin-top:18px}
+.panel{background:var(--panel);border:1px solid var(--line);position:relative;padding:14px;clip-path:polygon(0 0,calc(100% - 16px) 0,100% 16px,100% 100%,16px 100%,0 calc(100% - 16px));animation:materialize .55s steps(6)}
+.panel.wide{grid-column:1/-1}
+@keyframes materialize{0%{opacity:0;transform:scaleY(.04);filter:brightness(3)}60%{opacity:1;transform:scaleY(1.02)}100%{transform:none}}
+.ph{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;gap:8px}
+.ph .tag{font-family:var(--px);font-size:10px;background:#000;color:var(--lime);padding:3px 7px;border:1px solid var(--lime-d)}
+.ph .title{font-family:var(--px);font-size:12px;flex:1}
+.ph .x{background:none;border:1px solid var(--line);width:24px;height:24px;cursor:pointer;color:var(--grey)}
+.ph .x:hover{border-color:var(--red);color:var(--red)}
+.row{display:flex;align-items:center;gap:10px;margin:7px 0}
+.lbl{font-family:var(--px);font-size:9px;color:var(--grey);width:62px;flex-shrink:0}
+.meter{flex:1;height:10px;border:1px solid var(--lime-d);padding:1px}
+.meter div{height:100%;background:var(--lime)}
+.val{min-width:70px;text-align:right}
+.big{font-family:var(--px);font-size:20px;color:var(--lime);margin:4px 0}
+.chip{display:inline-block;font-family:var(--px);font-size:9px;border:1px solid var(--line);padding:5px 8px;margin:3px 4px 0 0;cursor:pointer;background:var(--panel2)}
+.chip:hover{border-color:var(--lime);color:var(--lime)}
+.btn{font-family:var(--px);font-size:12px;background:var(--lime);color:var(--ink);border:0;padding:12px;width:100%;cursor:pointer;letter-spacing:.1em}
+.btn:active{filter:brightness(.8)}
+.btn.ghost{background:transparent;color:var(--lime);border:1px solid var(--lime-d)}
+input[type=range]{-webkit-appearance:none;appearance:none;flex:1;height:2px;background:var(--line)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:16px;background:var(--lime);border:0}
+input[type=range]::-moz-range-thumb{width:12px;height:16px;background:var(--lime);border:0;border-radius:0}
+select{background:var(--panel2);border:1px solid var(--line);padding:4px}
+canvas{width:100%;display:block;background:#121315;border:1px solid var(--line)}
+canvas.mx-px{width:auto;max-width:100%;background:transparent;border:0}
+.log{font-size:12px;line-height:1.55;max-height:260px;overflow:auto}
+.log .ok{color:var(--lime)} .log .no{color:var(--red)} .log .q{color:#fff}
+.v{font-family:var(--px);font-size:9px;padding:1px 5px;margin-right:6px}
+.v.ok{background:var(--lime);color:var(--ink)}.v.no{background:var(--red);color:#111}.v.ia{background:#fff;color:#111}.v.tr{border:1px solid var(--lime);color:var(--lime)}
+.formula{font-size:13px;background:#000;border-left:3px solid var(--lime);padding:8px 10px;margin:8px 0}
+.warn{border:1px solid var(--red);color:var(--red);font-family:var(--px);font-size:10px;padding:6px 8px;margin-top:8px}
+.node{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;border:1px solid var(--line);padding:9px;margin-bottom:8px;background:var(--panel2)}
+.node .ic{width:34px;height:34px;display:grid;place-items:center;font-family:var(--px);font-size:10px;background:#000;border:1px solid var(--lime-d);color:var(--lime)}
+.node .st{font-family:var(--px);font-size:9px;padding:3px 6px}
+.st.on{background:var(--lime);color:var(--ink)}.st.off{background:#333;color:var(--grey)}.st.sync{background:#fff;color:#111}
+.align{font-family:var(--px);font-size:9px;display:flex;align-items:center;gap:8px;margin:4px 0}
+.align .tr{flex:1;height:12px;background:#000;position:relative;border:1px solid #333}
+.align .tr i{position:absolute;top:1px;bottom:1px;left:0;background:var(--lime);width:0;transition:width .3s steps(5)}
+.done{display:grid;place-items:center;background:var(--lime);height:150px;margin-top:10px;animation:materialize .4s steps(4)}
+.job{border:1px solid var(--line);background:var(--panel2);padding:9px;margin-bottom:8px}
+.job .jl{display:flex;justify-content:space-between;font-family:var(--px);font-size:10px}
+.job .jb{height:4px;background:#000;margin-top:7px}.job .jb i{display:block;height:100%;background:var(--lime);width:0;transition:width .4s}
+.job .jr{font-size:11px;margin-top:6px}
+#cad3d{width:100%;height:300px;border:1px solid var(--line);background:#121315}
+.pp{display:grid;grid-template-columns:repeat(2,1fr);gap:4px 12px;margin-top:10px;font-size:12px}
+.pp b{color:var(--lime);font-weight:400}.pp .chg{color:var(--red)}
+.qrbox{background:#fff;padding:10px;width:fit-content;margin:4px auto 10px}
+.calib-wrap{position:relative;border:1px dashed var(--lime-d);min-height:200px;display:grid;place-items:center;background:#000;overflow:hidden}
+.calib-wrap img{width:100%;display:block;cursor:crosshair}
+.mark{position:absolute;transform:translate(-50%,-50%);pointer-events:none}
+.mark b{display:block;width:22px;height:22px;border:2px solid var(--lime);box-shadow:0 0 8px var(--lime)}
+.mark span{position:absolute;left:26px;top:2px;font-family:var(--px);font-size:9px;background:var(--lime);color:var(--ink);padding:1px 4px;white-space:nowrap}
+
+/* ---------- modo investigación (agente que investiga y arma un muro 3D) ---------- */
+#rs{position:fixed;inset:0;z-index:20;background:radial-gradient(ellipse at 50% 55%,#15171a,#08090a 72%);overflow:hidden;display:none;touch-action:none}
+#rs.on{display:block}
+#rs::after{content:"";position:absolute;inset:0;pointer-events:none;z-index:4;background:repeating-linear-gradient(0deg,#0000 0 2px,#00000038 2px 3px);mix-blend-mode:multiply}
+#rs .scene{position:absolute;inset:0;perspective:1100px;perspective-origin:50% 42%}
+#rs .wall{position:absolute;left:50%;top:47%;transform-style:preserve-3d;transition:filter .5s}
+#rs .grid{display:grid;grid-template-columns:repeat(var(--cols,4),var(--cw,250px));gap:12px;align-items:start;transform-style:preserve-3d}
+#rs .tbar{grid-column:1/-1;display:flex;gap:6px;justify-content:flex-end;margin-bottom:2px}
+#rs .tbar b{font-family:var(--px);font-weight:400;font-size:8px;color:#8b8e94;border:1px solid #3a3d42;padding:3px 7px;cursor:pointer;background:#0c0d0f}
+#rs .tbar b.on{color:#111;background:var(--lime);border-color:var(--lime)}
+#rs .card{position:relative;padding:11px 11px 9px;background:#0c0d0fef;border:1px solid color-mix(in srgb,var(--lime) 53%,transparent);box-shadow:0 0 16px color-mix(in srgb,var(--lime) 11%,transparent),inset 0 0 0 1px #000;font-size:10px;line-height:1.4;color:#cfd2d6;cursor:pointer;transition:filter .45s,opacity .45s,box-shadow .3s;animation:llega .9s cubic-bezier(.2,.7,.2,1) both}
+#rs .card::before{content:"";position:absolute;left:-1px;top:-1px;width:9px;height:9px;border-left:2px solid var(--lime);border-top:2px solid var(--lime)}
+#rs .card.w2{grid-column:span 2}
+#rs .card.r{border-color:color-mix(in srgb,var(--red) 60%,transparent);box-shadow:0 0 16px color-mix(in srgb,var(--red) 13%,transparent)}#rs .card.r::before{border-color:var(--red)}
+#rs .card:hover{box-shadow:0 0 26px color-mix(in srgb,var(--lime) 33%,transparent)}
+#rs .card.apagada{filter:blur(1.5px) brightness(.45);opacity:.6}
+@keyframes llega{0%{opacity:0;transform:translateZ(-700px) translateY(30px);filter:blur(6px)}60%{opacity:1;filter:blur(0)}100%{transform:none}}
+#rs .card .k{font-family:var(--px);font-size:7.5px;color:var(--grey);display:flex;justify-content:space-between;gap:8px;margin-bottom:6px}
+#rs .card h4{font-family:var(--px);font-size:12px;color:#fff;font-weight:400;line-height:1.15;margin-bottom:6px;text-transform:uppercase}
+#rs .card .big{font-family:var(--px);font-size:34px;line-height:1;margin:2px 0 4px}
+#rs .card .ft{display:flex;justify-content:space-between;font-family:var(--px);font-size:6.5px;color:#55585e;margin-top:8px}
+#rs .card .bars{display:flex;align-items:flex-end;gap:4px;height:66px;border-bottom:1px solid #333;padding-bottom:2px}
+#rs .card .bars i{flex:1;background:#e6e8ea;display:block;transform-origin:bottom;animation:sube .8s .4s both}
+#rs .card .bars i.c{background:var(--lime);box-shadow:0 0 8px color-mix(in srgb,var(--lime) 53%,transparent)}
+@keyframes sube{from{transform:scaleY(0)}}
+#rs .card .lb{display:flex;justify-content:space-between;font-family:var(--px);font-size:6.5px;color:#55585e;margin-top:3px}
+#rs .card td{padding:2px 6px 2px 0;font-size:9.5px}
+#rs .card svg{display:block;width:100%;height:auto;background:#07080a;border:1px solid #1d2024}
+#rs .card .src{display:flex;gap:6px;align-items:center;margin:3px 0;font-size:9.5px}
+#rs .card .src i{font-style:normal;font-family:var(--px);font-size:6.5px;padding:1px 4px;background:#1b1d21;color:var(--lime);min-width:52px;text-align:center}
+#rs .card pre{font-size:9px;color:var(--lime);white-space:pre-wrap;margin:0}
+#rs .core{position:absolute;left:50%;top:44%;transform:translate(-50%,-50%);transition:all .9s cubic-bezier(.7,0,.2,1);z-index:2}
+#rs .core.small{top:calc(100% - 92px);left:calc(100% - 70px);transform:translate(-50%,-50%) scale(.36)}
+#rs .rcard{position:absolute;left:50%;top:44%;transform:translate(-50%,-50%);width:min(440px,86vw);padding:15px 17px;border:2px solid #e6e8eacc;background:#0b0c0dee;box-shadow:0 0 30px #ffffff22;transition:transform 1s cubic-bezier(.7,0,.2,1),filter 1s,opacity 1s;z-index:2}
+#rs .rcard.vuela{transform:translate(-50%,-50%) scale(2.6);filter:blur(14px);opacity:0}
+#rs .rcard .t{font-family:var(--px);font-size:9px;color:var(--grey);display:flex;justify-content:space-between}
+#rs .rcard h2{font-family:var(--px);font-size:clamp(22px,6vw,34px);color:#fff;font-weight:400;margin:8px 0 4px;text-shadow:0 0 12px #fff6;line-height:1}
+#rs .rcard .st{font-family:var(--px);font-size:10px;color:#e6e8ea}
+#rs .rcard .seg{display:flex;gap:3px;margin:12px 0 8px}#rs .rcard .seg i{flex:1;height:12px;background:#222}#rs .rcard .seg i.on{background:#e6e8ea;box-shadow:0 0 6px #fff8}
+#rs .rcard .cnt{display:flex;justify-content:space-between;font-family:var(--px);font-size:10px}
+#rs .rcard .sub{display:flex;justify-content:space-between;font-family:var(--px);font-size:7.5px;color:#55585e;margin-top:6px}
+#rs .rcard .side-dot{position:absolute;right:-16px;top:46%;width:7px;height:7px;background:var(--red);box-shadow:0 0 8px var(--red);animation:parp 1s steps(2) infinite}
+@keyframes parp{50%{opacity:.2}}
+#rs .mini{position:absolute;left:16px;top:52px;z-index:3;font-family:var(--px);font-size:8px;color:#8b8e94;border:1px solid #2c2f33;background:#0b0c0dcc;padding:7px 9px;display:none}
+#rs .mini b{display:block;color:#fff;font-weight:400;font-size:11px;margin:3px 0}
+#rs .det{position:absolute;left:50%;top:45%;transform:translate(-50%,-50%) scale(.9);width:min(560px,92vw);max-height:72vh;overflow:auto;z-index:5;opacity:0;pointer-events:none;transition:all .45s cubic-bezier(.2,.7,.2,1)}
+#rs .det.on{opacity:1;transform:translate(-50%,-50%);pointer-events:auto}
+#rs .det .card{animation:none;font-size:12px;cursor:default;box-shadow:0 0 40px color-mix(in srgb,var(--lime) 20%,transparent)}
+#rs .det .card h4{font-size:16px}
+#rs .det .ex{margin-top:10px;padding-top:9px;border-top:1px dashed #3a3d42;color:#e6e8ea;font-size:12px}
+#rs .det .ex b{font-family:var(--px);font-weight:400;color:var(--lime);font-size:9px;display:block;margin-bottom:4px}
+#rs .cap{position:absolute;left:50%;bottom:40px;transform:translateX(-50%);width:min(760px,96vw);z-index:3;padding:6px 10px;background:linear-gradient(90deg,#08090a00,#08090ae6 15%,#08090ae6 85%,#08090a00);font-size:12px;color:#e6e8ea;text-align:center;min-height:34px;text-shadow:0 0 6px #000,0 0 2px #000}
+#rs .cap b{font-family:var(--px);font-weight:400;color:var(--lime);font-size:9px;margin-right:6px}
+#rs .lvl{position:absolute;left:0;right:0;bottom:14px;display:flex;align-items:center;gap:14px;padding:0 18px;font-family:var(--px);font-size:8px;color:#8b8e94;z-index:3}
+#rs .lvl .m{flex:0 0 30%;height:5px;background:#222;position:relative;overflow:hidden}#rs .lvl .m i{position:absolute;inset:0;right:auto;background:linear-gradient(90deg,var(--red),var(--red) 70%,#e6e8ea);transition:width .1s}
+#rs .lvl b{border:1px solid #8b8e94;padding:2px 6px;font-weight:400;cursor:pointer}
+#rs .lvl b.on{background:var(--red);color:#111;border-color:var(--red)}
+#rs .x{position:absolute;right:16px;top:14px;z-index:6;background:none;border:1px solid #444;color:#8b8e94;width:30px;height:30px;cursor:pointer}
+#rs .hint{position:absolute;left:18px;top:18px;font-family:var(--px);font-size:8px;color:#55585e;z-index:3}
+@media (max-width:600px){#rs .hint{display:none}#rs .mini{top:14px}#rs .cap{font-size:11px;bottom:36px}#rs .lvl .m{flex-basis:22%}}
+/* ---------- entrada (voz / texto) ---------- */
+#dock{position:fixed;left:0;right:0;bottom:0;z-index:6;padding:12px 16px calc(12px + env(safe-area-inset-bottom));background:linear-gradient(transparent,var(--bg) 30%)}
+#dock form{max-width:760px;margin:0 auto;display:flex;border:1px solid var(--lime-d);background:#0b0c0d}
+#dock input{flex:1;background:none;border:0;outline:0;padding:13px 12px;font-size:14px}
+#dock button{font-family:var(--px);background:var(--lime);color:var(--ink);border:0;padding:0 16px;cursor:pointer}
+#sugg{max-width:760px;margin:0 auto 8px;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}
+#sugg .chip{white-space:nowrap;margin:0}
+.mic{max-width:760px;margin:6px auto 0;font-size:10px;color:var(--grey);text-align:center}
+@media (max-width:560px){header{padding:12px 16px 8px}.ticker{display:none}main{padding:0 10px 150px}}
+/* ---------- MODO LIVIANO (PC patata): sin brillos, sin desenfoques, animación mínima ---------- */
+html.ligero *{box-shadow:none!important;text-shadow:none!important;filter:none!important;backdrop-filter:none!important}
+html.ligero body{background-image:none}
+html.ligero #rs::after,html.ligero body::after{display:none}
+html.ligero .mx-in,html.ligero .mx-flick{animation-duration:.15s!important}
+/* ---------- chat: pestaña + tecla (para equipos sin micrófono o cuando escribir es más cómodo) ---------- */
+#chattab{position:fixed;left:16px;bottom:calc(16px + env(safe-area-inset-bottom));z-index:7;display:flex;align-items:center;gap:8px;background:#0b0c0d;border:1px solid var(--lime);color:var(--lime);padding:8px 10px;cursor:pointer}
+#chattab kbd,.mic kbd{font-family:var(--px);font-size:9px;border:1px solid currentColor;padding:1px 5px;color:inherit;background:none}
+#chattab .px{font-size:11px}
+body:not(.chat) #dock{transform:translateY(110%);pointer-events:none}
+#dock{transition:transform .25s steps(4)}
+body.chat #chattab{display:none}
+#chatlog{max-width:760px;margin:0 auto 8px;max-height:30vh;overflow:auto;display:flex;flex-direction:column;gap:5px}
+#chatlog:empty{display:none}
+#chatlog div{font-size:12px;line-height:1.45;padding:6px 9px;border:1px solid var(--line);background:#0b0c0dee;max-width:88%}
+#chatlog div b{font-family:var(--px);font-weight:400;font-size:8px;margin-right:8px}
+#chatlog .yo{align-self:flex-end;border-color:var(--lime-d)}#chatlog .yo b{color:var(--grey)}
+#chatlog .ia b{color:var(--lime)}
+.nv{border:1px solid var(--line);background:#0b0c0d}
+.nvmodo{display:flex;gap:6px;align-items:center;padding:8px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.nvmodo b{font-family:var(--px);font-weight:400;font-size:10px;padding:6px 10px;border:1px solid #3a3d42;color:var(--grey);cursor:pointer}
+.nvmodo b.on{background:var(--lime);color:var(--ink);border-color:var(--lime)}
+.nvtabs{display:flex;gap:2px;padding:6px 6px 0;background:#141518;overflow-x:auto}
+.nvt{font-size:11px;padding:6px 10px;background:#1d1f22;color:var(--grey);cursor:pointer;white-space:nowrap;display:flex;gap:8px;align-items:center}
+.nvt.on{background:#0b0c0d;color:#fff;box-shadow:inset 0 2px 0 var(--lime)} .nvt b{font-weight:400;font-size:9px;opacity:.6}
+.nvt.mas{color:var(--lime);font-family:var(--px)}
+.nvbar{display:flex;gap:10px;align-items:center;padding:6px 10px;border-bottom:1px solid var(--line);color:var(--grey)}
+.nvbar input{flex:1;background:#141518;border:1px solid #2c2f33;padding:6px 10px;font-size:12px;outline:0}
+.nvweb{position:relative;padding:16px;min-height:220px}
+.nvres{padding:8px 0;border-bottom:1px dashed #2a2c30}
+.nvia{position:absolute;left:0;right:0;top:0;background:var(--lime);color:var(--ink);font-family:var(--px);font-size:9px;padding:4px 10px}
+.nvcur{position:absolute;width:14px;height:14px;background:var(--lime);left:50%;top:50%;transition:left .4s steps(6),top .4s steps(6);z-index:2;pointer-events:none}
+</style>
+</head>
+<body>
+<div class="frame"><i></i><i></i><i></i><i></i></div>
+
+<!-- ARRANQUE -->
+<div id="boot">
+  <pre id="bootcode"></pre>
+  <div id="bootmain">
+    <div class="logo" id="blogo" aria-label="Neo Orión"></div>
+    <div class="bar"><div id="bootbar"></div></div>
+    <div class="msg" id="bootmsg">init</div>
+  </div>
+  <div id="login" hidden>
+    <div class="px dim" style="font-size:12px;letter-spacing:.3em">IDENTIFICACIÓN POR VOZ</div>
+    <div id="pass"></div>
+    <div class="px dim" id="loginmsg" style="font-size:10px">di tu frase de acceso</div>
+  </div>
+</div>
+
+<div id="rs"><button class="x" aria-label="cerrar">✕</button><div class="hint">ARRASTRA PARA GIRAR · TOCA UN BLOQUE · DOBLE TOQUE: VISTA AUTOMÁTICA</div><div class="scene"><div class="wall" id="wall"></div></div></div>
+<header>
+  <div class="brand"><b>ORION</b><span>neo orión os · v0.3 · polaris</span></div>
+  <div class="ticker"><span>NODOS <em id="tk-nodes">1/3</em></span><span>IA <em id="tk-model">—</em></span><span>MEM <em id="tk-mem">0</em> EVENTOS</span><span id="tk-clock">--:--:--</span></div>
+</header>
+
+<main>
+  <section id="core">
+    <div id="vu" aria-hidden="true"></div>
+    <div class="state" id="state"><span class="dot"></span><span id="statetxt">ESCUCHANDO</span></div>
+    <div id="heard">Pantalla vacía a propósito: habla y la IA crea solo la interfaz que necesitas.</div>
+  </section>
+  <section id="panels"></section>
+</main>
+
+<button id="chattab" aria-label="Abrir chat (tecla /)"><span class="px">CHAT</span><kbd>/</kbd></button>
+<div id="dock">
+  <div id="chatlog" aria-live="polite"></div>
+  <div id="sugg"></div>
+  <form id="ask" autocomplete="off">
+    <input id="q" placeholder="«muéstrame el robot» · «escanea el hardware» · «onda en el codo…»" aria-label="Orden">
+    <button>ENVIAR</button>
+  </form>
+  <div class="mic" id="micmsg">Escribe o habla. <kbd>/</kbd> o <kbd>Ctrl</kbd>+<kbd>Espacio</kbd> abre el chat · <kbd>Esc</kbd> lo cierra.</div>
+</div>
+
+<script src="marathon.js"></script>
+<script>
+/* =========================================================
+   Neo Orión OS — prototipo del HUD
+   Todo lo de "atrás" (IA, traductor, guardián) está simulado
+   aquí en JS con la misma lógica que orion_motion (Python).
+   ========================================================= */
+const $ = s => document.querySelector(s);
+const el = (tag, cls, html) => { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; };
+const norm = t => t.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+const MEMORY = [];
+const remember = (tipo, texto) => { MEMORY.push({ t: new Date().toLocaleTimeString('es-CL'), tipo, texto }); $('#tk-mem').textContent = MEMORY.length; renderMemory(); };
+
+/* ---------------- arranque: código + login por voz ---------------- */
+(function boot() {
+  const code = ['[ OK ] kernel 6.8 · ubuntu noble', '[ OK ] montando /orion', 'orion-detect › host: torre x86_64 · 32 GB · RTX', 'orion-detect › usb 303a:1001 → ESP32-S3', 'orion-detect › /dev/video0 → cámara', 'orion-fit    › tope rápido: qwen3:14b (GPU)', 'ollama       › modelo cargado en VRAM', 'whisper      › oído activo · VAD continuo', 'piper        › voz: es-CL', 'orion-mcp    › 13 herramientas registradas', 'ros2         › dominio 42 · cyclonedds', 'nodos        › NODO-01 pi5 ✓ · NODO-02 pi4 …', 'guardian     › límites cargados (6 ejes)', 'memoria      › 1.204 documentos indexados', 'hud          › listo'];
+  const bc = $('#bootcode'); let i = 0;
+  const steps = ['montando núcleo', 'detectando hardware', 'cargando oído', 'despertando modelo', 'enlazando nodos', 'señal detectada'];
+  const t = setInterval(() => {
+    if (i < code.length) bc.innerHTML += code[i].replace(/^(\S+\s*›|\[ OK \])/, '<b>$1</b>') + '\n';
+    $('#bootbar').style.width = Math.min(100, (i + 1) * 100 / code.length) + '%';
+    $('#bootmsg').textContent = steps[Math.min(steps.length - 1, Math.floor(i / code.length * steps.length))];
+    i++;
+    if (i > code.length) { clearInterval(t); login(); }
+  }, 120);
+  function login() {
+    $('#bootmain').hidden = true; $('#login').hidden = false;
+    const pass = $('#pass'); pass.innerHTML = Array.from({ length: 8 }, () => '<i>' + '<span></span>'.repeat(9) + '</i>').join('');
+    const cells = pass.querySelectorAll('i'); let k = 0;
+    const tt = setInterval(() => {
+      if (k < cells.length) { cells[k++].classList.add('on'); return; }
+      clearInterval(tt); pass.classList.add('ok'); $('#loginmsg').innerHTML = '<span class="lime">voz reconocida · acceso concedido</span>';
+      setTimeout(() => { $('#boot').style.opacity = 0; setTimeout(() => $('#boot').remove(), 500); }, 650);
+    }, 110);
+  }
+})();
+setInterval(() => $('#tk-clock').textContent = new Date().toLocaleTimeString('es-CL'), 1000);
+
+/* ---------------- indicador de voz mínimo ---------------- */
+const vu = $('#vu'); vu.innerHTML = '<i></i>'.repeat(28);
+let level = 0, thinking = false;
+(function loop(t) {
+  level += ((thinking ? 1 : 0.18) - level) * 0.06;
+  vu.querySelectorAll('i').forEach((b, i) => { const h = 3 + Math.abs(Math.sin(t / 180 + i * .7) * Math.sin(t / 470 + i)) * 28 * level; b.style.height = h + 'px'; });
+  requestAnimationFrame(loop);
+})(0);
+function setState(txt, think) {
+  thinking = think; $('#statetxt').textContent = txt;
+  $('#state').classList.toggle('think', !!think);
+}
+
+/* ---------------- panel genérico ---------------- */
+const OPEN = {};
+function panel(id, tag, title, wide) {
+  if (OPEN[id]) { OPEN[id].scrollIntoView({ behavior: 'smooth', block: 'center' }); return null; }
+  const p = el('div', 'panel' + (wide ? ' wide' : ''));
+  const h = el('div', 'ph', `<span class="tag">${tag}</span><span class="title">${title}</span>`);
+  const x = el('button', 'x', '✕'); x.onclick = () => { p.remove(); delete OPEN[id]; };
+  h.appendChild(x); p.appendChild(h);
+  $('#panels').prepend(p); OPEN[id] = p; document.body.classList.add('busy');
+  if (window.MX) { p.classList.add('mx-in'); if (wide) p.classList.add('mx-cruz'); const tt = h.querySelector('.title'); MX.scramble(tt, tt.textContent, 450); MX.scramble(h.querySelector('.tag'), tag, 300); setTimeout(() => MX.glitch(tt), 460); }
+  setTimeout(() => p.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60);
+  return p;
+}
+
+/* =========================================================
+   1) ESCANEO DE HARDWARE  →  qué IA cabe (igual que orion-fit)
+   ========================================================= */
+const CATALOG = [
+  ['qwen3:0.6b', .6, .8, 'mínimo absoluto'], ['qwen3:1.7b', 1.7, 1.6, 'nodo robot / Pi 5'],
+  ['gemma3:4b', 4, 3.6, 'liviano con visión'], ['qwen3:8b', 8, 6, 'general, notebook 16 GB'],
+  ['gemma3:12b', 12, 9, 'general + visión'], ['qwen3:14b', 14, 10.5, 'razonamiento + herramientas'],
+  ['gpt-oss:20b', 21, 14, 'agente con herramientas'], ['gemma3:27b', 27, 19, 'calidad máx. < 24 GB'],
+  ['qwen3:30b-a3b', 30, 20, 'MoE, rápido en CPU', true], ['qwen3:32b', 32, 22, 'tope GPU 24 GB'],
+  ['gpt-oss:120b', 117, 66, 'estación 80 GB+'] ];
+function fit(ram, vram) {
+  let fast, max, mode;
+  if (vram >= 4) { fast = vram * .9; max = fast + Math.max(0, ram - 3) * .6; mode = 'GPU'; }
+  else { const u = Math.max(0, ram - 3) * .9; fast = Math.min(u, 6.5); max = u; mode = 'CPU'; }
+  const fits = CATALOG.filter(m => m[2] <= fast || (mode === 'CPU' && m[4] && m[2] <= max)).sort((a, b) => a[1] - b[1]);
+  const stretch = CATALOG.filter(m => !fits.includes(m) && m[2] <= max);
+  return { mode, fast, max, best: fits.at(-1), stretch: stretch.at(-1) };
+}
+function hwPanel() {
+  const p = panel('hw', 'SCAN', 'Escaneo de hardware'); if (!p) return;
+  const cores = navigator.hardwareConcurrency || 4;
+  const ramGuess = navigator.deviceMemory || 8;
+  p.insertAdjacentHTML('beforeend', `
+    <div class="row"><span class="lbl">CPU</span><span>${cores} núcleos lógicos</span></div>
+    <div class="row"><span class="lbl">RAM</span><input type="range" id="hw-ram" min="2" max="128" step="2" value="${ramGuess}"><span class="val" id="hw-ramv"></span></div>
+    <div class="row"><span class="lbl">VRAM</span><input type="range" id="hw-vram" min="0" max="48" step="2" value="0"><span class="val" id="hw-vramv"></span></div>
+    <div class="row"><span class="lbl">MEMORIA</span><div class="meter"><div id="hw-bar"></div></div></div>
+    <div style="margin-top:12px" class="dim px" >tope rápido</div>
+    <div class="big" id="hw-best">—</div>
+    <div class="dim" id="hw-role"></div>
+    <div id="hw-stretch" style="margin-top:6px"></div>
+    <div class="dim" style="margin-top:10px;font-size:11px">Aquí el navegador solo estima la RAM (máx. 8 GB). En el sistema instalado <span class="lime">orion-fit</span> lee la RAM, la GPU y el disco reales. Mueve los controles para simular otro equipo.</div>
+    <button class="btn" style="margin-top:12px" id="hw-go">INSTALAR MODELO</button>`);
+  const upd = () => {
+    const ram = +$('#hw-ram').value, vram = +$('#hw-vram').value, r = fit(ram, vram);
+    $('#hw-ramv').textContent = ram + ' GB'; $('#hw-vramv').textContent = vram ? vram + ' GB' : 'sin GPU';
+    $('#hw-bar').style.width = Math.min(100, r.fast / 66 * 100) + '%';
+    $('#hw-best').textContent = r.best ? r.best[0] : 'SOLO NUBE';
+    $('#hw-role').textContent = r.best ? `${r.best[1]}B · ${r.best[2]} GB · ${r.best[3]} · modo ${r.mode}` : 'Ningún modelo local cabe con holgura: el cerebro será Claude en la nube.';
+    $('#hw-stretch').innerHTML = r.stretch ? `<span class="px dim" style="font-size:9px">tope absoluto</span> ${r.stretch[0]} <span class="dim">(corre, pero lento para conversar)</span>` : '';
+    $('#tk-model').textContent = r.best ? r.best[0] : 'nube';
+  };
+  $('#hw-ram').oninput = upd; $('#hw-vram').oninput = upd; upd();
+  $('#hw-go').onclick = () => { const m = $('#hw-best').textContent; remember('sistema', `instalación pedida: ollama pull ${m}`); say(`Descargando ${m} con Ollama en segundo plano.`); };
+}
+
+/* =========================================================
+   2) GEMELO DIGITAL DEL ROBOT  (ángulos, grados, cinemática)
+   ========================================================= */
+const JOINTS = [
+  { id: 'A1', alias: ['base', 'cintura', 'giro'], min: -150, max: 150, vmax: 180 },
+  { id: 'A2', alias: ['hombro', 'brazo'], min: -90, max: 90, vmax: 120, L: 116 },
+  { id: 'A3', alias: ['codo', 'antebrazo'], min: -120, max: 120, vmax: 150, L: 135 },
+  { id: 'A4', alias: ['muneca', 'pitch'], min: -100, max: 100, vmax: 200, L: 100 },
+  { id: 'A5', alias: ['rotacion', 'roll'], min: -170, max: 170, vmax: 250 },
+  { id: 'A6', alias: ['pinza', 'garra', 'gripper', 'mano'], min: 0, max: 100, vmax: 300 } ];
+const POSE = { A1: 0, A2: 0, A3: 0, A4: 0, A5: 0, A6: 10 };
+const TARGET = { ...POSE };
+const SAVED = {};
+let WAVE = null;   // {id, A, f, k, c, t0, dur}
+const FLOOR = 10;
+
+function fkPlanar(p) {
+  const pts = [[0, 0], [0, 120]]; let a = 0, x = 0, z = 120;
+  ['A2', 'A3', 'A4'].forEach(id => {
+    const j = JOINTS.find(q => q.id === id); a += p[id] * Math.PI / 180;
+    x += j.L * Math.sin(a); z += j.L * Math.cos(a); pts.push([x, z]);
+  });
+  return pts;
+}
+
+function robotPanel() {
+  const p = panel('robot', 'TWIN', 'Gemelo digital · brazo 6 ejes', true); if (!p) return;
+  p.insertAdjacentHTML('beforeend', `
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:14px">
+      <div><canvas id="arm" width="640" height="440"></canvas>
+        <div class="dim" style="font-size:11px;margin-top:6px">Vista lateral. Arcos grises = rango de cada servo · arco verde = ángulo actual. A1 (base) y A5 (giro de muñeca) se ven en los diales.</div></div>
+      <div id="sliders"></div>
+    </div>`);
+  const box = $('#sliders');
+  JOINTS.forEach(j => {
+    box.insertAdjacentHTML('beforeend', `<div class="row"><span class="lbl">${j.id} ${j.alias[0]}</span>
+      <input type="range" min="${j.min}" max="${j.max}" value="${POSE[j.id]}" id="s-${j.id}"><span class="val" id="v-${j.id}">0°</span></div>`);
+  });
+  box.insertAdjacentHTML('beforeend', `<div class="row" style="margin-top:10px"><span class="lbl">EFECTOR</span><span id="eff" class="lime"></span></div>
+    <div style="margin-top:8px"><span class="chip" data-q="guarda esta posición como 1A">GUARDAR 1A</span><span class="chip" data-q="ejecuta 1A">EJECUTAR 1A</span><span class="chip" data-q="posición inicial">INICIO</span><span class="chip" data-q="onda en el codo amplitud 25 frecuencia 0.5">ONDA CODO</span></div>`);
+  JOINTS.forEach(j => $('#s-' + j.id).oninput = e => { TARGET[j.id] = +e.target.value; WAVE = null; });
+  box.querySelectorAll('[data-q]').forEach(c => c.onclick = () => handle(c.dataset.q));
+}
+
+function drawArm() {
+  const c = $('#arm'); if (!c) return;
+  const g = c.getContext('2d'), W = c.width, H = c.height;
+  g.clearRect(0, 0, W, H);
+  // grilla de puntos
+  g.fillStyle = '#2a2c30';
+  for (let x = 20; x < W; x += 32) for (let y = 20; y < H; y += 32) g.fillRect(x, y, 2, 2);
+  const ox = W * .40, oy = H - 40, s = (H - 100) / 480;
+  const P = p => [ox + p[0] * s, oy - p[1] * s];
+  // piso
+  g.strokeStyle = ACC + '55'; g.setLineDash([4, 6]); g.beginPath(); g.moveTo(20, oy - FLOOR * s); g.lineTo(W - 20, oy - FLOOR * s); g.stroke(); g.setLineDash([]);
+  g.fillStyle = '#8b8e94'; g.font = '11px JetBrains Mono'; g.fillText('PISO +10 mm', 24, oy - FLOOR * s - 6);
+  const pts = fkPlanar(POSE);
+  // eslabones
+  g.lineCap = 'square';
+  for (let i = 0; i < pts.length - 1; i++) {
+    const [x1, y1] = P(pts[i]), [x2, y2] = P(pts[i + 1]);
+    g.strokeStyle = i === 0 ? '#55585e' : '#e6e8ea'; g.lineWidth = i === 0 ? 18 : 12;
+    g.beginPath(); g.moveTo(x1, y1); g.lineTo(x2, y2); g.stroke();
+  }
+  // base
+  g.fillStyle = '#1d1f22'; g.strokeStyle = ACC; g.lineWidth = 1.5;
+  g.fillRect(ox - 50, oy - 6, 100, 14); g.strokeRect(ox - 50, oy - 6, 100, 14);
+  // arcos de cada articulación (rango gris + ángulo verde)
+  let acc = 0;
+  ['A2', 'A3', 'A4'].forEach((id, i) => {
+    const j = JOINTS.find(q => q.id === id), [x, y] = P(pts[i + 1]);
+    const base = -Math.PI / 2 + acc * Math.PI / 180;   // dirección del eslabón anterior
+    const r = 30;
+    g.strokeStyle = '#3a3d42'; g.lineWidth = 6;
+    g.beginPath(); g.arc(x, y, r, base + j.min * Math.PI / 180, base + j.max * Math.PI / 180); g.stroke();
+    g.strokeStyle = ACC; g.lineWidth = 3;
+    const a0 = base, a1 = base + POSE[id] * Math.PI / 180;
+    g.beginPath(); g.arc(x, y, r, Math.min(a0, a1), Math.max(a0, a1)); g.stroke();
+    // marcas cada 30°
+    g.strokeStyle = '#8b8e94'; g.lineWidth = 1;
+    for (let d = j.min; d <= j.max; d += 30) { const a = base + d * Math.PI / 180; g.beginPath(); g.moveTo(x + Math.cos(a) * (r + 4), y + Math.sin(a) * (r + 4)); g.lineTo(x + Math.cos(a) * (r + 9), y + Math.sin(a) * (r + 9)); g.stroke(); }
+    // servo
+    g.fillStyle = '#000'; g.fillRect(x - 9, y - 9, 18, 18); g.strokeStyle = ACC; g.lineWidth = 2; g.strokeRect(x - 9, y - 9, 18, 18);
+    g.fillStyle = ACC; g.fillRect(x + r + 12, y - 9, 66, 18);
+    g.fillStyle = '#111'; g.font = 'bold 11px JetBrains Mono'; g.fillText(`${id} ${POSE[id].toFixed(0)}°`, x + r + 16, y + 4);
+    acc += POSE[id];
+  });
+  // pinza
+  const [ex, ey] = P(pts.at(-1)), open = 4 + POSE.A6 * .16, ang = -Math.PI / 2 + acc * Math.PI / 180;
+  g.strokeStyle = PEL(); g.lineWidth = 4;
+  [-1, 1].forEach(sd => { const a = ang + sd * .5; g.beginPath(); g.moveTo(ex, ey); g.lineTo(ex + Math.cos(a) * 18 + Math.cos(ang + sd * Math.PI / 2) * open, ey + Math.sin(a) * 18 + Math.sin(ang + sd * Math.PI / 2) * open); g.stroke(); });
+  // diales A1 y A5
+  [['A1', W - 70, 70], ['A5', W - 70, 170]].forEach(([id, x, y]) => {
+    const j = JOINTS.find(q => q.id === id);
+    g.strokeStyle = '#3a3d42'; g.lineWidth = 5; g.beginPath(); g.arc(x, y, 34, -Math.PI / 2 + j.min * Math.PI / 180, -Math.PI / 2 + j.max * Math.PI / 180); g.stroke();
+    const a = -Math.PI / 2 + POSE[id] * Math.PI / 180;
+    g.strokeStyle = ACC; g.lineWidth = 2; g.beginPath(); g.moveTo(x, y); g.lineTo(x + Math.cos(a) * 30, y + Math.sin(a) * 30); g.stroke();
+    g.fillStyle = '#8b8e94'; g.font = '10px Silkscreen'; g.fillText(id, x - 9, y + 52);
+    g.fillStyle = '#e6e8ea'; g.font = '11px JetBrains Mono'; g.fillText(POSE[id].toFixed(0) + '°', x + 12, y + 52);
+  });
+  // efector
+  const e = pts.at(-1);
+  const eff = $('#eff'); if (eff) eff.textContent = `x ${e[0].toFixed(0)} mm · z ${e[1].toFixed(0)} mm`;
+  JOINTS.forEach(j => { const v = $('#v-' + j.id), s = $('#s-' + j.id); if (v) v.textContent = POSE[j.id].toFixed(0) + '°'; if (s && document.activeElement !== s) s.value = POSE[j.id]; });
+}
+
+/* animación: los servos van al objetivo respetando su velocidad máxima */
+let last = performance.now();
+(function anim(t) {
+  const dt = Math.min(.05, (t - last) / 1000); last = t;
+  if (WAVE) {
+    const tt = (t - WAVE.t0) / 1000;
+    if (tt > WAVE.dur) { WAVE = null; }
+    else { const v = WAVE.c + WAVE.A * Math.sin(2 * Math.PI * WAVE.f * WAVE.k * tt); TARGET[WAVE.id] = v; POSE[WAVE.id] = v; }
+  }
+  JOINTS.forEach(j => {
+    if (WAVE && WAVE.id === j.id) return;
+    const d = TARGET[j.id] - POSE[j.id], step = (j.vel || j.vmax) * dt;
+    POSE[j.id] += Math.abs(d) < step ? d : Math.sign(d) * step;
+  });
+  drawArm(); drawWave(t);
+  requestAnimationFrame(anim);
+})(last);
+
+/* =========================================================
+   3) ONDA — la matemática del movimiento
+   ========================================================= */
+function wavePanel(pre) {
+  const p = panel('wave', 'MATH', 'Movimiento por onda'); if (!p) { if (pre) setWave(pre); return; }
+  p.insertAdjacentHTML('beforeend', `
+    <div class="formula">θ(t) = c + <span class="lime">A</span> · sin(2π · <span class="lime">f</span> · <span class="lime">k</span> · t)</div>
+    <div class="row"><span class="lbl">EJE</span><select id="w-j">${JOINTS.slice(1, 5).map(j => `<option value="${j.id}">${j.id} ${j.alias[0]}</option>`).join('')}</select></div>
+    <div class="row"><span class="lbl">A ampl.</span><input type="range" id="w-a" min="2" max="90" value="25"><span class="val" id="w-av"></span></div>
+    <div class="row"><span class="lbl">f frec.</span><input type="range" id="w-f" min="0.1" max="3" step="0.05" value="0.5"><span class="val" id="w-fv"></span></div>
+    <div class="row"><span class="lbl">k veloc.</span><input type="range" id="w-k" min="0.25" max="4" step="0.25" value="1"><span class="val" id="w-kv"></span></div>
+    <canvas id="wplot" width="640" height="200"></canvas>
+    <div class="row"><span class="lbl">PICO ω</span><span id="w-peak"></span></div>
+    <div id="w-warn"></div>
+    <div class="dim" style="font-size:11px;margin:8px 0">Multiplicar toda la ecuación por un número cambia la <b>altura</b> (amplitud), no la velocidad. Para ir más rápido se multiplica la <b>frecuencia</b>: eso es <span class="lime">k</span>. La velocidad máxima del servo es 2π·f·k·A, y el Guardián la limita.</div>
+    <button class="btn" id="w-go">EJECUTAR ONDA</button>`);
+  ['w-a', 'w-f', 'w-k', 'w-j'].forEach(i => $('#' + i).oninput = updWave);
+  $('#w-go').onclick = () => handle(`onda en ${$('#w-j').value} amplitud ${$('#w-a').value} frecuencia ${$('#w-f').value} por ${$('#w-k').value} la velocidad`);
+  if (pre) setWave(pre); updWave();
+}
+function setWave(w) { if (!$('#w-a')) return; $('#w-j').value = w.id; $('#w-a').value = w.A; $('#w-f').value = w.f; $('#w-k').value = w.k; updWave(); }
+function updWave() {
+  const id = $('#w-j').value, A = +$('#w-a').value, f = +$('#w-f').value, k = +$('#w-k').value, j = JOINTS.find(q => q.id === id);
+  $('#w-av').textContent = A + '°'; $('#w-fv').textContent = f + ' Hz'; $('#w-kv').textContent = '×' + k;
+  const peak = 2 * Math.PI * f * k * A;
+  $('#w-peak').innerHTML = `<span class="${peak > j.vmax ? 'red' : 'lime'}">${peak.toFixed(0)} °/s</span> <span class="dim">/ máx ${j.vmax} °/s del servo ${id}</span>`;
+  $('#w-warn').innerHTML = peak > j.vmax ? `<div class="warn">EXCEDE EL SERVO · el guardián bajará k a ×${(j.vmax / (2 * Math.PI * f * A)).toFixed(2)}</div>` : '';
+}
+function drawWave(t) {
+  const c = $('#wplot'); if (!c) return;
+  const g = c.getContext('2d'), W = c.width, H = c.height, A = +$('#w-a').value, f = +$('#w-f').value, k = +$('#w-k').value;
+  g.clearRect(0, 0, W, H);
+  g.strokeStyle = '#2a2c30'; g.lineWidth = 1;
+  for (let x = 0; x < W; x += 40) { g.beginPath(); g.moveTo(x, 0); g.lineTo(x, H); g.stroke(); }
+  g.beginPath(); g.moveTo(0, H / 2); g.lineTo(W, H / 2); g.stroke();
+  const draw = (kk, col, w) => { g.strokeStyle = col; g.lineWidth = w; g.beginPath();
+    for (let x = 0; x <= W; x++) { const tt = x / W * 4, y = H / 2 - (A / 90) * (H / 2 - 10) * Math.sin(2 * Math.PI * f * kk * tt); x ? g.lineTo(x, y) : g.moveTo(x, y); } g.stroke(); };
+  draw(1, '#55585e', 1.5);   // referencia k = 1
+  draw(k, ACC, 2.5);
+  const cur = ((t / 1000) % 4) / 4 * W;
+  g.strokeStyle = PEL(); g.beginPath(); g.moveTo(cur, 0); g.lineTo(cur, H); g.stroke();
+  g.fillStyle = '#8b8e94'; g.font = '11px JetBrains Mono'; g.fillText('0 s', 4, H - 6); g.fillText('4 s', W - 26, H - 6);
+  g.fillText('gris: k=1   verde: k=' + k, 8, 14);
+}
+
+/* =========================================================
+   4) LAS DOS MENTES: IA (habla) → TRADUCTOR → GUARDIÁN
+   ========================================================= */
+function findJoint(t) {
+  const m = t.match(/\b([a][1-6])\b/); if (m) return JOINTS.find(j => j.id === m[1].toUpperCase());
+  for (const j of JOINTS) for (const a of j.alias) if (new RegExp('\\b' + a + '\\b').test(t)) return j;
+  // aproximación por letras compartidas (errores de dictado)
+  let best = null, sc = 0;
+  for (const w of t.match(/[a-z]{4,}/g) || []) for (const j of JOINTS) for (const a of j.alias) {
+    const s = sim(w, a); if (s > sc) { sc = s; best = j; } }
+  return sc >= .75 ? best : null;
+}
+function sim(a, b) { const m = Array.from({ length: a.length + 1 }, (_, i) => [i]); for (let j = 1; j <= b.length; j++) m[0][j] = j;
+  for (let i = 1; i <= a.length; i++) for (let j = 1; j <= b.length; j++) m[i][j] = Math.min(m[i - 1][j] + 1, m[i][j - 1] + 1, m[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+  return 1 - m[a.length][b.length] / Math.max(a.length, b.length); }
+const num = s => parseFloat(s.replace(',', '.'));
+function translate(raw) {
+  const parts = norm(raw).split(/\s*(?:,|;|\by luego\b|\bdespues\b|\bluego\b)\s*/).filter(Boolean);
+  return parts.map(t => {
+    if (/\b(alto|detente|stop|emergencia|frena)\b/.test(t)) return { k: 'STOP' };
+    if (/\b(inicio|inicial|home|reposo)\b/.test(t)) return { k: 'HOME' };
+    let m = t.match(/\b(?:guarda|graba|memoriza)\b.*?\b(?:como|en)\s+([a-z0-9]{1,4})\b/); if (m) return { k: 'SAVE', name: m[1].toUpperCase() };
+    m = t.match(/\b(?:ejecuta|repite|posicion)\s+([0-9]{1,2}[a-z]|[a-z][0-9]{1,2})\b/); if (m) return { k: 'MACRO', name: m[1].toUpperCase() };
+    const j = findJoint(t); if (!j) return { k: '?', t };
+    if (/\b(onda|oscila|ondula|balancea|senoidal)/.test(t)) {
+      const A = t.match(/amplitud\s+(?:de\s+)?(-?\d+(?:[.,]\d+)?)/), f = t.match(/frecuencia\s+(?:de\s+)?(\d+(?:[.,]\d+)?)|(\d+(?:[.,]\d+)?)\s*hz/), k = t.match(/(?:por|x)\s*(\d+(?:[.,]\d+)?)\s*(?:veces)?\s*(?:la velocidad|mas rapido)/);
+      return { k: 'WAVE', j, A: A ? num(A[1]) : 20, f: f ? num(f[1] || f[2]) : .5, m: k ? num(k[1]) : 1 };
+    }
+    if (j.id === 'A6' && /\b(abre|cierra)\b/.test(t)) return { k: 'SET', j, v: /abre/.test(t) ? j.max : j.min };
+    const slow = /\b(lento|despacio|suave)\b/.test(t);
+    m = t.match(/(-?\d+(?:[.,]\d+)?)\s*(?:grados|°)?\s*(mas|menos)\b/) || t.match(/\b(sube|baja)\s+(?:el\s+\w+\s+)?(\d+(?:[.,]\d+)?)/);
+    if (m) { const v = /sube|baja/.test(m[1]) ? num(m[2]) * (m[1] === 'sube' ? 1 : -1) : num(m[1]) * (m[2] === 'mas' ? 1 : -1); return { k: 'REL', j, v, slow }; }
+    m = t.match(/(?:a|en|hasta)\s+(-?\d+(?:[.,]\d+)?)/) || t.match(/(-?\d+(?:[.,]\d+)?)\s*(?:grados|°)/);
+    if (m) return { k: 'SET', j, v: num(m[1]), slow };
+    return { k: '?', t };
+  });
+}
+function guard(c) {
+  const notes = [];
+  if (c.k === 'SET' || c.k === 'REL') {
+    let v = c.k === 'SET' ? c.v : TARGET[c.j.id] + c.v;
+    if (v < c.j.min || v > c.j.max) { const cl = Math.max(c.j.min, Math.min(c.j.max, v)); notes.push(`${c.j.id} ${v}° fuera de rango → ${cl}°`); v = cl; }
+    const pose = { ...TARGET, [c.j.id]: v };
+    const low = fkPlanar(pose).slice(2).find(p => p[1] < FLOOR);
+    if (low) return { ok: false, notes: [...notes, `el brazo bajaría a z=${low[1].toFixed(0)} mm (bajo el piso)`], c };
+    c.k = 'SET'; c.v = v; c.vel = c.slow ? 30 : c.j.vmax;
+    return { ok: true, notes, c };
+  }
+  if (c.k === 'WAVE') {
+    const room = Math.min(TARGET[c.j.id] - c.j.min, c.j.max - TARGET[c.j.id]);
+    if (Math.abs(c.A) > room) { notes.push(`amplitud ${c.A}° → ${room}° (rango)`); c.A = room; }
+    const peak = 2 * Math.PI * c.f * c.m * c.A;
+    if (peak > c.j.vmax) { const km = c.j.vmax / (2 * Math.PI * c.f * c.A); notes.push(`pico ${peak.toFixed(0)}°/s > ${c.j.vmax}°/s → k=${km.toFixed(2)}`); c.m = km; }
+    return { ok: true, notes, c };
+  }
+  if (c.k === 'MACRO' && !SAVED[c.name]) return { ok: false, notes: [`no existe la posición ${c.name}`], c };
+  if (c.k === '?') return { ok: false, notes: ['no reconocí una orden de movimiento'], c };
+  return { ok: true, notes, c };
+}
+function fmt(c) {
+  switch (c.k) {
+    case 'SET': return `SET ${c.j.id} ${c.v.toFixed(0)}° vel=${c.vel}`;
+    case 'WAVE': return `WAVE ${c.j.id} A=${c.A.toFixed(0)} f=${c.f} k=${(+c.m).toFixed(2)}`;
+    case 'SAVE': case 'MACRO': return `${c.k} ${c.name}`;
+    default: return c.k;
+  }
+}
+function execute(c) {
+  if (c.k === 'SET') { TARGET[c.j.id] = c.v; c.j.vel = c.vel; WAVE = null; }
+  if (c.k === 'HOME') { JOINTS.forEach(j => { TARGET[j.id] = j.id === 'A6' ? 10 : 0; j.vel = j.vmax * .4; }); WAVE = null; }
+  if (c.k === 'STOP') { JOINTS.forEach(j => TARGET[j.id] = POSE[j.id]); WAVE = null; if (window.MX) MX.alerta('ALTO · GUARDIÁN', 1300); }
+  if (c.k === 'SAVE') { SAVED[c.name] = { ...TARGET }; }
+  if (c.k === 'MACRO') { Object.assign(TARGET, SAVED[c.name]); JOINTS.forEach(j => j.vel = j.vmax * .5); WAVE = null; }
+  if (c.k === 'WAVE') { WAVE = { id: c.j.id, A: c.A, f: c.f, k: c.m, c: TARGET[c.j.id], t0: performance.now(), dur: 6 }; }
+}
+function consolePanel() {
+  const p = panel('console', 'LINK', 'Dos mentes · IA → traductor → guardián'); if (!p) return;
+  p.insertAdjacentHTML('beforeend', `<div class="log" id="clog"></div>
+    <div class="dim" style="font-size:11px;margin-top:8px">La IA solo habla. El traductor (Python, sin IA) convierte sus palabras en órdenes exactas y el guardián decide si se ejecutan. La IA nunca toca los motores directo.</div>`);
+}
+function logLine(html) { consolePanel(); const l = $('#clog'); if (!l) return; l.insertAdjacentHTML('beforeend', html); l.scrollTop = l.scrollHeight; }
+function motion(text) {
+  robotPanel(); consolePanel();
+  logLine(`<div class="q"><span class="v ia">IA</span>${text}</div>`);
+  translate(text).forEach(c => {
+    const r = guard(c);
+    logLine(`<div><span class="v tr">TRAD</span>${c.k === '?' ? '<span class="dim">—</span>' : fmt(r.c)}</div>`);
+    logLine(`<div class="${r.ok ? 'ok' : 'no'}"><span class="v ${r.ok ? 'ok' : 'no'}">${r.ok ? 'OK' : 'BLOQ'}</span>${r.notes.join(' · ') || 'dentro de límites'}</div>`);
+    if (r.ok) { execute(r.c); if (r.c.k === 'WAVE') wavePanel({ id: r.c.j.id, A: Math.round(r.c.A), f: r.c.f, k: Math.round(r.c.m * 4) / 4 || .25 }); }
+    remember('movimiento', `${text} → ${c.k === '?' ? '?' : fmt(r.c)} [${r.ok ? 'ok' : 'bloqueado'}]`);
+  });
+}
+
+/* =========================================================
+   5) NODOS — la PC central configura las Raspberry
+   ========================================================= */
+const NODES = [
+  { id: 'CENTRAL', hw: 'este equipo · cerebro + HUD', st: 'on', ic: 'PC' },
+  { id: 'NODO-01', hw: 'Raspberry Pi 5 · brazo 6 ejes', st: 'off', ic: 'PI5' },
+  { id: 'NODO-02', hw: 'Raspberry Pi 4 · base con ruedas + lidar', st: 'off', ic: 'PI4' } ];
+function nodesPanel() {
+  const p = panel('nodes', 'NET', 'Nodos · flota de robots'); if (!p) return;
+  p.insertAdjacentHTML('beforeend', `<div id="nlist"></div>
+    <div class="dim" style="font-size:11px;margin:6px 0 10px">Como un Flipper: la central escribe la imagen y la configuración en la Raspberry; después el nodo arranca solo, sin pantalla, y funciona autónomo.</div>
+    <button class="btn" id="sync">SINCRONIZAR NODOS</button><div id="nprog"></div>`);
+  renderNodes();
+  $('#sync').onclick = syncNodes;
+}
+function renderNodes() {
+  const l = $('#nlist'); if (!l) return;
+  l.innerHTML = NODES.map(n => `<div class="node"><div class="ic">${n.ic}</div><div><div class="px" style="font-size:11px">${n.id}</div><div class="dim" style="font-size:11px">${n.hw}</div></div><span class="st ${n.st}">${{ on: 'ONLINE', off: 'OFFLINE', sync: 'SYNC' }[n.st]}</span></div>`).join('');
+  $('#tk-nodes').textContent = NODES.filter(n => n.st === 'on').length + '/' + NODES.length;
+}
+function syncNodes() {
+  const box = $('#nprog'); $('#sync').disabled = true;
+  NODES.slice(1).forEach(n => n.st = 'sync'); renderNodes();
+  const steps = ['IMAGEN BASE', 'ROS 2 / DRIVERS', 'PERFIL ROBOT', 'CALIBRACIÓN', 'GUARDIÁN', 'MODELO LOCAL', 'SERVICIOS', 'VERIFICAR'];
+  box.innerHTML = '<div style="margin-top:12px"></div>' + steps.map((s, i) => `<div class="align"><span style="width:96px">${s}</span><span class="tr"><i id="al${i}"></i></span><span id="ap${i}">0%</span></div>`).join('');
+  let i = 0;
+  const t = setInterval(() => {
+    if (i < steps.length) { $('#al' + i).style.width = '100%'; $('#ap' + i).textContent = 'OK'; i++; return; }
+    clearInterval(t); NODES.forEach(n => n.st = 'on'); renderNodes();
+    box.insertAdjacentHTML('beforeend', `<div class="done"><svg width="90" height="70" viewBox="0 0 9 7" shape-rendering="crispEdges"><path d="M0 3h1v1H0zM1 4h1v1H1zM2 5h1v1H2zM3 4h1v1H3zM4 3h1v1H4zM5 2h1v1H5zM6 1h1v1H6zM7 0h1v1H7z" fill="#111"/></svg></div>`);
+    remember('flota', 'nodos 01 y 02 sincronizados con la central'); $('#sync').disabled = false;
+  }, 420);
+}
+
+/* =========================================================
+   6) CALIBRACIÓN CON FOTO — marca dónde está cada servo
+   ========================================================= */
+function calibPanel() {
+  const p = panel('calib', 'CAL', 'Calibración con foto de referencia', true); if (!p) return;
+  p.insertAdjacentHTML('beforeend', `
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:14px">
+      <div><div class="calib-wrap" id="cwrap"><label class="chip" style="cursor:pointer">SUBIR FOTO DEL ROBOT<input type="file" accept="image/*" id="cfile" hidden></label></div></div>
+      <div>
+        <div class="row"><span class="lbl">VISTA</span><select id="cview"><option>frente</option><option>lateral derecha</option><option>lateral izquierda</option><option>superior</option></select></div>
+        <div class="row"><span class="lbl">MARCAR</span><select id="cjoint">${JOINTS.map(j => `<option>${j.id}</option>`).join('')}</select><span class="dim">toca la foto</span></div>
+        <div class="log" id="cmarks" style="margin:10px 0"></div>
+        <div class="dim" style="font-size:11px;margin-bottom:10px">Pasos: 1) marca cada servo sobre la foto · 2) ORION mueve cada uno a 0°, 45° y 90° · 3) la cámara mide el ángulo real · 4) se corrigen el desfase y el sentido de giro. Desde ahí el robot recuerda su calibración.</div>
+        <button class="btn" id="ctest">PRUEBA DE RANGO</button>
+      </div></div>`);
+  $('#cfile').onchange = e => {
+    const f = e.target.files[0]; if (!f) return;
+    const img = new Image(); img.src = URL.createObjectURL(f);
+    const w = $('#cwrap'); w.innerHTML = ''; w.appendChild(img); w.style.display = 'block';
+    img.onclick = ev => {
+      const r = img.getBoundingClientRect(), x = (ev.clientX - r.left) / r.width, y = (ev.clientY - r.top) / r.height, id = $('#cjoint').value;
+      w.querySelectorAll('.mark[data-j="' + id + '"]').forEach(m => m.remove());
+      const m = el('div', 'mark', `<b></b><span>${id}</span>`); m.dataset.j = id; m.style.left = x * 100 + '%'; m.style.top = y * 100 + '%'; w.appendChild(m);
+      $('#cmarks').insertAdjacentHTML('beforeend', `<div><span class="v tr">${id}</span>px (${(x * 100).toFixed(1)}%, ${(y * 100).toFixed(1)}%) · vista ${$('#cview').value}</div>`);
+      remember('calibración', `${id} marcado en la foto (vista ${$('#cview').value})`);
+      const s = $('#cjoint'); if (s.selectedIndex < s.options.length - 1) s.selectedIndex++;
+    };
+  };
+  $('#ctest').onclick = () => {
+    robotPanel(); const seq = [0, 45, 90, -45, 0]; let i = 0;
+    const j = JOINTS.find(q => q.id === $('#cjoint').value) || JOINTS[1];
+    const t = setInterval(() => {
+      if (i >= seq.length) { clearInterval(t); $('#cmarks').insertAdjacentHTML('beforeend', `<div class="ok"><span class="v ok">OK</span>${j.id}: offset +3.0° · sentido + · escala 0.99</div>`); remember('calibración', `${j.id} ajustado: offset +3.0°`); return; }
+      const v = Math.max(j.min, Math.min(j.max, seq[i])); TARGET[j.id] = v; j.vel = 90;
+      $('#cmarks').insertAdjacentHTML('beforeend', `<div><span class="v tr">TEST</span>${j.id} → ${v}° · medido ${(v + 3 - v * .01).toFixed(1)}°</div>`); i++;
+    }, 900);
+  };
+}
+
+/* =========================================================
+   7) MEMORIA — todo lo que se habló y se hizo
+   ========================================================= */
+function memoryPanel() {
+  const p = panel('mem', 'MEM', 'Memoria · registro continuo'); if (!p) return;
+  p.insertAdjacentHTML('beforeend', `<div class="log" id="mlog"></div>
+    <div class="dim" style="font-size:11px;margin-top:8px">En el sistema real cada evento se escribe como documento (Markdown) y se indexa para búsqueda por significado. Todo local, en tu equipo.</div>`);
+  renderMemory();
+}
+function renderMemory() {
+  const l = $('#mlog'); if (!l) return;
+  l.innerHTML = MEMORY.slice().reverse().map(m => `<div><span class="dim">${m.t}</span> <span class="v tr">${m.tipo}</span>${m.texto}</div>`).join('') || '<span class="dim">vacío</span>';
+}
+
+
+/* =========================================================
+   8) CAD POR CÓDIGO — modelo 3D editable por voz
+   (en el sistema real: build123d genera STEP/STL; aquí se previsualiza)
+   ========================================================= */
+const CAD = { largo: 70, ancho: 22, grosor: 5, largo_servo: 40.5, alto: 20, pared: 3, tornillo: 3.4 };
+let CAD_PREV = {}, cadScene = null;
+function cadPanel() {
+  const p = panel('cad', 'CAD', 'Soporte servo MG996R · build123d', true); if (!p) { buildCad(); return; }
+  p.insertAdjacentHTML('beforeend', `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:14px">
+      <div><div id="cad3d"></div><div class="dim" style="font-size:11px;margin-top:6px">Generado por código, sin abrir ningún programa de CAD. Exporta STEP (FreeCAD / Fusion / SolidWorks) y STL (impresión).</div></div>
+      <div><div class="pp" id="cadp"></div>
+        <div class="row" style="margin-top:12px"><span class="lbl">VOLUMEN</span><span id="cadv" class="lime"></span></div>
+        <div style="margin-top:8px"><span class="chip" data-q="reduce el grosor a 3">GROSOR 3</span><span class="chip" data-q="pared 2.5">PARED 2.5</span><span class="chip" data-q="largo 80">LARGO 80</span><span class="chip" data-q="tornillo 4">TORNILLO M4</span></div>
+        <button class="btn ghost" style="margin-top:12px" id="cadx">EXPORTAR STEP + STL</button></div></div>`);
+  p.querySelectorAll('[data-q]').forEach(c => c.onclick = () => handle(c.dataset.q));
+  $('#cadx').onclick = () => { remember('cad', 'exportado soporte_servo.step y .stl'); say('Exporté soporte_servo.step y soporte_servo.stl en ~/orion/cad.'); };
+  if (!window.THREE) {
+    if (document.documentElement.classList.contains('ligero')) { $('#cad3d').innerHTML = '<div class="dim" style="padding:20px">Modo liviano: vista 3D apagada para no cargar el equipo. Di «modo completo» para verla.</div>'; return; }
+    $('#cad3d').innerHTML = '<div class="dim" style="padding:20px">cargando visor 3D…</div>';
+    cargarThree().then(() => { p.remove(); delete OPEN['cad']; cadPanel(); }).catch(() => $('#cad3d').innerHTML = '<div class="dim" style="padding:20px">visor 3D no disponible</div>');
+    return; }
+  const el3 = $('#cad3d'), W = el3.clientWidth, H = el3.clientHeight;
+  const r = new THREE.WebGLRenderer({ antialias: true, alpha: true }); r.setSize(W, H); r.setPixelRatio(devicePixelRatio); el3.appendChild(r.domElement);
+  const sc = new THREE.Scene(), cam = new THREE.PerspectiveCamera(35, W / H, 1, 1000);
+  const zf = W < 500 ? 1.7 : 1.15; cam.position.set(90 * zf, 70 * zf, 110 * zf); cam.lookAt(0, 12, 0);
+  const grid = new THREE.GridHelper(160, 32, 0x2a2c30, 0x1d1f22); sc.add(grid);
+  const grp = new THREE.Group(); sc.add(grp);
+  cadScene = { r, sc, cam, grp };
+  (function spin() { if (!document.body.contains(r.domElement)) return; grp.rotation.y += 0.006; r.render(sc, cam); requestAnimationFrame(spin); })();
+  buildCad();
+}
+function buildCad() {
+  const c = CAD;
+  const parts = [  // [ancho X, alto Y, prof Z, x, y, z]
+    [c.largo, c.grosor, c.ancho, 0, c.grosor / 2, 0],
+    [c.pared, c.alto, c.ancho, -(c.largo_servo / 2 + c.pared / 2), c.grosor + c.alto / 2, 0],
+    [c.pared, c.alto, c.ancho, (c.largo_servo / 2 + c.pared / 2), c.grosor + c.alto / 2, 0],
+    [c.largo_servo + 2 * c.pared, c.pared, c.ancho, 0, c.grosor + c.pared / 2, 0]];
+  if (cadScene) {
+    const g = cadScene.grp; while (g.children.length) g.remove(g.children[0]);
+    parts.forEach(([w, h, d, x, y, z]) => {
+      const geo = new THREE.BoxGeometry(w, h, d);
+      const m = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ color: 0x1d1f22, transparent: true, opacity: .85 })); m.position.set(x, y, z); g.add(m);
+      const e = new THREE.LineSegments(new THREE.EdgesGeometry(geo), new THREE.LineBasicMaterial({ color: new THREE.Color(ACC) })); e.position.set(x, y, z); g.add(e);
+    });
+    [-1, 1].forEach(sd => { const h = new THREE.Mesh(new THREE.CylinderGeometry(c.tornillo / 2, c.tornillo / 2, c.grosor + .4, 20), new THREE.MeshBasicMaterial({ color: new THREE.Color(PEL()) })); h.position.set(sd * (c.largo / 2 - 6), c.grosor / 2, 0); g.add(h); });
+  }
+  const vol = (c.largo * c.ancho * c.grosor + 2 * c.pared * c.alto * c.ancho + (c.largo_servo + 2 * c.pared) * c.pared * c.ancho - 2 * Math.PI * (c.tornillo / 2) ** 2 * c.grosor) / 1000;
+  const cp = $('#cadp'); if (cp) cp.innerHTML = Object.entries(c).map(([k, v]) => `<span class="dim">${k}</span><b class="${CAD_PREV[k] != null && CAD_PREV[k] !== v ? 'chg' : ''}">${v} mm${CAD_PREV[k] != null && CAD_PREV[k] !== v ? ' ← ' + CAD_PREV[k] : ''}</b>`).join('');
+  const cv = $('#cadv'); if (cv) cv.textContent = vol.toFixed(1) + ' cm³ · ' + (vol * 1.24).toFixed(0) + ' g en PLA';
+}
+function cadEdit(t) {
+  const keys = { grosor: 'grosor', espesor: 'grosor', pared: 'pared', largo: 'largo', ancho: 'ancho', alto: 'alto', tornillo: 'tornillo', perforacion: 'tornillo', agujero: 'tornillo' };
+  const m = t.match(/(grosor|espesor|pared|largo|ancho|alto|tornillo|perforacion|agujero)\D*?(\d+(?:[.,]\d+)?)/);
+  if (!m) return false;
+  CAD_PREV = { ...CAD }; let v = num(m[2]); if (keys[m[1]] === 'tornillo' && v <= 5) v = v + .4;  // holgura para M3/M4
+  CAD[keys[m[1]]] = v; cadPanel(); buildCad();
+  remember('cad', `${keys[m[1]]}: ${CAD_PREV[keys[m[1]]]} → ${v} mm`);
+  say(`Cambié ${keys[m[1]]} de ${CAD_PREV[keys[m[1]]]} a ${v} mm y regeneré la pieza. En rojo lo modificado.`);
+  return true;
+}
+
+/* =========================================================
+   9) TAREAS POR DETRÁS — la IA trabaja sin mostrar el proceso
+   ========================================================= */
+function jobsPanel() {
+  const p = panel('jobs', 'BG', 'Trabajando por detrás'); if (!p) return;
+  p.insertAdjacentHTML('beforeend', `<div id="jlist"></div><div class="dim" style="font-size:11px">No se abre ninguna ventana: la IA usa el servidor orion-mcp (shell, git, archivos, CAD, robots). Aquí solo ves el estado y el resultado.</div>`);
+}
+function job(title, steps, result) {
+  jobsPanel(); const id = 'j' + Date.now();
+  $('#jlist').insertAdjacentHTML('afterbegin', `<div class="job" id="${id}"><div class="jl"><span>${title}</span><span class="st sync">EN CURSO</span></div><div class="jb"><i></i></div><div class="jr dim"></div></div>`);
+  const box = $('#' + id); let i = 0;
+  const t = setInterval(() => {
+    if (i < steps.length) { box.querySelector('.jr').textContent = steps[i]; box.querySelector('.jb i').style.width = ((i + 1) / steps.length * 100) + '%'; i++; return; }
+    clearInterval(t); const st = box.querySelector('.st'); st.className = 'st on'; st.textContent = 'LISTO';
+    box.querySelector('.jr').className = 'jr'; box.querySelector('.jr').innerHTML = result;
+    remember('tarea', title + ' — listo');
+  }, 650);
+}
+
+/* =========================================================
+   10) VINCULAR DISPOSITIVOS — teléfono, lentes, nodos (QR)
+   ========================================================= */
+function pairPanel() {
+  const p = panel('pair', 'QR', 'Vincular dispositivo'); if (!p) return;
+  const token = Math.random().toString(36).slice(2, 8).toUpperCase();
+  p.insertAdjacentHTML('beforeend', `<div class="qrbox" id="qr"></div>
+    <div class="px" style="text-align:center;font-size:12px">CÓDIGO <span class="lime">${token}</span></div>
+    <div class="log" style="margin-top:12px">
+      <div><span class="v tr">TELÉFONO</span>escanea → micrófono, cámara y pantalla del HUD en el celular</div>
+      <div><span class="v tr">LENTES</span>Ray-Ban/Oakley Meta vía el teléfono → cámara en primera persona</div>
+      <div><span class="v tr">RASPBERRY</span>el nodo muestra este código al arrancar → queda enlazado</div>
+      <div><span class="v tr">ESP32</span>se programa por USB o Wi-Fi desde la central (no corre Linux)</div></div>`);
+  const url = `orion://vincular?central=neo-orion.local&token=${token}`;
+  if (window.QRCode) new QRCode($('#qr'), { text: url, width: 168, height: 168, colorDark: '#111111', colorLight: '#ffffff' });
+  else $('#qr').textContent = url;
+}
+
+
+/* =========================================================
+   COMPONENTE RADAR — mismo lenguaje que la referencia O.R.C.A.
+   modo 'arco': círculos tangentes a la base + guías en V (como la captura)
+   modo 'circulo': radar de esquina con barrido (lentes, robots móviles)
+   blips: [{x:-1..1, y:0..1, tipo:'persona'|'aliado'|'obstaculo'}]
+   ========================================================= */
+function radar(cv, blips, mode, t) {
+  const g = cv.getContext('2d'), W = cv.width, H = cv.height;
+  g.clearRect(0, 0, W, H);
+  const L = ACC, col = { persona: PEL(), aliado: ACC, obstaculo: '#e6e8ea' };
+  g.strokeStyle = L; g.fillStyle = L; g.lineWidth = 1.5;
+  if (mode === 'arco') {
+    const ox = W / 2, oy = H - 22, R = Math.min(W / 2 - 20, H - 40);
+    g.fillStyle = '#2a2c30'; for (let x = 20; x < W; x += 26) for (let y = 14; y < oy; y += 26) g.fillRect(x, y, 2, 2);
+    g.strokeStyle = L;
+    [.12, .28, .5, .78, 1].forEach((k, i) => { g.globalAlpha = 1 - i * .15; g.beginPath(); g.arc(ox, oy - R * k / 2, R * k / 2, 0, Math.PI * 2); g.stroke(); });
+    g.globalAlpha = 1;
+    [[0, -R], [-R * .8, -R * .8], [R * .8, -R * .8]].forEach(([dx, dy]) => { g.beginPath(); g.moveTo(ox, oy); g.lineTo(ox + dx, oy + dy); g.stroke(); });
+    g.beginPath(); g.moveTo(20, oy); g.lineTo(W - 20, oy); g.stroke();
+    [20, W / 2 - R / 2, W / 2 + R / 2, W - 20].forEach(x => { g.fillStyle = L; g.fillRect(x - 3, oy - 7, 6, 14); });
+    g.fillStyle = '#121315'; g.beginPath(); g.arc(ox, oy, 8, 0, 7); g.fill(); g.stroke();
+    blips.forEach(b => { const on = Math.sin(t / 260 + b.x * 9) > -.3; if (!on) return; g.fillStyle = col[b.tipo]; g.fillRect(ox + b.x * R - 5, oy - b.y * R - 5, 10, 10); });
+  } else {
+    const cx = W / 2, cy = H / 2, R = Math.min(W, H) / 2 - 6;
+    g.fillStyle = 'rgba(16,17,19,.72)'; g.beginPath(); g.arc(cx, cy, R, 0, 7); g.fill();
+    g.strokeStyle = L; [1, .66, .33].forEach(k => { g.globalAlpha = k === 1 ? 1 : .5; g.beginPath(); g.arc(cx, cy, R * k, 0, 7); g.stroke(); });
+    g.globalAlpha = .5; g.beginPath(); g.moveTo(cx - R, cy); g.lineTo(cx + R, cy); g.moveTo(cx, cy - R); g.lineTo(cx, cy + R); g.stroke(); g.globalAlpha = 1;
+    const sw = (t / 1400) % (Math.PI * 2), grd = g.createConicGradient ? g.createConicGradient(sw - .9, cx, cy) : null;
+    if (grd) { grd.addColorStop(0, RGB(0)); grd.addColorStop(.14, RGB(.35)); grd.addColorStop(.145, RGB(0)); g.fillStyle = grd; g.beginPath(); g.arc(cx, cy, R, 0, 7); g.fill(); }
+    // campo de visión de los lentes
+    g.strokeStyle = L; g.setLineDash([3, 4]); g.beginPath(); g.moveTo(cx, cy); g.lineTo(cx - R * .7, cy - R * .7); g.moveTo(cx, cy); g.lineTo(cx + R * .7, cy - R * .7); g.stroke(); g.setLineDash([]);
+    blips.forEach(b => { g.fillStyle = col[b.tipo]; g.shadowColor = col[b.tipo]; g.shadowBlur = 8; g.fillRect(cx + b.x * R - 4, cy - b.y * R - 4, 8, 8); g.shadowBlur = 0; });
+    g.fillStyle = '#fff'; g.fillRect(cx - 3, cy - 3, 6, 6);
+  }
+}
+const RADARS = [];
+(function radarLoop(t) { RADARS.forEach(r => { if (document.body.contains(r.cv)) radar(r.cv, r.blips(t), r.mode, t); }); requestAnimationFrame(radarLoop); })(0);
+
+function radarPanel() {
+  const p = panel('radar', 'SCAN', 'Radar de entorno · lidar NODO-02'); if (!p) return;
+  p.insertAdjacentHTML('beforeend', `<canvas id="rdr" width="640" height="340"></canvas>
+    <div class="row"><span class="v no">●</span>persona <span class="v ok" style="margin-left:10px">●</span>robot aliado <span class="v" style="background:#e6e8ea;color:#111;margin-left:10px">●</span>obstáculo</div>`);
+  RADARS.push({ cv: $('#rdr'), mode: 'arco', blips: t => [{ x: -.35 + Math.sin(t / 3000) * .05, y: .62, tipo: 'persona' }, { x: .3, y: .35, tipo: 'aliado' }, { x: .55, y: .7, tipo: 'obstaculo' }, { x: -.6, y: .25, tipo: 'obstaculo' }] });
+}
+
+/* ---------- vista de lentes (Ray-Ban / Oakley Meta vía teléfono) ---------- */
+function lentesPanel() {
+  const p = panel('lentes', 'POV', 'Vista lentes · cámara en primera persona', true); if (!p) return;
+  p.insertAdjacentHTML('beforeend', `<div style="position:relative;aspect-ratio:16/9;background:radial-gradient(ellipse at 50% 35%,#4b4e52,#1a1b1d 70%);overflow:hidden;border:1px solid var(--line)">
+      <svg viewBox="0 0 160 90" preserveAspectRatio="none" style="position:absolute;inset:0;width:100%;height:100%;opacity:.55"><path d="M0 70 L25 58 L45 64 L70 52 L95 60 L120 50 L160 62 L160 90 L0 90Z" fill="#0d0e0f"/><rect x="74" y="18" width="6" height="40" fill="#111"/><rect x="76.5" y="18" width="1" height="40" fill="#ff8a2a"/></svg>
+      <div style="position:absolute;left:50%;top:50%;width:26%;height:38%;transform:translate(-50%,-55%);border:1px solid ${ACC}99"></div>
+      <div style="position:absolute;left:50%;top:50%;width:10%;height:16%;transform:translate(-50%,-62%);border:2px solid var(--lime)"><span class="px" style="position:absolute;left:105%;top:0;font-size:8px;background:var(--lime);color:#111;padding:1px 3px;white-space:nowrap">ESTRUCTURA · 248 m</span></div>
+      <div class="px" style="position:absolute;top:8px;left:50%;transform:translateX(-50%);font-size:9px;color:var(--lime);letter-spacing:.2em">SW · [ W 249 ] · W</div>
+      <div style="position:absolute;left:10px;top:10px"><div class="px" style="font-size:9px;background:var(--lime);color:#111;padding:2px 5px">▲ SEÑAL DETECTADA</div></div>
+      <div style="position:absolute;left:10px;bottom:10px;width:30%"><div class="px" style="font-size:8px;color:var(--grey)">BATERÍA / ENLACE / MEMORIA</div>${[86, 64, 41].map(v => `<div style="height:7px;background:#00000080;margin-top:3px"><div style="height:100%;width:${v}%;background:var(--lime)"></div></div>`).join('')}</div>
+      <canvas id="lrdr" width="220" height="220" style="position:absolute;right:8px;bottom:8px;width:28%;max-width:150px;background:none;border:0"></canvas>
+    </div>
+    <div class="dim" style="font-size:11px;margin-top:8px">La cámara de los lentes llega por el teléfono; la IA marca lo que ve. Radar de esquina: <span class="red">rojo</span> personas, <span class="lime">verde</span> robots/aliados, blanco obstáculos.</div>`);
+  RADARS.push({ cv: $('#lrdr'), mode: 'circulo', blips: t => [{ x: -.3 + Math.sin(t / 2500) * .06, y: .45, tipo: 'persona' }, { x: .25, y: .6, tipo: 'persona' }, { x: .1, y: -.35, tipo: 'aliado' }, { x: -.55, y: -.2, tipo: 'obstaculo' }] });
+}
+
+/* ---------- proyecto: documentos ordenados ---------- */
+function proyectoPanel() {
+  const p = panel('proyecto', 'PRJ', 'Proyecto · brazo robótico 6 ejes'); if (!p) return;
+  const docs = [['REQ', 'requisitos.md', 'carga 300 g · alcance 350 mm · costo bajo'], ['CAD', 'brazo_v3.step', '6 ejes · build123d'], ['CAL', 'calibracion.json', 'A1–A6 · offset medido'], ['ELEC', 'placa_control.kicad_pro', 'ESP32-S3 + PCA9685'], ['BOM', 'materiales.csv', '23 ítems'], ['LOG', 'bitacora/2026-11-03.md', '18 eventos hoy']];
+  p.insertAdjacentHTML('beforeend', `<div class="log">${docs.map(d => `<div style="display:flex;gap:8px;padding:5px 0;border-bottom:1px solid var(--line)"><span class="v tr" style="min-width:40px;text-align:center">${d[0]}</span><span style="flex:1">${d[1]}<br><span class="dim">${d[2]}</span></span></div>`).join('')}</div>
+    <div style="margin-top:8px"><span class="chip" data-q="muéstrame el modelo 3d">MODELO 3D</span><span class="chip" data-q="dame alternativas del robot">ALTERNATIVAS</span><span class="chip" data-q="diseña una placa de control de bajo costo">PLACA</span></div>`);
+  p.querySelectorAll('[data-q]').forEach(c => c.onclick = () => handle(c.dataset.q));
+}
+
+/* ---------- alternativas: foto generada → modelo 3D → CAD ---------- */
+function alternativasPanel() {
+  const p = panel('alt', 'GEN', 'Alternativas del robot', true); if (!p) return;
+  const alts = [['A · compacto', 'base ancha, 4 ejes', [[0, 0, 40, 10], [16, -40, 8, 40], [16, -40, 40, 8], [52, -40, 8, 26]], 'servos: 4× MG996R', '≈ 0,6 kg'],
+    ['B · industrial', 'pinza paralela, 6 ejes', [[0, 0, 44, 12], [18, -60, 8, 60], [18, -60, 44, 8], [58, -60, 8, 34], [52, -30, 20, 6]], 'servos: 6× STS3215', '≈ 1,1 kg'],
+    ['C · SCARA', 'brazo plano, rápido', [[0, 0, 40, 10], [16, -50, 8, 50], [16, -50, 50, 8], [62, -50, 8, 22]], 'servos: 2× NEMA17 + 2× SG90', '≈ 0,9 kg']];
+  p.insertAdjacentHTML('beforeend', `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px">${alts.map((a, i) => `<div class="job" style="cursor:pointer" data-alt="${i}"><svg viewBox="-10 -75 90 90" style="width:100%;height:110px;background:#121315">${a[2].map(r => `<rect x="${r[0]}" y="${r[1]}" width="${r[2]}" height="${r[3]}" fill="none" stroke="${ACC}" stroke-width="1.4"/>`).join('')}<line x1="-10" y1="10" x2="80" y2="10" stroke="#2a2c30"/></svg>
+      <div class="px" style="font-size:11px;margin-top:6px">${a[0]}</div><div class="dim" style="font-size:11px">${a[1]}<br>${a[3]} · ${a[4]}</div></div>`).join('')}</div>
+    <div class="dim" style="font-size:11px;margin-top:8px">Por detrás: imagen generada → modelo 3D (TRELLIS / Hunyuan3D, abiertos) → limpieza a sólido CAD → ubicación de servos y cinemática. Elige una y la llevo a CAD con los motores integrados.</div>`);
+  p.querySelectorAll('[data-alt]').forEach(c => c.onclick = () => { p.querySelectorAll('[data-alt]').forEach(x => x.style.borderColor = ''); c.style.borderColor = 'var(--lime)'; handle('me gusta la ' + 'abc'[c.dataset.alt] + ', integra los servos'); });
+}
+
+/* ---------- placa de control ---------- */
+function placaPanel() {
+  const p = panel('placa', 'PCB', 'Placa de control · bajo costo', true); if (!p) return;
+  const bom = [['U1', 'ESP32-S3 WROOM-1', 'cerebro + Wi-Fi/BLE'], ['U2', 'PCA9685', '16 canales PWM para servos'], ['U3', 'buck 5 V / 10 A', 'alimentación servos'], ['U4', 'AMS1117-3.3', 'lógica 3,3 V'], ['J1–J6', 'conector 3 pines', 'un servo por eje'], ['J7', 'XT60', 'batería 2S/3S'], ['SW1', 'paro de emergencia', 'corta potencia de servos']];
+  p.insertAdjacentHTML('beforeend', `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:14px">
+    <svg viewBox="0 0 300 180" style="width:100%;background:#121315;border:1px solid var(--line)">
+      <rect x="6" y="6" width="288" height="168" fill="none" stroke="#2a2c30"/>
+      ${[[20, 70, 'XT60'], [80, 30, 'BUCK 5V'], [80, 110, 'LDO 3V3'], [160, 70, 'ESP32-S3'], [240, 30, 'PCA9685'], [240, 110, 'E-STOP']].map(([x, y, n]) => `<rect x="${x - 26}" y="${y - 14}" width="52" height="28" fill="#000" stroke="${ACC}"/><text x="${x}" y="${y + 4}" fill="${ACC}" font-size="8" text-anchor="middle" font-family="monospace">${n}</text>`).join('')}
+      <path d="M46 70H54V30M54 70V110M106 110H134V70M186 70H214V30M106 30H214M240 44V96" stroke="${ACC}" fill="none" stroke-width="1" opacity=".7"/>
+      ${[0, 1, 2, 3, 4, 5].map(i => `<rect x="${212 + i * 9}" y="150" width="6" height="12" fill="${PEL()}"/>`).join('')}<text x="236" y="146" fill="#8b8e94" font-size="7" font-family="monospace">SERVOS A1–A6</text>
+    </svg>
+    <div class="log">${bom.map(b => `<div><span class="v tr">${b[0]}</span>${b[1]} <span class="dim">· ${b[2]}</span></div>`).join('')}
+      <div class="dim" style="margin-top:8px">Por detrás: esquema en KiCad generado por código, ruteo, revisión eléctrica y archivos Gerber + BOM para fabricar. El costo se calcula con precios reales del proveedor al exportar.</div></div></div>`);
+}
+
+
+/* ---------- proyectos: Carta Gantt real generada por orion_proyectos (CPM) ---------- */
+const GANTT_SVG = "<svg style=\"width:100%%;min-width:640px;display:block\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 980 424\" font-family=\"JetBrains Mono,monospace\" font-size=\"11\"><rect width=\"980\" height=\"424\" fill=\"#101113\"/><text x=\"12\" y=\"22\" fill=\"#cdf564\" font-size=\"13\">HABILITACI\u00d3N OFICINA 30 M\u00b2</text><text x=\"12\" y=\"40\" fill=\"#8b8e94\">17 d\u00edas \u00b7 ruta cr\u00edtica en rojo \u00b7 Cliente particular</text><line x1=\"300.0\" y1=\"48\" x2=\"300.0\" y2=\"424\" stroke=\"#2a2c30\"/><text x=\"302.0\" y=\"58\" fill=\"#55585e\" font-size=\"9\">d0</text><line x1=\"338.8\" y1=\"48\" x2=\"338.8\" y2=\"424\" stroke=\"#2a2c30\"/><text x=\"340.8\" y=\"58\" fill=\"#55585e\" font-size=\"9\">d1</text><line x1=\"377.6\" y1=\"48\" x2=\"377.6\" y2=\"424\" stroke=\"#2a2c30\"/><text x=\"379.6\" y=\"58\" fill=\"#55585e\" font-size=\"9\">d2</text><line x1=\"416.5\" y1=\"48\" x2=\"416.5\" y2=\"424\" stroke=\"#2a2c30\"/><text x=\"418.5\" y=\"58\" fill=\"#55585e\" font-size=\"9\">d3</text><line x1=\"455.3\" y1=\"48\" x2=\"455.3\" y2=\"424\" stroke=\"#2a2c30\"/><text x=\"457.3\" y=\"58\" fill=\"#55585e\" font-size=\"9\">d4</text><line x1=\"494.1\" y1=\"48\" x2=\"494.1\" y2=\"424\" stroke=\"#2a2c30\"/><text x=\"496.1\" y=\"58\" fill=\"#55585e\" font-size=\"9\">d5</text><line x1=\"532.9\" y1=\"48\" x2=\"532.9\" y2=\"424\" stroke=\"#2a2c30\"/><text x=\"534.9\" y=\"58\" fill=\"#55585e\" font-size=\"9\">d6</text><line x1=\"571.8\" y1=\"48\" x2=\"571.8\" y2=\"424\" stroke=\"#2a2c30\"/><text x=\"573.8\" y=\"58\" fill=\"#55585e\" font-size=\"9\">d7</text><line x1=\"610.6\" y1=\"48\" x2=\"610.6\" y2=\"424\" stroke=\"#2a2c30\"/><text x=\"612.6\" y=\"58\" fill=\"#55585e\" font-size=\"9\">d8</text><line x1=\"649.4\" y1=\"48\" x2=\"649.4\" y2=\"424\" stroke=\"#2a2c30\"/><text x=\"651.4\" y=\"58\" fill=\"#55585e\" font-size=\"9\">d9</text><line x1=\"688.2\" y1=\"48\" x2=\"688.2\" y2=\"424\" stroke=\"#2a2c30\"/><text x=\"690.2\" y=\"58\" fill=\"#55585e\" font-size=\"9\">d10</text><line x1=\"727.1\" y1=\"48\" x2=\"727.1\" y2=\"424\" stroke=\"#2a2c30\"/><text x=\"729.1\" y=\"58\" fill=\"#55585e\" font-size=\"9\">d11</text><line x1=\"765.9\" y1=\"48\" x2=\"765.9\" y2=\"424\" stroke=\"#2a2c30\"/><text x=\"767.9\" y=\"58\" fill=\"#55585e\" font-size=\"9\">d12</text><line x1=\"804.7\" y1=\"48\" x2=\"804.7\" y2=\"424\" stroke=\"#2a2c30\"/><text x=\"806.7\" y=\"58\" fill=\"#55585e\" font-size=\"9\">d13</text><line x1=\"843.5\" y1=\"48\" x2=\"843.5\" y2=\"424\" stroke=\"#2a2c30\"/><text x=\"845.5\" y=\"58\" fill=\"#55585e\" font-size=\"9\">d14</text><line x1=\"882.4\" y1=\"48\" x2=\"882.4\" y2=\"424\" stroke=\"#2a2c30\"/><text x=\"884.4\" y=\"58\" fill=\"#55585e\" font-size=\"9\">d15</text><line x1=\"921.2\" y1=\"48\" x2=\"921.2\" y2=\"424\" stroke=\"#2a2c30\"/><text x=\"923.2\" y=\"58\" fill=\"#55585e\" font-size=\"9\">d16</text><line x1=\"960.0\" y1=\"48\" x2=\"960.0\" y2=\"424\" stroke=\"#2a2c30\"/><text x=\"962.0\" y=\"58\" fill=\"#55585e\" font-size=\"9\">d17</text><text x=\"12\" y=\"77\" fill=\"#e6e8ea\">1 Preliminares</text><rect x=\"300.0\" y=\"70\" width=\"155.3\" height=\"5\" fill=\"#e6e8ea\"/><text x=\"24\" y=\"103\" fill=\"#b9bcc1\">1.1 Levantamiento y medici\u00f3n</text><rect x=\"300.0\" y=\"92\" width=\"38.8\" height=\"14\" fill=\"none\" stroke=\"#ff4a2a\"/><rect x=\"300.0\" y=\"92\" width=\"38.8\" height=\"14\" fill=\"#ff4a2a\" opacity=\".85\"/><text x=\"24\" y=\"129\" fill=\"#b9bcc1\">1.2 Permisos y compra de materiale</text><rect x=\"338.8\" y=\"118\" width=\"116.5\" height=\"14\" fill=\"none\" stroke=\"#ff4a2a\"/><rect x=\"338.8\" y=\"118\" width=\"58.2\" height=\"14\" fill=\"#ff4a2a\" opacity=\".85\"/><text x=\"12\" y=\"155\" fill=\"#e6e8ea\">2 Obra gruesa</text><rect x=\"338.8\" y=\"148\" width=\"271.8\" height=\"5\" fill=\"#e6e8ea\"/><text x=\"24\" y=\"181\" fill=\"#b9bcc1\">2.1 Demolici\u00f3n y retiro</text><rect x=\"338.8\" y=\"170\" width=\"77.6\" height=\"14\" fill=\"none\" stroke=\"#cdf564\"/><rect x=\"338.8\" y=\"170\" width=\"0.0\" height=\"14\" fill=\"#cdf564\" opacity=\".85\"/><line x1=\"416.5\" y1=\"177\" x2=\"455.3\" y2=\"177\" stroke=\"#55585e\" stroke-dasharray=\"2 3\"/><text x=\"24\" y=\"207\" fill=\"#b9bcc1\">2.2 Tabiquer\u00eda</text><rect x=\"455.3\" y=\"196\" width=\"155.3\" height=\"14\" fill=\"none\" stroke=\"#ff4a2a\"/><rect x=\"455.3\" y=\"196\" width=\"0.0\" height=\"14\" fill=\"#ff4a2a\" opacity=\".85\"/><text x=\"12\" y=\"233\" fill=\"#e6e8ea\">3 Instalaciones</text><rect x=\"610.6\" y=\"226\" width=\"155.3\" height=\"5\" fill=\"#e6e8ea\"/><text x=\"24\" y=\"259\" fill=\"#b9bcc1\">3.1 Canalizaci\u00f3n el\u00e9ctrica</text><rect x=\"610.6\" y=\"248\" width=\"116.5\" height=\"14\" fill=\"none\" stroke=\"#ff4a2a\"/><rect x=\"610.6\" y=\"248\" width=\"0.0\" height=\"14\" fill=\"#ff4a2a\" opacity=\".85\"/><text x=\"24\" y=\"285\" fill=\"#b9bcc1\">3.2 Tablero y protecciones</text><rect x=\"727.1\" y=\"274\" width=\"38.8\" height=\"14\" fill=\"none\" stroke=\"#ff4a2a\"/><rect x=\"727.1\" y=\"274\" width=\"0.0\" height=\"14\" fill=\"#ff4a2a\" opacity=\".85\"/><text x=\"24\" y=\"311\" fill=\"#b9bcc1\">3.3 Sanitario</text><rect x=\"610.6\" y=\"300\" width=\"77.6\" height=\"14\" fill=\"none\" stroke=\"#cdf564\"/><rect x=\"610.6\" y=\"300\" width=\"0.0\" height=\"14\" fill=\"#cdf564\" opacity=\".85\"/><line x1=\"688.2\" y1=\"307\" x2=\"765.9\" y2=\"307\" stroke=\"#55585e\" stroke-dasharray=\"2 3\"/><text x=\"12\" y=\"337\" fill=\"#e6e8ea\">4 Terminaciones</text><rect x=\"765.9\" y=\"330\" width=\"194.1\" height=\"5\" fill=\"#e6e8ea\"/><text x=\"24\" y=\"363\" fill=\"#b9bcc1\">4.1 Pintura</text><rect x=\"765.9\" y=\"352\" width=\"116.5\" height=\"14\" fill=\"none\" stroke=\"#ff4a2a\"/><rect x=\"765.9\" y=\"352\" width=\"0.0\" height=\"14\" fill=\"#ff4a2a\" opacity=\".85\"/><text x=\"24\" y=\"389\" fill=\"#b9bcc1\">4.2 Pisos</text><rect x=\"882.4\" y=\"378\" width=\"77.6\" height=\"14\" fill=\"none\" stroke=\"#ff4a2a\"/><rect x=\"882.4\" y=\"378\" width=\"0.0\" height=\"14\" fill=\"#ff4a2a\" opacity=\".85\"/><text x=\"24\" y=\"415\" fill=\"#b9bcc1\">4.3 Entrega y TE1</text><rect x=\"955.0\" y=\"405\" width=\"10\" height=\"10\" fill=\"#e6e8ea\" transform=\"rotate(45 960.0 410)\"/></svg>";
+function ganttPanel() {
+  const p = panel('gantt', 'PM', 'Carta Gantt · ruta crítica', true); if (!p) return;
+  p.insertAdjacentHTML('beforeend', `<div style="overflow-x:auto">${GANTT_SVG.replaceAll("#cdf564", ACC).replaceAll("${PEL()}", PEL())}</div>
+    <div class="row" style="flex-wrap:wrap;gap:14px;margin-top:10px"><span><span class="dim">DURACIÓN</span> <span class="lime">17 días</span></span><span><span class="dim">TÉRMINO</span> 26-11-2026</span><span><span class="dim">TOTAL C/IVA</span> <span class="lime">$3.810.975</span></span><span><span class="dim">ESTADO</span> <span class="red">ATRASADO · 2.1</span></span></div>
+    <div class="dim" style="font-size:11px;margin-top:6px">Calculado con CPM (inicio/fin temprano y tardío, holgura). Presupuesto: costo directo → GG 15 % → utilidad 10 % → contingencia 5 % → IVA 19 %. Exporta Excel con programa, Gantt, presupuesto y RACI.</div>
+    <div style="margin-top:8px"><span class="chip" data-q="el levantamiento está terminado y permisos al 50%">ACTUALIZAR AVANCE</span><span class="chip" data-q="exporta el proyecto a excel">EXCEL</span></div>`);
+  p.querySelectorAll('[data-q]').forEach(c => c.onclick = () => handle(c.dataset.q));
+}
+
+
+/* =========================================================
+   MODO INVESTIGACIÓN — el agente investiga por detrás y arma un muro 3D
+   (referencia de movimiento: el asistente "Rose"; estética: Marathon / O.R.C.A.)
+   Flujo: núcleo → tarjeta de investigación → la tarjeta vuela hacia la cámara
+   desenfocándose → el muro de bloques llega desde el fondo → cada bloque se
+   explica en voz alta → tocar un bloque lo trae al frente con su explicación.
+   En el sistema real, los bloques llegan del MCP (repos_buscar, memoria_buscar,
+   web); aquí van con datos ya verificados.
+   ========================================================= */
+const LIDAR_REPOS = [['hku-mars/FAST_LIO', 5337, 'gpl-2.0', 'odometría LiDAR-inercial'], ['TixiaoShan/LIO-SAM', 4967, 'bsd-3', 'LiDAR + IMU + mapa'],
+  ['dimensionalOS/dimos', 4710, 'otra', 'SO con agentes para el espacio físico'], ['SteveMacenski/slam_toolbox', 2700, 'lgpl-2.1', 'SLAM 2D para ROS 2'],
+  ['iliasam/OpenSimpleLidar', 2576, 'mit', 'LiDAR abierto (hardware)'], ['PRBonn/kiss-icp', 2368, 'mit', 'odometría que "simplemente funciona"'],
+  ['koide3/hdl_graph_slam', 2342, 'bsd-2', 'SLAM 3D por grafos'], ['Slamtec/rplidar_ros', 698, 'bsd-2', 'driver RPLidar ROS'], ['Slamtec/sllidar_ros2', 228, 'bsd-2', 'driver RPLidar ROS 2']];
+
+/* ---- dibujos de línea para los bloques de imagen ---- */
+const DIB = {
+  lidar: () => { let r = ''; for (let i = 0; i < 64; i++) { const a = i / 64 * Math.PI * 2, d = 40 + 28 * Math.abs(Math.sin(a * 2.3)) + (i % 9 === 0 ? -18 : 0);
+      r += `<line x1="120" y1="70" x2="${120 + Math.cos(a) * d}" y2="${70 + Math.sin(a) * d * .55}" stroke="${ACC}33"/><rect x="${119 + Math.cos(a) * d}" y="${69 + Math.sin(a) * d * .55}" width="2" height="2" fill="${i % 9 === 0 ? PEL() : '#e6e8ea'}"/>`; }
+    return `<svg viewBox="0 0 240 140">${r}<rect x="114" y="64" width="12" height="12" fill="none" stroke="${ACC}"/><text x="6" y="134" fill="#55585e" font-size="7" font-family="Silkscreen,monospace">ESCANEO 360° · 64 RAYOS · ROJO = OBSTÁCULO CERCANO</text></svg>`; },
+  portico: () => `<svg viewBox="0 0 240 150"><g fill="none" stroke="${ACC}" stroke-width="1.2">
+      <path d="M40 140 L70 40 L170 40 L200 140"/><path d="M60 140 L82 52 M180 140 L158 52"/><rect x="70" y="32" width="100" height="10"/>
+      <line x1="120" y1="42" x2="120" y2="58" stroke-dasharray="2 2"/></g>
+      <g fill="none" stroke="#e6e8ea" stroke-width="1"><circle cx="120" cy="66" r="7"/><path d="M120 73 L120 105 M104 82 L136 82 M120 105 L110 136 M120 105 L130 136"/></g>
+      <g fill="none" stroke="${PEL()}" stroke-width="1" stroke-dasharray="3 2"><rect x="96" y="58" width="48" height="84" rx="6"/></g>
+      <text x="6" y="10" fill="#55585e" font-size="7" font-family="Silkscreen,monospace">PÓRTICO 4 PATAS · ARMADURA (ROJO) · PERSONA DENTRO</text></svg>`,
+  v: () => `<svg viewBox="0 0 240 120"><g fill="none" stroke-width="1.4"><path d="M60 20 L120 100 L180 20" stroke="${ACC}"/>
+      <circle cx="78" cy="48" r="13" stroke="${PEL()}"/><circle cx="162" cy="48" r="13" stroke="${PEL()}"/><line x1="120" y1="100" x2="120" y2="116" stroke="#e6e8ea"/></g>
+      <text x="6" y="10" fill="#55585e" font-size="7" font-family="Silkscreen,monospace">V CERRADA · MULTIPLICA LA FUERZA ×4</text></svg>`
+};
+
+/* ---- temas: bloques + explicación de cada uno ---- */
+const TEMAS = [
+  { m: /lidar|slam|escaner laser/, titulo: 'LiDAR para robots', fases: ['INICIANDO AGENTE', 'BUSCANDO EN GITHUB', 'LEYENDO REPOSITORIOS', 'COMPARANDO LICENCIAS', 'ARMANDO MURO'],
+    bloques: () => {
+      const lic = {}; LIDAR_REPOS.forEach(r => lic[r[2]] = (lic[r[2]] || 0) + 1); const max = LIDAR_REPOS[0][1];
+      return [
+        { g: 'RESUMEN', k: 'HALLAZGO // 01', t: 'Odometría y SLAM: lo más usado', b: 'FAST_LIO (5.337★), LIO-SAM (4.967★) y slam_toolbox (2.700★) son la base de casi todos los robots con LiDAR.', ex: 'Tres proyectos sostienen casi todo el ecosistema. Para tu Raspberry basta con 2D, así que slam_toolbox es el punto de partida.' },
+        { g: 'DATOS', k: 'GRÁFICO // ESTRELLAS', w2: 1, h: `<div class="bars">${LIDAR_REPOS.map((r, i) => `<i class="${i === 3 ? 'c' : ''}" style="height:${r[1] / max * 100}%"></i>`).join('')}</div><div class="lb"><span>FAST_LIO</span><span>SLLIDAR_ROS2</span></div>`, ex: 'Ordené los nueve repositorios por estrellas. La barra verde es slam_toolbox: no es el más popular, pero es el que corre bien en una Raspberry con ROS 2.' },
+        { g: 'DATOS', k: 'DATO // 2026', h: `<div class="big lime">12</div><div>repositorios de LiDAR con más de 300★</div>`, ex: 'Encontré doce proyectos serios. No hay que escribir el LiDAR desde cero.' },
+        { g: 'FUENTES', k: 'IMAGEN // ESCANEO', h: DIB.lidar(), ex: 'Así ve el robot: sesenta y cuatro rayos por vuelta. Los puntos rojos son obstáculos cerca; ahí actúa el freno.' },
+        { g: 'DATOS', k: 'TABLA // REPOS', w2: 1, h: `<table>${LIDAR_REPOS.slice(0, 6).map(r => `<tr><td class="lime">${r[0].split('/')[1]}</td><td>${r[1].toLocaleString('es-CL')}★</td><td class="dim">${r[2]}</td><td class="dim">${r[3]}</td></tr>`).join('')}</table>`, ex: 'La tabla trae la licencia de cada uno. FAST_LIO es GPL: si lo vendes dentro de un producto cerrado, tienes que abrir tu código.' },
+        { g: 'DATOS', k: 'LICENCIAS // USO COMERCIAL', r: 1, h: Object.entries(lic).map(([k, v]) => `<div class="row" style="margin:3px 0"><span style="width:62px" class="dim">${k}</span><div class="meter"><div style="width:${v / 3 * 100}%"></div></div><span>${v}</span></div>`).join(''), ex: 'Marqué en rojo lo que importa para vender: las licencias BSD y MIT se pueden usar sin abrir tu código.' },
+        { g: 'RESUMEN', k: 'RECOMENDACIÓN', t: 'Raspberry + RPLidar', b: 'Driver <span class="lime">sllidar_ros2</span> → <span class="lime">slam_toolbox</span> → Nav2. Sin ROS: <span class="lime">orion_lidar</span>, ya probado.', ex: 'Mi recomendación: RPLidar con su driver oficial, slam_toolbox para el mapa y Nav2 para moverse. Si quieres algo más liviano, Neo Orión ya trae su propio módulo.' },
+        { g: 'CÓDIGO', k: 'CÓDIGO // ORION_LIDAR', h: `<pre>for e in fuente_rplidar("/dev/ttyUSB0"):
+    mapa.actualizar(e)
+    d = decision_avance(e, 400)
+    if d["accion"] != "SEGUIR":
+        guardian.frenar(d)</pre>`, ex: 'Cinco líneas: lee el escaneo, actualiza el mapa y, si algo entra al corredor de cuarenta centímetros, el guardián frena.' },
+        { g: 'FUENTES', k: 'FUENTES // 4', h: [['GITHUB', '9 repositorios comparados'], ['MEMORIA', 'orion_lidar · pruebas'], ['DOCS', 'Nav2 · slam_toolbox'], ['CATÁLOGO', 'catalogo/repos.json']].map(s => `<div class="src"><i>${s[0]}</i>${s[1]}</div>`).join(''), ex: 'Estas son las fuentes. Todo queda en tu memoria para la próxima vez.' },
+        { g: 'SIGUIENTE', k: 'SIGUIENTE // INTERFAZ', t: 'Abrir el LiDAR en vivo', b: 'Mapa, personas en rojo y zona de frenado.<br><button class="btn" style="margin-top:8px;font-size:10px;padding:8px" data-go="muéstrame el lidar del robot">ABRIR</button>', ex: 'Si quieres, abro la vista en vivo del LiDAR del robot.' }];
+    } },
+  { m: /.*/, titulo: null, fases: ['INICIANDO AGENTE', 'BUSCANDO EN LA WEB', 'LEYENDO FUENTES', 'BUSCANDO EN TU MEMORIA', 'ARMANDO MURO'],
+    bloques: tema => [
+      { g: 'RESUMEN', k: 'PLAN // 01', t: 'Cómo investigo «' + tema + '»', b: 'Web y documentación, repositorios abiertos y tu memoria local. Cada hallazgo se vuelve un bloque.', ex: 'Así trabajo: busco en la web, en repositorios abiertos y en tu memoria, y cada hallazgo se vuelve un bloque del muro.' },
+      { g: 'DATOS', k: 'ESTADO // AGENTE', h: `<div class="big lime">—</div><div>esta vista de prueba no está conectada al agente real</div>`, ex: 'Esta página es una demostración. En el equipo, los bloques llegan del agente de verdad.' },
+      { g: 'SIGUIENTE', k: 'PRUEBA // TEMAS CON DATOS', t: 'Prueba con estos', b: '<span class="chip" data-go="investiga lidar para robots">LIDAR</span>', ex: 'Para ver el muro completo, prueba con lidar o con el exoesqueleto.' }] }
+];
+
+let RS = null;
+const hablarRS = t => { if (!RS || RS.mute) return; try { speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(t); u.lang = 'es-CL'; u.rate = 1.05; speechSynthesis.speak(u); } catch (e) {} };
+function capRS(t) { const c = $('#rscap'); if (!c) return; c.innerHTML = '<b>ORION ›</b>'; let i = 0; clearInterval(c._t); c._t = setInterval(() => { c.innerHTML = '<b>ORION ›</b>' + t.slice(0, ++i); if (i >= t.length) clearInterval(c._t); }, 18); }
+function sinTilde(s) { return s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, ''); }
+
+function investigar(tema) {
+  if (window.MX && !investigar._dentro) { MX.corte(() => { investigar._dentro = 1; try { investigar(tema); } finally { investigar._dentro = 0; } }); return; }
+  const rs = $('#rs'); rs.classList.add('on'); $('#wall').innerHTML = '';
+  rs.querySelectorAll('.core,.rcard,.lvl,.cap,.det,.mini').forEach(e => e.remove());
+  const T = TEMAS.find(x => x.m.test(sinTilde(tema)));
+  const titulo = (T.titulo || tema).toUpperCase();
+  setTimeout(() => { const h = rs.querySelector('.rcard h2'); if (h && window.MX) { MX.scramble(h, titulo, 700); MX.glitch(h); } }, 650);
+  rs.insertAdjacentHTML('beforeend', `<svg class="core" width="260" height="260" viewBox="-130 -130 260 260"><g id="glyph"></g></svg>
+    <div class="rcard" style="opacity:0"><i class="side-dot"></i><div class="t"><span>INVESTIGACIÓN //</span><span id="rclock">00:00</span></div><h2>${titulo}</h2>
+      <div class="st" id="rst">${T.fases[0]}</div><div class="seg">${'<i></i>'.repeat(26)}</div>
+      <div class="cnt"><span><span id="rb">0</span> BLOQUES</span><span><span id="rf">0</span> FUENTES</span></div>
+      <div class="sub"><span>AGREGADO RECIÉN</span><span>0x${(Math.random() * 65535 | 0).toString(16).toUpperCase()} · ${new Date().getHours()}.${String(new Date().getMinutes()).padStart(2, '0')}</span></div></div>
+    <div class="mini"><span>INVESTIGACIÓN //</span><b>${titulo}</b><span id="mini2">0 BLOQUES</span></div>
+    <div class="det" id="rsdet"></div>
+    <div class="cap" id="rscap"></div>
+    <div class="lvl"><span>◂</span><div class="m"><i id="lvm"></i></div><span id="lvt">LVL -48.0 dB</span><span>PK -50.6 dB</span><b id="rsmute">MUTE</b></div>`);
+  RS = { t0: performance.now(), yaw: -16, pitch: 10, tx: 0, drag: null, auto: true, cards: [], filtro: null, mute: false, T, tema };
+  $('#rsmute').onclick = e => { e.stopPropagation(); RS.mute = !RS.mute; e.target.classList.toggle('on', RS.mute); if (RS.mute) try { speechSynthesis.cancel(); } catch (x) {} };
+  remember('investigación', 'tema: ' + tema);
+  setTimeout(() => { rs.querySelector('.rcard').style.opacity = 1; capRS('Iniciando el agente de investigación.'); }, 600);
+  let k = 0, b = 0, f = 0;
+  const tick = setInterval(() => {
+    if (!RS || !rs.classList.contains('on')) return clearInterval(tick);
+    k++; rs.querySelectorAll('.seg i').forEach((s, i) => s.classList.toggle('on', i < k));
+    b += 1 + (Math.random() * 3 | 0); f += Math.random() < .5 ? 1 : 0;
+    $('#rb').textContent = b; $('#rf').textContent = Math.min(f, 12);
+    const fase = T.fases[Math.min(T.fases.length - 1, k / 6 | 0)];
+    if ($('#rst').textContent !== fase) { $('#rst').textContent = fase; capRS(fase.charAt(0) + fase.slice(1).toLowerCase() + '…'); }
+    $('#rclock').textContent = '00:' + String(k / 4 | 0).padStart(2, '0');
+    if (k >= 26) { clearInterval(tick); armarMuro(); }
+  }, 120);
+}
+
+function armarMuro() {
+  const rs = $('#rs'); const { T, tema } = RS;
+  rs.querySelector('.core').classList.add('small');
+  const rc = rs.querySelector('.rcard'); rc.style.opacity = ''; rc.classList.add('vuela');   // la tarjeta vuela hacia la cámara y se desenfoca
+  setTimeout(() => rc.remove(), 1100);
+  setTimeout(() => { const m = rs.querySelector('.mini'); if (m) m.style.display = 'block'; }, 700);
+  const bl = T.bloques(tema);
+  const angosto = innerWidth < 700;
+  const grid = document.createElement('div'); grid.className = 'grid';
+  grid.style.setProperty('--cols', angosto ? 2 : 4); grid.style.setProperty('--cw', angosto ? '200px' : '250px');
+  const grupos = ['TODO', ...new Set(bl.map(x => x.g))];
+  grid.innerHTML = `<div class="tbar">${grupos.map((g, i) => `<b class="${i ? '' : 'on'}" data-g="${g}">${g}</b>`).join('')}</div>`;
+  $('#wall').appendChild(grid);
+  grid.querySelectorAll('.tbar b').forEach(t => t.onclick = e => { e.stopPropagation(); grid.querySelectorAll('.tbar b').forEach(x => x.classList.toggle('on', x === t)); RS.filtro = t.dataset.g === 'TODO' ? null : t.dataset.g; filtrar(); });
+  const ex = [];
+  bl.forEach((c, i) => setTimeout(() => {
+    if (!RS) return;
+    const el = document.createElement('div'); el.className = 'card' + (c.w2 && !angosto ? ' w2' : '') + (c.r ? ' r' : '');
+    el.innerHTML = `<div class="k"><span>${c.k}</span><span>${String(i + 1).padStart(2, '0')} / ${String(bl.length).padStart(2, '0')}</span></div>` + (c.t ? `<h4>${c.t}</h4>` : '') + (c.b ? `<div>${c.b}</div>` : '') + (c.h || '') +
+      `<div class="ft"><span>AGREGADO RECIÉN</span><span>0x${(4096 + i * 977).toString(16).toUpperCase()} · ${(10 + i * 3.7).toFixed(1)}</span></div>`;
+    el.dataset.g = c.g; el._c = c;
+    el.onclick = ev => { if (ev.target.dataset.go) return; ev.stopPropagation(); enfocar(el); };
+    grid.appendChild(el); RS.cards.push(el); filtrar();
+    $('#mini2').textContent = RS.cards.length + ' BLOQUES';
+    ex.push(c.ex);
+  }, 900 + i * 520));
+  // narración: explica los bloques a medida que llegan (sin pisarse)
+  let n = 0; const narra = setInterval(() => { if (!RS) return clearInterval(narra); if (n < ex.length && !RS.det) { capRS(ex[n]); hablarRS(ex[n]); n++; } else if (n >= bl.length) clearInterval(narra); }, 2600);
+  remember('investigación', `${tema}: ${bl.length} bloques`);
+}
+
+function filtrar() { RS.cards.forEach(el => el.classList.toggle('apagada', !!RS.filtro && el.dataset.g !== RS.filtro)); }
+function enfocar(el) {
+  const d = $('#rsdet'); RS.det = el;
+  d.innerHTML = `<div class="card${el.classList.contains('r') ? ' r' : ''}">${el.innerHTML}<div class="ex"><b>EXPLICACIÓN //</b>${el._c.ex}</div></div>`;
+  d.classList.add('on'); $('#wall').style.filter = 'blur(3px) brightness(.5)';
+  capRS(el._c.ex); hablarRS(el._c.ex);
+}
+function desenfocar() { if (!RS || !RS.det) return; RS.det = null; $('#rsdet').classList.remove('on'); $('#wall').style.filter = ''; }
+function cerrarInv() { try { speechSynthesis.cancel(); } catch (e) {} $('#rs').classList.remove('on'); RS = null; }
+$('#rs .x').onclick = cerrarInv;
+$('#rs').addEventListener('click', e => { const go = e.target.dataset && e.target.dataset.go; if (go) { e.stopPropagation(); cerrarInv(); handle(go); return; } if (RS && RS.det && !e.target.closest('.det .card')) desenfocar(); });
+addEventListener('keydown', e => { if (e.key === 'Escape' && RS) RS.det ? desenfocar() : cerrarInv(); });
+
+(function rsLoop(t) {
+  if (RS) {
+    const s = (t - RS.t0) / 1000, w = $('#wall');
+    const ang = innerWidth < 700;
+    if (RS.auto && !RS.drag) { RS.yaw = (ang ? -6 : -16) + Math.sin(s / 6) * (ang ? 5 : 10); RS.tx = Math.sin(s / 8) * (ang ? 12 : 50); RS.pitch = (ang ? 6 : 10) + Math.sin(s / 7) * 3; }
+    const gr = w.firstElementChild, ancho = gr ? gr.offsetWidth : 1000, alto = gr ? gr.offsetHeight : 600;
+    const sc = Math.min(1, (innerWidth * (ang ? .86 : .82)) / ancho, (innerHeight * .74) / alto);
+    w.style.transform = `translate(-50%,-50%) translateX(${RS.tx}px) scale(${sc}) rotateX(${RS.pitch}deg) rotateY(${RS.yaw}deg)`;
+    const lv = $('#lvm'); if (lv) { const v = RS.mute ? 4 : 30 + Math.abs(Math.sin(s * 3.1) * Math.sin(s * 1.3)) * 55; lv.style.width = v + '%'; $('#lvt').textContent = `LVL ${(-60 + v / 2).toFixed(1)} dB`; }
+    const g = $('#glyph'); if (g) {
+      g.innerHTML = [[0, ACC, 1.2, 70], [1.1, PEL(), 2.4, 52], [2.3, '#e6e8ea', 1, 88], [3.4, ACC, .8, 100]].map(([o, c, wd, r], i) => {
+        const a = s * (0.6 + i * .25) + o, rx = Math.abs(Math.cos(a)) * r + 4;
+        return `<ellipse rx="${rx}" ry="${r}" fill="none" stroke="${c}" stroke-width="${wd}" transform="rotate(${-25 + i * 8})" ${i === 3 ? 'stroke-dasharray="2 6"' : ''} ${i === 1 ? 'style="filter:drop-shadow(0 0 6px ${PEL()})"' : ''}/>`;
+      }).join('') + `<line x1="-120" y1="40" x2="120" y2="-40" stroke="${PEL()}" stroke-width="1"/><circle r="3" fill="#fff"/>` +
+        Array.from({ length: 24 }, (_, i) => { const a = i / 24 * Math.PI * 2 + s * .3; return `<line x1="${Math.cos(a) * 112}" y1="${Math.sin(a) * 112}" x2="${Math.cos(a) * (i % 6 ? 117 : 124)}" y2="${Math.sin(a) * (i % 6 ? 117 : 124)}" stroke="#8b8e94" stroke-width="1"/>`; }).join('');
+    }
+  }
+  requestAnimationFrame(rsLoop);
+})(0);
+(function rsDrag() {
+  const rs = $('#rs');
+  rs.addEventListener('pointerdown', e => { if (!RS || RS.det || e.target.closest('.card,.x,.lvl,.tbar')) return; RS.drag = { x: e.clientX, y: e.clientY, yaw: RS.yaw, pitch: RS.pitch }; RS.auto = false; });
+  addEventListener('pointermove', e => { if (!RS || !RS.drag) return; RS.yaw = Math.max(-45, Math.min(45, RS.drag.yaw + (e.clientX - RS.drag.x) / 8)); RS.pitch = Math.max(-10, Math.min(35, RS.drag.pitch - (e.clientY - RS.drag.y) / 10)); });
+  addEventListener('pointerup', () => { if (RS && RS.drag) RS.drag = null; });
+  rs.addEventListener('dblclick', () => { if (RS) RS.auto = true; });
+})();
+
+/* =========================================================
+   IDENTIDAD: color de toda la interfaz (marathon.js guarda la elección)
+   ========================================================= */
+function colorPanel() {
+  const p = panel('color', 'COLOR', 'Color de la interfaz'); if (!p) return;
+  p.insertAdjacentHTML('beforeend', `<div style="display:flex;gap:12px;flex-wrap:wrap;padding:6px 0 22px">${MX.PALETA.map(([n, c]) => `<button class="swc" data-c="${c}" title="${n}" style="width:44px;height:44px;border:1px solid #3a3d42;background:${c};cursor:pointer;position:relative"><span class="px" style="position:absolute;left:0;right:0;bottom:-16px;font-size:7px;color:var(--grey)">${n}</span></button>`).join('')}</div>
+    <div class="dim" style="font-size:11px">También por voz: «cambia el color a rojo» o «pon el color #ff3d9a».</div>`);
+  p.querySelectorAll('.swc').forEach(b => b.onclick = () => MX.corte(() => { MX.acento(b.dataset.c); say('Color cambiado.'); }));
+}
+
+/* =========================================================
+   NAVEGADOR — Chrome o Firefox NORMAL (pestañas, barra) y dos modos:
+   MANEJAS TÚ (como siempre) · MANEJA NEO ORIÓN (el mismo navegador, a la vista).
+   En el equipo es el navegador real (orion_navegador: CDP en Chrome, Marionette en Firefox);
+   aquí es una maqueta que muestra cómo se ve y se comporta.
+   ========================================================= */
+let NAV = null;
+function navegadorPanel(familia, q) {
+  const nombre = familia === 'firefox' ? 'FIREFOX' : 'CHROME';
+  const url0 = !q ? 'https://www.google.com' : /^https?:\/\//.test(q) ? q : /^[\w-]+(\.[\w-]+)+/.test(q) ? 'https://' + q : ({ youtube: 'https://www.youtube.com', gmail: 'https://mail.google.com', github: 'https://github.com', whatsapp: 'https://web.whatsapp.com' })[q.toLowerCase()] || 'https://www.google.com/search?q=' + encodeURIComponent(q);
+  const p = panel('nav', familia === 'firefox' ? 'FIREFOX' : 'CHROME', `${nombre} · normal, con pestañas`, true);
+  if (!p) { if (NAV) { NAV.pestanas.push({ url: url0 }); NAV.act = NAV.pestanas.length - 1; pintarNav(); } return; }
+  NAV = { familia, pestanas: [{ url: url0 }], act: 0, modo: 'tu' };
+  p.insertAdjacentHTML('beforeend', `<div class="nv">
+    <div class="nvmodo"><b data-m="tu" class="on">MANEJAS TÚ</b><b data-m="ia">MANEJA NEO ORIÓN</b><span class="dim" style="font-size:10px;margin-left:auto">di «yo sigo» o mueve el mouse para recuperar el control</span></div>
+    <div class="nvtabs" id="nvtabs"></div>
+    <div class="nvbar"><span>◂</span><span>▸</span><span>⟳</span><input id="nvurl" aria-label="Dirección"><span class="dim">☆</span></div>
+    <div class="nvweb" id="nvweb"></div></div>`);
+  p.querySelectorAll('.nvmodo b').forEach(b => b.onclick = () => modoNav(b.dataset.m));
+  $('#nvurl').onkeydown = e => { if (e.key === 'Enter') { NAV.pestanas[NAV.act].url = /^https?:/.test(e.target.value) ? e.target.value : 'https://www.google.com/search?q=' + encodeURIComponent(e.target.value); pintarNav(); } };
+  $('#nvweb').addEventListener('mousemove', () => { if (NAV.modo === 'ia' && !NAV.auto) modoNav('tu'); });
+  pintarNav();
+}
+function pintarNav() {
+  if (!NAV || !$('#nvtabs')) return;
+  const host = u => { try { return new URL(u).hostname.replace(/^www\./, ''); } catch (e) { return u; } };
+  $('#nvtabs').innerHTML = NAV.pestanas.map((t, i) => `<span class="nvt ${i === NAV.act ? 'on' : ''}" data-i="${i}">${host(t.url)}<b data-x="${i}">✕</b></span>`).join('') + '<span class="nvt mas" id="nvmas">+</span>';
+  $('#nvtabs').querySelectorAll('.nvt[data-i]').forEach(t => t.onclick = e => { if (e.target.dataset.x !== undefined) { NAV.pestanas.splice(+e.target.dataset.x, 1); if (!NAV.pestanas.length) NAV.pestanas.push({ url: 'https://www.google.com' }); NAV.act = Math.min(NAV.act, NAV.pestanas.length - 1); } else NAV.act = +t.dataset.i; pintarNav(); });
+  $('#nvmas').onclick = () => { NAV.pestanas.push({ url: 'https://www.google.com' }); NAV.act = NAV.pestanas.length - 1; pintarNav(); };
+  const u = NAV.pestanas[NAV.act].url; $('#nvurl').value = u;
+  const q = (u.match(/[?&]q=([^&]+)/) || [])[1];
+  $('#nvweb').innerHTML = `${NAV.modo === 'ia' ? '<div class="nvia">■ NEO ORIÓN MANEJANDO · mueve el mouse o di «yo sigo» para tomar el control</div><i class="nvcur" id="nvcur"></i>' : ''}
+    <div class="dim" style="font-size:10px">${host(u).toUpperCase()}</div>
+    <div style="font-size:18px;margin:8px 0 12px;color:#fff">${q ? decodeURIComponent(q.replace(/\+/g, ' ')) : host(u)}</div>
+    ${[1, 2, 3].map(i => `<div class="nvres" data-r="${i}"><div class="lime" style="font-size:12px">Resultado ${i} · ${host(u)}</div><div class="dim" style="font-size:11px">Aquí se ve la página real en el equipo; esta vista previa no puede cargar sitios externos.</div></div>`).join('')}`;
+}
+function modoNav(m) {
+  if (!NAV) return; NAV.modo = m;
+  document.querySelectorAll('.nvmodo b').forEach(b => b.classList.toggle('on', b.dataset.m === m));
+  pintarNav();
+  if (m === 'ia') demoPiloto(); else say('Tienes el control del navegador.');
+}
+function demoPiloto() {
+  NAV.auto = true; say('Manejo yo: abro una pestaña, busco y entro al primer resultado. Mira el cursor.');
+  const mover = (sel, cb, t = 700) => setTimeout(() => { const c = $('#nvcur'), el = document.querySelector(sel), w = $('#nvweb');
+    if (c && el && w) { const r = el.getBoundingClientRect(), R = w.getBoundingClientRect(); c.style.left = (r.left - R.left + r.width / 2 - 7) + 'px'; c.style.top = (r.top - R.top + r.height / 2 - 7) + 'px'; }
+    setTimeout(cb, 450); }, t);
+  mover('#nvmas', () => { NAV.pestanas.push({ url: 'https://www.google.com/search?q=normativa+RIC+18+SEC' }); NAV.act = NAV.pestanas.length - 1; pintarNav();
+    mover('.nvres[data-r="1"]', () => { const r = document.querySelector('.nvres[data-r="1"]'); if (r) r.style.outline = '2px solid var(--lime)';
+      setTimeout(() => { NAV.auto = false; say('Listo. Abrí la búsqueda en una pestaña nueva y marqué el primer resultado. Sigue tú cuando quieras.'); }, 600); }); });
+}
+
+/* =========================================================
+   COLABORACIÓN ENTRE IAs — misma lógica que orion_puente (Python)
+   Neo Orión arma un paquete con contexto, lo manda por la vía oficial de la otra IA
+   (Claude Code, Gemini CLI, Codex, OpenCode, local) o abre su chat web para que la persona
+   apriete enviar, y guarda la respuesta en la memoria.
+   ========================================================= */
+const IAS = { claude: 'CLAUDE', gemini: 'GEMINI', codex: 'CHATGPT', opencode: 'OPENCODE', local: 'IA LOCAL' };
+function colaborarPanel(raw) {
+  const t = norm(raw), via = /gemini|google/.test(t) ? 'gemini' : /chatgpt|codex|openai|gpt/.test(t) ? 'codex' : /opencode/.test(t) ? 'opencode' : /local|ollama/.test(t) ? 'local' : 'claude';
+  const web = /\bweb\b|navegador|chrome|pagina/.test(t);
+  const tarea = raw.replace(/^\s*(usa|pidele a|preguntale a|que lo haga|dile a)\s+\S+\s*(para|que)?\s*/i, '').trim() || raw;
+  const p = panel('colab', 'PUENTE', `Neo Orión ⇄ ${IAS[via]}`, true); if (!p) return;
+  const conv = [...document.querySelectorAll('#chatlog div')].slice(-6).map(d => d.textContent);
+  p.insertAdjacentHTML('beforeend', `<div style="display:grid;grid-template-columns:1fr auto 1fr;gap:14px;align-items:center;margin:4px 0 14px">
+      <div style="text-align:center"><div id="c1"></div><div class="px" style="font-size:11px;margin-top:6px">NEO ORIÓN</div></div>
+      <div class="px lime" id="cflecha" style="font-size:18px">▸▸▸</div>
+      <div style="text-align:center"><div id="c2"></div><div class="px" style="font-size:11px;margin-top:6px">${IAS[via]}</div><div class="dim" style="font-size:10px">${web ? 'chat web · tú aprietas enviar' : 'app oficial con tu cuenta'}</div></div></div>
+    <div class="no-seg" id="cseg" style="display:flex;gap:3px;margin-bottom:10px">${'<i style="flex:1;height:8px;background:#222;display:block"></i>'.repeat(5)}</div>
+    <div class="row"><span class="lbl">TAREA</span><span>${tarea.replace(/</g, '&lt;')}</span></div>
+    <div class="row"><span class="lbl">ESTADO</span><span id="cest" class="px" style="font-size:11px">ARMANDO CONTEXTO</span></div>
+    <details style="margin-top:8px"><summary class="px dim" style="font-size:9px;cursor:pointer">VER EL PAQUETE QUE SE ENVÍA</summary><pre id="cpaq" style="font-size:10px;white-space:pre-wrap;color:var(--grey);max-height:200px;overflow:auto;margin-top:6px"></pre></details>
+    <div id="cres" style="margin-top:12px"></div>`);
+  if (window.MX) { [[$('#c1'), MX.pixel('robot', { px: 6 })], [$('#c2'), MX.pixel('ia', { px: 6, color: '#ffffff' })]].forEach(([d, c]) => { c.style.cssText = 'width:auto;height:56px;display:inline-block;background:transparent;border:0'; d.append(c); }); }
+  $('#cpaq').textContent = `# Encargo de Neo Orión\n\n## Tarea\n${tarea}\n\n## Lo que se ha conversado\n${conv.map(c => '- ' + c).join('\n') || '- (sin conversación previa)'}\n\n## Notas de su memoria relacionadas\n(se agregan solas desde la bóveda)\n\n## Al terminar\nDevuelve solo el resultado, completo, en Markdown.`;
+  const fases = web ? ['ARMANDO CONTEXTO', 'COPIADO AL PORTAPAPELES', 'CHAT WEB ABIERTO', 'ESPERANDO QUE APRIETES ENVIAR', 'PEGA LA RESPUESTA AQUÍ'] : ['ARMANDO CONTEXTO', 'ENVIANDO POR LA APP OFICIAL', `${IAS[via]} TRABAJANDO`, 'RESPUESTA RECIBIDA', 'GUARDADO EN LA MEMORIA'];
+  let k = 0; const segs = p.querySelectorAll('#cseg i');
+  const paso = () => { if (!document.body.contains(p)) return; segs.forEach((x, i) => x.style.background = i <= k ? 'var(--lime)' : '#222');
+    window.MX ? MX.scramble($('#cest'), fases[k], 300) : ($('#cest').textContent = fases[k]);
+    $('#cflecha').textContent = k % 2 ? '◂◂◂' : '▸▸▸';
+    if (++k < fases.length) setTimeout(paso, 900);
+    else if (web) { $('#cres').innerHTML = '<div class="dim" style="font-size:11px">Cuando la otra IA responda, pégala en el chat de Neo Orión (tecla /) y la guardo junto a esta tarea.</div>'; abrirChat(); }
+    else { $('#cres').innerHTML = `<div class="dim" style="font-size:11px">Demostración: en el equipo, la respuesta de ${IAS[via]} aparece aquí y queda en <span class="lime">colaboraciones/</span> de tu memoria.</div>`;
+      if (window.MX) { const c = MX.pixel('check', { px: 4, color: () => window.INK }); c.style.cssText = 'width:auto;height:30px;display:block;background:transparent;border:0'; const b = document.createElement('div'); b.style.cssText = 'background:var(--lime);display:inline-block;padding:8px;margin-top:8px'; b.append(c); $('#cres').append(b); } } };
+  paso(); remember('colaboración', `${IAS[via]}: ${tarea}`);
+}
+
+/* =========================================================
+   SALA DE JUEGOS Y MEDIOS — misma lógica que orion_juegos (Python)
+   Mandos: detección REAL con la Gamepad API (conecta uno y aprieta un botón)
+   ========================================================= */
+const JUE = [
+  { g: 'LOCAL', k: 'steam', n: 'STEAM + PROTON', d: 'Juegos de Windows en Linux. Steam Input mapea cualquier mando.', gpu: 1 },
+  { g: 'LOCAL', k: 'heroic', n: 'HEROIC', d: 'Epic, GOG y Amazon.', gpu: 1 },
+  { g: 'LOCAL', k: 'retroarch', n: 'EMULADORES', d: 'RetroArch con tus propios juegos y BIOS.' },
+  { g: 'NUBE', k: 'geforcenow', n: 'GEFORCE NOW', d: 'App nativa oficial. Tus juegos de Steam/Epic en servidores RTX: sirve sin GPU.', cl: 'CHILE ✓' },
+  { g: 'NUBE', k: 'xboxcloud', n: 'XBOX CLOUD', d: 'Catálogo de Game Pass Ultimate por navegador, con mando.', cl: 'CHILE ✓' },
+  { g: 'NUBE', k: 'boosteroid', n: 'BOOSTEROID', d: 'App nativa para Linux. Tus juegos de Steam, Epic, GOG…', cl: 'VERIFICAR' },
+  { g: 'NUBE', k: 'shadow', n: 'SHADOW PC', d: 'Un PC Windows entero en la nube: instalas lo que quieras.', cl: 'VERIFICAR' },
+  { g: 'NUBE', k: 'blacknut', n: 'BLACKNUT', d: 'Catálogo familiar por navegador.', cl: 'VERIFICAR' },
+  { g: 'NUBE', k: 'luna', n: 'AMAZON LUNA', d: 'Catálogo con Prime, por navegador.', cl: 'NO EN CHILE' },
+  { g: 'CASA', k: 'moonlight', n: 'MOONLIGHT', d: 'Juega en el teléfono o la tele lo que corre en tu torre (Sunshine).' },
+  { g: 'CASA', k: 'steamlink', n: 'STEAM LINK', d: 'Remote Play de tu biblioteca de Steam a otra pantalla.' },
+  { g: 'CASA', k: 'chiaki', n: 'PS REMOTE PLAY', d: 'Tu PS4/PS5 en el PC con Chiaki-ng (libre).' },
+  { g: 'MEDIOS', k: 'jellyfin', n: 'JELLYFIN', d: 'Tu propio "Netflix" con tus series y películas.' },
+  { g: 'MEDIOS', k: 'kodi', n: 'KODI', d: 'Pantalla completa para la tele, con mando o control.' },
+  { g: 'MEDIOS', k: 'servicios', n: 'PLATAFORMAS', d: 'Netflix, Disney+, Max, Prime, YouTube… como app.' }];
+const JUE_EQ = { gpu: 'RTX 3060 12 GB', red: 180 };   // en el equipo real: orion_core.perfil
+function marcaMando(id) { const l = id.toLowerCase();
+  return /xbox|045e|x-box/.test(l) ? 'XBOX' : /dualsense|dualshock|054c|sony|wireless controller/.test(l) ? 'PLAYSTATION' : /nintendo|057e|pro controller|joy-con/.test(l) ? 'NINTENDO' : /8bitdo|2dc8/.test(l) ? '8BITDO' : 'GENÉRICO'; }
+let JUE_RAF = 0;
+function juegosPanel(foco) {
+  const p = panel('juegos', 'JUEGOS', 'Sala de juegos y medios', true); if (!p) { if (foco) lanzarJuego(foco); return; }
+  const local = !!JUE_EQ.gpu;
+  p.insertAdjacentHTML('beforeend', `<div class="row"><span class="lbl">EQUIPO</span><span>${JUE_EQ.gpu || 'sin GPU dedicada'} · red ${JUE_EQ.red} Mb/s</span></div>
+    <div class="row"><span class="lbl">RECOMIENDA</span><span class="lime">${local ? 'JUGAR AQUÍ (STEAM / HEROIC)' : 'NUBE (GEFORCE NOW)'}</span></div>
+    <div id="jgrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(min(46%,210px),1fr));gap:10px;margin:12px 0">
+    ${JUE.map(j => `<div class="jc" data-k="${j.k}" style="border:1px solid ${(local ? j.k === 'steam' : j.k === 'geforcenow') ? 'var(--lime)' : '#2c2f33'};padding:10px;cursor:pointer;background:#0b0c0d">
+      <div class="px dim" style="font-size:8px;display:flex;justify-content:space-between"><span>${j.g}</span><span style="${j.cl === 'NO EN CHILE' ? 'color:var(--red)' : j.cl === 'CHILE ✓' ? 'color:var(--lime)' : ''}">${j.cl || (j.gpu && !local ? 'NECESITA GPU' : 'LISTO')}</span></div>
+      <div class="px" style="font-size:14px;margin:6px 0 4px;color:#fff">${j.n}</div><div class="dim" style="font-size:11px">${j.d}</div></div>`).join('')}</div>
+    <div class="px dim" style="font-size:9px;margin:4px 0 6px">ENTRADA · TECLADO, MOUSE Y MANDOS</div>
+    <div id="jin" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,260px),1fr));gap:10px"></div>
+    <div class="dim" style="font-size:11px;margin-top:8px">Conecta un mando y aprieta cualquier botón: aparece aquí con sus botones en vivo. Xbox, PlayStation, Nintendo, 8BitDo y genéricos.</div>`);
+  p.querySelectorAll('.jc').forEach(c => c.onclick = () => lanzarJuego(c.dataset.k));
+  const pintar = () => {
+    if (!document.body.contains(p)) return cancelAnimationFrame(JUE_RAF);
+    const pads = [...(navigator.getGamepads ? navigator.getGamepads() : [])].filter(Boolean);
+    const box = $('#jin'); if (!box) return;
+    let h = `<div style="border:1px solid #2c2f33;padding:10px"><div class="px" style="font-size:11px">TECLADO + MOUSE</div><div class="dim" style="font-size:11px;margin-top:4px">activo · WASD y mouse en juegos de PC; en Kodi/Jellyfin las flechas</div></div>`;
+    h += pads.length ? pads.map(g => `<div style="border:1px solid var(--lime);padding:10px">
+        <div class="px" style="font-size:11px;display:flex;justify-content:space-between"><span class="lime">${marcaMando(g.id)}</span><span class="dim">MANDO ${g.index + 1}</span></div>
+        <div class="dim" style="font-size:9px;margin:3px 0 6px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis">${g.id}</div>
+        <div style="display:flex;gap:3px;flex-wrap:wrap">${g.buttons.map((b, i) => `<i style="width:16px;height:12px;display:block;background:${b.pressed ? 'var(--lime)' : '#222'};${b.pressed ? 'box-shadow:0 0 6px var(--lime)' : ''}" title="B${i}"></i>`).join('')}</div>
+        <div style="display:flex;gap:10px;margin-top:8px">${[0, 2].map(a => `<svg width="46" height="46" viewBox="-23 -23 46 46"><circle r="20" fill="none" stroke="#3a3d42"/><circle cx="${(g.axes[a] || 0) * 17}" cy="${(g.axes[a + 1] || 0) * 17}" r="5" fill="var(--lime)"/></svg>`).join('')}</div></div>`).join('')
+      : `<div style="border:1px dashed #3a3d42;padding:10px"><div class="px dim" style="font-size:11px">ESPERANDO MANDO…</div><div class="dim" style="font-size:11px;margin-top:4px">USB o Bluetooth</div></div>`;
+    box.innerHTML = h; JUE_RAF = requestAnimationFrame(pintar);
+  };
+  pintar();
+  if (foco) setTimeout(() => lanzarJuego(foco), 500);
+}
+function lanzarJuego(k) {
+  const j = JUE.find(x => x.k === k); if (!j) return;
+  const cmd = { steam: 'steam', heroic: 'flatpak run com.heroicgameslauncher.hgl', retroarch: 'retroarch', geforcenow: 'flatpak run com.nvidia.geforcenow',
+    xboxcloud: 'xdg-open https://www.xbox.com/play', boosteroid: 'boosteroid', shadow: 'shadow-prod', blacknut: 'xdg-open https://www.blacknut.com',
+    luna: 'xdg-open https://luna.amazon.com', steamlink: 'flatpak run com.valvesoftware.SteamLink', chiaki: 'flatpak run io.github.streetpea.Chiaki4deck', moonlight: 'flatpak run com.moonlight_stream.Moonlight', jellyfin: 'flatpak run com.github.iwalton3.jellyfin-media-player',
+    kodi: 'kodi', servicios: 'xdg-open https://www.netflix.com' }[k];
+  if (j.cl === 'NO EN CHILE') { say(`${j.n} todavía no está disponible en Chile. Prueba GeForce NOW o Xbox Cloud.`); return; }
+  if (j.gpu && !JUE_EQ.gpu) { say(`${j.n} necesita GPU; en este equipo te conviene GeForce NOW.`); return; }
+  job(`Juegos · ${j.n}`, ['revisando si está instalado', k === 'geforcenow' ? 'repo oficial NVIDIA (flatpak)' : 'paquete listo', 'detectando mandos', 'abriendo en pantalla completa'], `Abierto: <span class="lime">${cmd}</span>`);
+  say(`Abriendo ${j.n.toLowerCase()}.`); remember('juegos', j.n);
+}
+
+/* =========================================================
+   LIDAR EN VIVO — misma lógica que orion_lidar (Python)
+   ========================================================= */
+let LID = null;
+function lidarPanel() {
+  const p = panel('lidar', 'LIDAR', 'LiDAR · NODO-02 · mapa en vivo', true); if (!p) return;
+  p.insertAdjacentHTML('beforeend', `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:14px">
+    <canvas id="lcv" width="640" height="480"></canvas>
+    <div><div class="row"><span class="lbl">DECISIÓN</span><span class="big" id="ldec" style="font-size:18px">—</span></div>
+      <div class="row"><span class="lbl">LIBRE</span><span id="llib"></span></div><div class="row"><span class="lbl">VELOCIDAD</span><span id="lvel"></span></div>
+      <div id="lsec" style="margin-top:8px"></div>
+      <div class="dim" style="font-size:11px;margin-top:8px">Puntos blancos: escaneo actual · color de acento: mapa construido · <span class="red">color de peligro</span>: lo que se mueve (personas) · franja: corredor del robot y distancia de frenado.</div>
+      <div style="margin-top:8px"><span class="chip" data-q="investiga lidar para robots">INVESTIGACIÓN</span></div></div></div>`);
+  p.querySelectorAll('[data-q]').forEach(c => c.onclick = () => handle(c.dataset.q));
+  const muros = [[0, 0, 8000, 0], [8000, 0, 8000, 6000], [8000, 6000, 0, 6000], [0, 6000, 0, 0], [3000, 2500, 4200, 2500], [4200, 2500, 4200, 3300], [4200, 3300, 3000, 3300], [3000, 3300, 3000, 2500], [5500, 0, 5500, 1800]];
+  LID = { muros, per: { x: 6500, y: 4500, vx: -500, vy: -120 }, grid: new Float32Array(160 * 120), t: 0 };
+}
+function lidarScan(x, y, th) {
+  const N = 240, out = [];
+  for (let i = 0; i < N; i++) {
+    const a = -Math.PI + i * 2 * Math.PI / N, dx = Math.cos(a + th), dy = Math.sin(a + th); let best = 8000;
+    for (const [x1, y1, x2, y2] of LID.muros) { const ex = x2 - x1, ey = y2 - y1, den = dx * ey - dy * ex; if (Math.abs(den) < 1e-9) continue;
+      const t = ((x1 - x) * ey - (y1 - y) * ex) / den, u = ((x1 - x) * dy - (y1 - y) * dx) / den; if (t > 0 && u >= 0 && u <= 1 && t < best) best = t; }
+    const cx = LID.per.x - x, cy = LID.per.y - y, b = dx * cx + dy * cy, d = b * b - (cx * cx + cy * cy - 200 * 200);
+    let mov = false; if (d > 0) { const t = b - Math.sqrt(d); if (t > 0 && t < best) { best = t; mov = true; } }
+    out.push({ a, d: best + (Math.random() - .5) * 16, mov });
+  }
+  return out;
+}
+(function lidarLoop() {
+  const cv = $('#lcv');
+  if (LID && cv && document.body.contains(cv)) {
+    LID.t += 0.05; const t = LID.t;
+    const rx = 1500 + 2500 * (1 + Math.sin(t / 6)) , ry = 1200 + 600 * Math.sin(t / 4), th = Math.cos(t / 6) > 0 ? 0.15 : Math.PI - .15, vel = 400;
+    const P = LID.per; P.x += P.vx * .05; P.y += P.vy * .05; if (P.x < 1200 || P.x > 7500) P.vx *= -1; if (P.y < 3600 || P.y > 5600) P.vy *= -1;
+    const sc = lidarScan(rx, ry, th), g = cv.getContext('2d'), W = cv.width, H = cv.height, k = W / 9000, ox = 500, oy = 500;
+    const X = x => (x + ox) * k, Y = y => H - (y + oy) * k;
+    sc.forEach(s => { const gx = Math.floor((rx + Math.cos(s.a + th) * s.d) / 62.5), gy = Math.floor((ry + Math.sin(s.a + th) * s.d) / 62.5); if (gx >= 0 && gx < 160 && gy >= 0 && gy < 120 && !s.mov) LID.grid[gy * 160 + gx] = Math.min(1, LID.grid[gy * 160 + gx] + .25); });
+    g.fillStyle = '#101113'; g.fillRect(0, 0, W, H);
+    g.fillStyle = '#25272b'; for (let x = 0; x < W; x += 24) for (let y = 0; y < H; y += 24) g.fillRect(x, y, 1.5, 1.5);
+    for (let i = 0; i < LID.grid.length; i++) if (LID.grid[i] > .5) { g.fillStyle = RGB(LID.grid[i] * .8); g.fillRect(X((i % 160) * 62.5), Y((i / 160 | 0) * 62.5) - 62.5 * k, 62.5 * k + .5, 62.5 * k + .5); }
+    const R = X(rx), Rr = Y(ry);
+    g.strokeStyle = ACC + '33'; [1000, 2000, 3000, 4000].forEach(r => { g.beginPath(); g.arc(R, Rr, r * k, 0, 7); g.stroke(); });
+    g.fillStyle = RGB(.10); g.beginPath(); g.moveTo(R, Rr); g.arc(R, Rr, 8000 * k, -(th + (t * 3 % 6.28)), -(th + (t * 3 % 6.28)) + .5); g.fill();
+    sc.forEach(s => { g.fillStyle = s.mov ? PEL() : '#e6e8ea'; const sz = s.mov ? 4 : 2; g.fillRect(X(rx + Math.cos(s.a + th) * s.d) - sz / 2, Y(ry + Math.sin(s.a + th) * s.d) - sz / 2, sz, sz); });
+    // corredor y frenado
+    const fr = sc.filter(s => Math.cos(s.a) > 0 && Math.abs(Math.sin(s.a) * s.d) < 200).map(s => Math.cos(s.a) * s.d), libre = Math.min(...fr);
+    const nec = 150 + vel * .3, dec = libre < nec ? (libre - 150 < 3 ? 'FRENAR' : 'REDUCIR') : 'SEGUIR', vmax = dec === 'SEGUIR' ? vel : Math.max(0, (libre - 150) / .3);
+    g.save(); g.translate(R, Rr); g.rotate(-th); g.strokeStyle = dec === 'SEGUIR' ? ACC : PEL(); g.setLineDash([4, 4]); g.strokeRect(0, -200 * k, Math.min(libre, 4000) * k, 400 * k); g.setLineDash([]);
+    g.fillStyle = ACC; g.fillRect(-150 * k, -150 * k, 300 * k, 300 * k); g.fillStyle = '#111'; g.fillRect(40 * k, -30 * k, 90 * k, 60 * k); g.restore();
+    g.fillStyle = ACC; g.font = '11px Silkscreen, monospace'; g.fillText('LIDAR · NODO-02 · 240 RAYOS · 8 M', 10, 18);
+    $('#ldec').textContent = dec; $('#ldec').style.color = dec === 'SEGUIR' ? '' : 'var(--red)';
+    $('#llib').textContent = Math.round(libre) + ' mm'; $('#lvel').textContent = Math.round(vmax) + ' mm/s';
+    const secN = ['FRENTE', 'F-IZQ', 'IZQ', 'A-IZQ', 'ATRÁS', 'A-DER', 'DER', 'F-DER'];
+    $('#lsec').innerHTML = secN.map((n, i) => { const ss = sc.filter(s => (((s.a + Math.PI / 8) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI) / (Math.PI / 4) | 0) === i); const m = Math.min(...ss.map(s => s.d));
+      return `<div class="row" style="margin:3px 0"><span class="lbl">${n}</span><div class="meter"><div style="width:${Math.min(100, m / 40)}%;background:${m < 600 ? 'var(--red)' : ''}"></div></div><span class="val">${Math.round(m)} mm</span></div>`; }).join('');
+  }
+  setTimeout(() => requestAnimationFrame(lidarLoop), 50);
+})();
+
+/* =========================================================
+   ROUTER — qué interfaz pide la persona
+   ========================================================= */
+function cargarThree() {   // three.js solo se descarga cuando se abre el CAD (ahorra ~600 KB y memoria)
+  return window.THREE ? Promise.resolve() : new Promise((ok, mal) => { const sc = document.createElement('script');
+    // primero la copia local (equipo sin internet); si no está (vista previa en la web), el CDN
+    sc.src = 'lib/three.min.js'; sc.onload = ok;
+    sc.onerror = () => { const c = document.createElement('script'); c.src = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js'; c.onload = ok; c.onerror = mal; document.head.appendChild(c); };
+    document.head.appendChild(sc); });
+}
+const PEL = () => window.PEL || '#ff4a2a';
+const RGB = a => { const n = parseInt(ACC.slice(1), 16); return `rgba(${n >> 16},${(n >> 8) & 255},${n & 255},${a})`; };
+const SUGG = ['abre chrome', 'abre firefox', 'maneja tú', 'busca en google normativa RIC 18', 'usa claude para crear el informe del robot', 'cambia el color a magenta', 'abre el instalador', 'investiga lidar para robots', 'quiero jugar', 'abre geforce now', 'pon mis series', 'muéstrame el lidar del robot', 'muéstrame la carta gantt de la oficina', 'muéstrame el proyecto del brazo', 'dame alternativas del robot', 'diseña una placa de control de bajo costo', 'vista de los lentes', 'radar del entorno', 'conéctate a mi-proyecto', 'muéstrame el soporte del servo', 'reduce el grosor a 3', 'vincular teléfono', 'escanea el hardware', 'muéstrame el robot', 'mueve el hombro a 45 grados', 'onda en el codo amplitud 25 frecuencia 0.5', 'quiero calibrar con una foto', 'muestra los nodos', 'abre la memoria', 'detente'];
+$('#sugg').innerHTML = SUGG.map(s => `<span class="chip">${s}</span>`).join('');
+$('#sugg').querySelectorAll('.chip').forEach(c => c.onclick = () => handle(c.textContent));
+function say(t) { $('#heard').innerHTML = `<span class="lime">ORION ›</span> ${t}`; if (typeof logChat === 'function') logChat('ia', t); }
+if (window.MX && $('#blogo')) { const t = innerWidth < 600 ? 7 : 11; const a = MX.pixel('NEO', { px: t, color: '#ffffff', ms: 700 }), b = MX.pixel('ORIÓN', { px: t, ms: 1000 });
+  [a, b].forEach(c => { c.style.display = 'block'; c.style.margin = (t * .8) + 'px auto'; }); $('#blogo').append(a, b); }
+addEventListener('orion:rendimiento', e => say(e.detail.nivel === 'LIVIANO'
+  ? `La pantalla va lenta (${e.detail.fps} cuadros por segundo): bajé a modo liviano. Di «modo completo» si lo prefieres igual.`
+  : 'El equipo se recuperó: volví a encender los efectos.'));
+if (window.MX) MX.glitchAzar('.brand b, .panel .title, #heard', 4600);
+
+/* =========================================================
+   HERRAMIENTAS: calculadora RIC, respaldo, remoto, CNC, cámaras, casa, dictado, actualizaciones, traductor
+   Con el servidor local (equipo real) usan /api/accion/<módulo>; en la vista previa muestran un ejemplo.
+   ========================================================= */
+async function accion(mod, datos, demo) {
+  if (!SERV.si) return typeof demo === 'function' ? demo() : demo;
+  try { return await (await fetch('/api/accion/' + mod, { method: 'POST', headers: { 'X-Orion': '1', 'Content-Type': 'application/json' }, body: JSON.stringify(datos) })).json(); }
+  catch (e) { return { ok: false, error: 'el servidor local no respondió' }; }
+}
+const fila = (k, v) => `<div class="row"><span class="lbl">${k}</span><span>${v}</span></div>`;
+const avisosHtml = a => (a || []).map(x => `<div class="dim" style="font-size:11px;margin-top:4px">▸ ${x}</div>`).join('');
+const errHtml = r => r && r.ok === false ? `<div class="dim" style="color:var(--red);margin-top:8px">▸ ${r.error || 'no se pudo'}</div>` : '';
+
+/* ---- calculadora eléctrica (RIC N°03): misma regla que orion_electrica ---- */
+function calcRIC(t) {
+  t = t.toLowerCase().replace(',', '.');
+  const n = re => { const m = t.match(re); return m ? parseFloat(m[1]) : null; };
+  const tri = /trif|380|400\s*v/.test(t), v = n(/(\d{3})\s*v/) || (tri ? 380 : 220);
+  let i = n(/(\d+(?:\.\d+)?)\s*(?:a\b|amp)/); const w = (n(/(\d+(?:\.\d+)?)\s*(?:w\b|watt)/) || 0) + (n(/(\d+(?:\.\d+)?)\s*kw/) || 0) * 1000;
+  if (i == null && w) i = tri ? w / (Math.sqrt(3) * v) : w / v;
+  const L = n(/(\d+(?:\.\d+)?)\s*(?:m\b|metros?)/); if (i == null || L == null) return null;
+  const tipo = /alimentador/.test(t) && !/sub/.test(t) ? 'alimentador' : 'subalimentador', min = tipo === 'alimentador' ? 4 : 2.5;
+  const k = tri ? Math.sqrt(3) : 2, rho = /alumin/.test(t) ? .029 : .018;
+  const S = [1.5, 2.5, 4, 6, 10, 16, 25, 35, 50, 70, 95, 120, 150, 185, 240, 300].find(s => s >= min && k * L * i * rho / s / v * 100 <= 3) || 300;
+  const dv = k * L * i * rho / S, pct = dv / v * 100;
+  return { ok: true, corriente_a: +i.toFixed(2), largo_m: L, tension_v: v, fases: tri ? 3 : 1, seccion_mm2: S, caida_v: +dv.toFixed(2), caida_pct: +pct.toFixed(2), limite_pct: 3, cumple: pct <= 3,
+    proteccion_a: [6, 10, 16, 20, 25, 32, 40, 50, 63, 80, 100, 125, 160, 200, 250].find(p => p >= i), tipo,
+    avisos: ['Falta Iz del conductor (tabla del RIC N°04 o del fabricante) para verificar In ≤ Iz.'] };
+}
+async function elecPanel(raw) {
+  const r = await accion('electrica', { texto: raw }, () => calcRIC(raw) || { ok: false, error: 'di la corriente (A) o la potencia (W) y el largo en metros' });
+  const p = panel('elec', 'RIC N°03', 'Calculadora eléctrica'); if (!p) return r;
+  if (!r.ok) { p.insertAdjacentHTML('beforeend', errHtml(r)); return r; }
+  p.insertAdjacentHTML('beforeend', `<div class="dim px" style="font-size:9px">CONDUCTOR</div><div class="big">${String(r.seccion_mm2).replace('.', ',')} mm²</div>
+    ${fila('CORRIENTE', `${r.corriente_a} A · ${r.fases === 3 ? 'trifásico' : 'monofásico'} ${r.tension_v} V`)}${fila('LARGO', r.largo_m + ' m')}
+    ${fila('CAÍDA', `${r.caida_v} V · ${r.caida_pct} %`)}<div class="row"><span class="lbl">LÍMITE ${r.limite_pct} %</span><div class="meter"><div style="width:${Math.min(100, r.caida_pct / r.limite_pct * 100)}%"></div></div></div>
+    ${fila('PROTECCIÓN', r.proteccion_a ? r.proteccion_a + ' A' : '—')}${fila('ESTADO', r.cumple ? '<span class="lime">CUMPLE</span>' : '<span style="color:var(--red)">NO CUMPLE</span>')}
+    ${avisosHtml(r.avisos)}<div class="dim" style="font-size:10px;margin-top:8px">ΔV = ${r.fases === 3 ? '√3' : '2'}·L·I·ρ/S · ρ cobre 0,018 · RIC N°03: ≤ 3 % alimentadores y subalimentadores, ≤ 5 % total; mínimos 4 y 2,5 mm².</div>`);
+  return r;
+}
+
+/* ---- respaldo ---- */
+async function respaldoPanel(ahora) {
+  const p = panel('resp', 'RESPALDO', 'Memoria y proyectos'); if (!p) return;
+  const pintar = async () => {
+    const v = await accion('respaldo', { accion: 'ver' }, { ok: true, respaldos: ['2026-11-03_2130', '2026-11-02_2130', '2026-11-01_2130'], discos: [{ etiqueta: 'USB-RESPALDO', libre_gb: 58.2, montaje: '/media/ana/USB' }], config: { destino: 'auto' } });
+    p.querySelector('#rsp').innerHTML = (v.discos || []).map(d => fila('DISCO', `${d.etiqueta} · ${d.libre_gb} GB libres`)).join('') + fila('DESTINO', v.config ? v.config.destino : '—') +
+      `<div class="dim px" style="font-size:9px;margin-top:10px">FOTOS GUARDADAS (${(v.respaldos || []).length} · SE GUARDAN 30)</div>` + (v.respaldos || []).slice(0, 6).map(r => `<div class="row"><span>${r.replace('_', ' · ')}</span></div>`).join('') + errHtml(v);
+  };
+  p.insertAdjacentHTML('beforeend', `<div id="rsp"></div><button class="btn" id="rsp-ya" style="margin-top:10px">RESPALDAR AHORA</button>
+    <div class="dim" style="font-size:10px;margin-top:6px">Copia ~/Orion, proyectos y configuración. Solo se copia lo que cambió; lo demás se enlaza. Todos los días a las 21:30, o con «respalda ahora».</div>`);
+  p.querySelector('#rsp-ya').onclick = async () => { say('Respaldando…'); const r = await accion('respaldo', { accion: 'ahora' }, { ok: true, sello: 'ahora' }); say(r.ok ? 'Respaldo listo.' : 'No pude respaldar: ' + r.error); pintar(); };
+  await pintar(); if (ahora) p.querySelector('#rsp-ya').click();
+}
+
+/* ---- escritorio remoto ---- */
+function remotoPanel() {
+  const p = panel('remo', 'REMOTO', 'Entrar desde otro equipo'); if (!p) return;
+  p.insertAdjacentHTML('beforeend', `<div class="grid2" style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <button class="btn" data-m="casa">EN LA CASA · VNC</button><button class="btn" data-m="afuera" style="background:transparent;color:var(--lime);border:1px solid var(--lime)">DESDE AFUERA · RUSTDESK</button></div>
+    <div id="rmo" style="margin-top:10px"></div><button class="btn" data-m="apagar" style="margin-top:10px;background:transparent;color:var(--red);border:1px solid var(--red)">APAGAR ACCESO REMOTO</button>`);
+  p.querySelectorAll('[data-m]').forEach(b => b.onclick = async () => {
+    const m = b.dataset.m, r = await accion('remoto', { accion: m }, m === 'casa' ? { ok: true, direccion: '192.168.1.40:5900', clave: 'k3Q9xW2pLm' } : m === 'afuera' ? { ok: true, id: '1 234 567 890' } : { ok: true, mensaje: 'acceso remoto apagado' });
+    const o = p.querySelector('#rmo');
+    if (!r.ok) { o.innerHTML = errHtml(r); return; }
+    if (m === 'casa') { o.innerHTML = fila('DIRECCIÓN', r.direccion) + `<div class="row"><span class="lbl">CLAVE</span><span id="rcl">••••••••••</span><span class="chip" id="rver">VER</span></div><div class="dim" style="font-size:10px">Desde el teléfono, en la misma red: app VNC (AVNC, RealVNC Viewer). Conexión cifrada.</div>`;
+      o.querySelector('#rver').onclick = () => { o.querySelector('#rcl').textContent = r.clave; }; say('Acceso en la casa encendido. La clave está en el panel.'); }
+    else if (m === 'afuera') { o.innerHTML = fila('ID RUSTDESK', r.id) + `<div class="dim" style="font-size:10px">La clave de un solo uso aparece en la app de RustDesk de este equipo.</div>`; }
+    else { o.innerHTML = `<div class="dim">${r.mensaje}</div>`; say('Acceso remoto apagado.'); }
+  });
+}
+
+/* ---- CNC ---- */
+function trazoCnc(cv, trazo) {
+  const c = cv.getContext('2d'), W = cv.width, H = cv.height; c.fillStyle = '#0a0b0c'; c.fillRect(0, 0, W, H);
+  if (!trazo.length) return; const xs = trazo.map(p => p[0]), ys = trazo.map(p => p[1]);
+  const x0 = Math.min(...xs), x1 = Math.max(...xs), y0 = Math.min(...ys), y1 = Math.max(...ys), k = Math.min((W - 30) / ((x1 - x0) || 1), (H - 30) / ((y1 - y0) || 1));
+  const X = x => 15 + (x - x0) * k, Y = y => H - 15 - (y - y0) * k; let prev = [x0, y0];
+  for (const p of trazo) { c.beginPath(); c.strokeStyle = p[2] ? ACC : '#55585e'; c.setLineDash(p[2] ? [] : [3, 3]); c.lineWidth = p[2] ? 1.6 : .8; c.moveTo(X(prev[0]), Y(prev[1])); c.lineTo(X(p[0]), Y(p[1])); c.stroke(); prev = p; }
+}
+function cncPanel() {
+  const p = panel('cnc', 'TALLER', 'Fresadora CNC · GRBL', true); if (!p) return;
+  p.insertAdjacentHTML('beforeend', `<div style="display:grid;grid-template-columns:1.2fr 1fr;gap:12px">
+     <div><canvas id="cnc-cv" width="520" height="300" style="width:100%;border:1px solid var(--line)"></canvas>
+       <label class="chip" style="cursor:pointer;margin-top:8px;display:inline-block">ABRIR G-CODE<input type="file" accept=".nc,.gcode,.ngc,.tap,.txt" id="cnc-f" hidden></label></div>
+     <div id="cnc-r"><div class="dim">Abre un archivo .nc o .gcode: lo reviso sin mover la máquina (medidas, tiempo, profundidad y si cabe).</div></div></div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px">
+     <button class="btn" data-c="pausa" style="background:transparent;color:var(--lime);border:1px solid var(--lime)">PAUSA</button>
+     <button class="btn" data-c="seguir" style="background:transparent;color:var(--lime);border:1px solid var(--lime)">SEGUIR</button>
+     <button class="btn" data-c="parar" style="background:var(--red);color:#111">PARAR YA</button></div>
+    <div class="dim" style="font-size:10px;margin-top:6px">Cortar, mover e ir a casa quedan en espera de tu confirmación (guardián). Parar y pausar son inmediatos.</div>`);
+  const ver = async gcode => {
+    const r = await accion('cnc', { accion: 'revisar', gcode }, () => ({ ok: true, tamano_mm: [50, 40, 7], profundidad_max_mm: -2, minutos: 1.4, corte_m: .19, avances_mm_min: [200, 800], rpm: [10000], avisos: [], errores: [], listo_para_cortar: true,
+      trazo: [[0, 0, 0], [0, 0, 1], [50, 0, 1], [50, 30, 1], [40, 40, 1], [0, 40, 1], [0, 0, 1]] }));
+    if (!r.ok) { p.querySelector('#cnc-r').innerHTML = errHtml(r); return; }
+    trazoCnc(p.querySelector('#cnc-cv'), r.trazo || []);
+    p.querySelector('#cnc-r').innerHTML = `<div class="big">${r.tamano_mm.slice(0, 2).join(' × ')} mm</div>` + fila('PROFUNDIDAD', r.profundidad_max_mm + ' mm') + fila('TIEMPO', '≈ ' + r.minutos + ' min') +
+      fila('CORTE', r.corte_m + ' m') + fila('AVANCES', (r.avances_mm_min || []).join(' · ') + ' mm/min') + fila('HUSILLO', (r.rpm || []).join(' · ') + ' rpm') +
+      fila('ESTADO', r.listo_para_cortar ? '<span class="lime">LISTO PARA CORTAR</span>' : '<span style="color:var(--red)">REVISAR</span>') + avisosHtml([...(r.errores || []), ...(r.avisos || [])]);
+    say(r.listo_para_cortar ? `Revisado: ${r.tamano_mm[0]} por ${r.tamano_mm[1]} milímetros, unos ${Math.round(r.minutos)} minutos. Para cortar, confírmamelo.` : 'El programa tiene problemas: revísalos antes de cortar.');
+  };
+  p.querySelector('#cnc-f').onchange = async e => { const f = e.target.files[0]; if (f) ver(await f.text()); };
+  p.querySelectorAll('[data-c]').forEach(b => b.onclick = async () => { const r = await accion('cnc', { accion: b.dataset.c }, { ok: true }); if (b.dataset.c === 'parar') MX.alerta('CNC DETENIDA', 1300); say(r.ok ? `CNC: ${b.dataset.c}.` : r.error); });
+  ver('');
+}
+
+/* ---- cámaras ---- */
+function camarasPanel() {
+  const p = panel('cams', 'VISIÓN', 'Cámaras · Frigate'); if (!p) return;
+  p.insertAdjacentHTML('beforeend', fila('DETECTA', 'personas · autos · perros · gatos') + fila('GRABA', '7 días, en este equipo') + fila('GUARDIÁN', 'persona en zona robot/cnc → frena') +
+    `<div class="dim" style="font-size:11px;margin-top:8px">Dime «agrega la cámara del patio» o conecta una cámara USB. Las claves de las cámaras IP van en ~/.orion/claves/camaras.json; nunca en el chat.</div>
+    <div style="margin-top:8px"><span class="chip" data-q="abre chrome en http://127.0.0.1:5000">VER CÁMARAS</span></div>`);
+  p.querySelectorAll('.chip[data-q]').forEach(c => c.onclick = () => handle(c.dataset.q));
+}
+
+/* ---- casa ---- */
+async function casaPanel(raw, confirmado) {
+  const r = await accion('casa', { texto: raw, confirmado: !!confirmado }, () => /cerradura|porton|alarma/.test(norm(raw)) && !confirmado ? { ok: false, necesita_confirmar: true, entidad: 'lock.puerta', motivo: 'cerraduras, alarmas y portones necesitan tu confirmación' }
+    : /temperatura|humedad/.test(norm(raw)) ? { ok: true, consulta: 'Temperatura pieza', valor: '21.5', unidad: '°C' } : { ok: true, nombre: 'Luz del taller', servicio: /apaga/.test(norm(raw)) ? 'turn_off' : 'turn_on' });
+  if (r.necesita_confirmar) {
+    const p = panel('casa', 'CASA', 'Confirmar'); if (!p) return;
+    p.insertAdjacentHTML('beforeend', `<div class="dim">${r.motivo}</div>${fila('APARATO', r.entidad)}<button class="btn" id="casa-ok" style="margin-top:10px;background:var(--red);color:#111">MANTÉN PARA CONFIRMAR</button>`);
+    MX.mantener(p.querySelector('#casa-ok'), 1600, () => { p.remove(); delete OPEN.casa; casaPanel(raw, true); });
+    say('Eso necesita tu confirmación: mantén apretado el botón.'); return;
+  }
+  if (!r.ok) { say(r.error || 'No pude hablar con Home Assistant.'); return; }
+  say(r.consulta ? `${r.consulta}: ${r.valor} ${r.unidad || ''}` : `${r.nombre}: ${r.servicio === 'turn_off' ? 'apagada' : r.servicio === 'turn_on' ? 'encendida' : 'listo'}.`);
+}
+
+/* ---- dictado ---- */
+function dictadoPanel(raw) {
+  const p = panel('dict', 'DICTADO', 'Documento por voz', true); if (!p) return;
+  const tpl = /memoria|electric/.test(norm(raw)) ? 'memoria-electrica' : /carta/.test(norm(raw)) ? 'carta' : /acta/.test(norm(raw)) ? 'acta' : 'informe-duoc';
+  p.insertAdjacentHTML('beforeend', `<div class="row"><span class="lbl">PLANTILLA</span><select id="dt-tpl">${['informe-duoc', 'memoria-electrica', 'carta', 'acta'].map(t => `<option ${t === tpl ? 'selected' : ''}>${t}</option>`).join('')}</select></div>
+    <textarea id="dt-txt" rows="7" style="width:100%;background:#0a0b0c;color:var(--txt);border:1px solid var(--line);font:12px var(--mono);padding:8px" placeholder="título informe de… sección introducción punto aparte …"></textarea>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px"><button class="btn" id="dt-mic" style="background:transparent;color:var(--lime);border:1px solid var(--lime)">● DICTAR</button><button class="btn" id="dt-ok">CREAR WORD</button></div>
+    <div id="dt-r" style="margin-top:8px"></div><div class="dim" style="font-size:10px;margin-top:6px">Marcas: «título», «sección», «subtítulo», «punto», «punto aparte», «tabla: a, b, c». Informe DUOC con el logo arriba a la derecha.</div>`);
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  p.querySelector('#dt-mic').onclick = () => { if (!SR) { say('En este equipo dicta con el oído de Neo Orión o escribe en el cuadro.'); return; }
+    const r = new SR(); r.lang = 'es-CL'; r.continuous = true; r.interimResults = false; r.onresult = e => { for (let i = e.resultIndex; i < e.results.length; i++) p.querySelector('#dt-txt').value += e.results[i][0].transcript + ' '; }; r.start(); say('Te escucho. Dicta.'); };
+  p.querySelector('#dt-ok').onclick = async () => {
+    const texto = p.querySelector('#dt-txt').value, r = await accion('dictado', { texto, plantilla: p.querySelector('#dt-tpl').value, pulir: true }, { ok: true, archivo: '~/Documentos/documento.docx', bloques: [] });
+    p.querySelector('#dt-r').innerHTML = r.ok ? fila('LISTO', r.archivo) + (r.bloques || []).slice(0, 8).map(b => `<div class="dim" style="font-size:11px">${b[0] === 'seccion' ? '■' : b[0] === 'punto' ? '·' : '›'} ${b[1]}</div>`).join('') : errHtml(r);
+    if (r.ok) say('Documento creado en Documentos.');
+  };
+}
+
+/* ---- actualizaciones ---- */
+async function actualizarPanel() {
+  const p = panel('upd', 'SISTEMA', 'Actualizaciones'); if (!p) return;
+  const r = await accion('actualizar', {}, { ok: true, actual: '0.9', ultima: '0.9', hay_nueva: false, novedades: [] });
+  p.insertAdjacentHTML('beforeend', r.ok ? fila('INSTALADA', r.actual) + fila('ÚLTIMA', r.ultima) + fila('ESTADO', r.hay_nueva ? '<span class="lime">HAY VERSIÓN NUEVA</span>' : 'al día') + avisosHtml(r.novedades) +
+    `<div class="dim" style="font-size:10px;margin-top:8px">Se verifica la suma SHA-256 antes de instalar. Ubuntu instala solo sus parches de seguridad.</div>` : errHtml(r));
+  say(r.ok ? (r.hay_nueva ? `Hay una versión nueva: ${r.ultima}. Dime «instálala».` : 'Neo Orión está al día.') : 'No pude revisar el canal de actualizaciones.');
+}
+
+/* ---- traductor ---- */
+const IDIOMAS = { es: 'ESPAÑOL', en: 'INGLÉS', pt: 'PORTUGUÉS', fr: 'FRANCÉS', de: 'ALEMÁN', it: 'ITALIANO', zh: 'CHINO', ja: 'JAPONÉS', ko: 'COREANO' };
+function traductorPanel(raw) {
+  const p = panel('trad', 'TRADUCTOR', 'Conversación en vivo', true); if (!p) return;
+  const b = Object.keys(IDIOMAS).find(k => norm(raw).includes(norm(IDIOMAS[k]).toLowerCase()) && k !== 'es') || 'en';
+  const sel = (id, v) => `<select id="${id}">${Object.entries(IDIOMAS).map(([k, n]) => `<option value="${k}" ${k === v ? 'selected' : ''}>${n}</option>`).join('')}</select>`;
+  p.insertAdjacentHTML('beforeend', `<div class="row"><span class="lbl">PERSONA A</span>${sel('tr-a', 'es')}<span class="lbl">PERSONA B</span>${sel('tr-b', b)}</div>
+    <div id="tr-log" style="max-height:220px;overflow:auto;margin:8px 0"></div>
+    <form id="tr-f" style="display:flex;gap:8px"><input id="tr-in" style="flex:1;background:#0a0b0c;color:var(--txt);border:1px solid var(--line);font:13px var(--mono);padding:8px" placeholder="habla o escribe en cualquiera de los dos idiomas"><button class="btn" style="width:auto;padding:8px 14px">▸</button></form>
+    <div class="dim" style="font-size:10px;margin-top:6px">Sin internet con Argos Translate; si no, con la IA local. Salida por parlantes o audífonos de conducción ósea.</div>`);
+  p.querySelector('#tr-f').onsubmit = async e => { e.preventDefault(); const t = p.querySelector('#tr-in').value.trim(); if (!t) return; p.querySelector('#tr-in').value = '';
+    const r = await accion('traductor', { texto: t, a: p.querySelector('#tr-a').value, b: p.querySelector('#tr-b').value }, { de: 'es', a: 'en', traduccion: '(vista previa: aquí aparece la traducción)', original: t });
+    p.querySelector('#tr-log').insertAdjacentHTML('beforeend', `<div style="margin-bottom:6px"><div class="dim" style="font-size:11px">${(r.de || '').toUpperCase()} › ${t}</div><div class="lime">${(r.a || '').toUpperCase()} › ${r.traduccion || r.error || '—'}</div></div>`);
+    p.querySelector('#tr-log').scrollTop = 1e6;
+    if (r.traduccion) try { const u = new SpeechSynthesisUtterance(r.traduccion); u.lang = r.a; speechSynthesis.speak(u); } catch (e) {} };
+}
+
+
+/* ---- controladores: procesador, gráfica y si los drivers están al día ---- */
+async function drvPanel() {
+  const r = await accion('controladores', {}, { ok: true, cpu: { fabricante: 'AMD', modelo: 'AMD Ryzen 5 5600X 6-Core Processor', avx2: true, microcodigo: 'amd64-microcode' },
+    gpus: [{ fabricante: 'NVIDIA', modelo: 'GeForce RTX 3060 Lite Hash Rate', id: '10de:2504', driver: 'nvidia' }],
+    plan: { paquetes: ['amd64-microcode', 'nvidia-driver-570'], notas: ['NVIDIA: nvidia-driver-570 (propietario, firmado para arranque seguro; habilita CUDA para la IA local)'] },
+    al_dia: { instalado: 'nvidia-driver-570', recomendado: 'nvidia-driver-570', hay_nuevo: false } });
+  const p = panel('drv', 'HARDWARE', 'Procesador, gráfica y drivers'); if (!p) return;
+  if (!r.ok) { p.insertAdjacentHTML('beforeend', errHtml(r)); return; }
+  const c = r.cpu || {};
+  p.insertAdjacentHTML('beforeend', fila('PROCESADOR', `${c.modelo || c.fabricante}`) + fila('INSTRUCCIONES', `${c.avx2 ? 'AVX2' : 'sin AVX2'}${c.avx512 ? ' · AVX-512' : ''}`) + fila('MICROCÓDIGO', c.microcodigo || '—') +
+    (r.gpus || []).map(g => fila('GRÁFICA', `${g.fabricante} ${g.modelo}`) + fila('DRIVER EN USO', g.driver || '—')).join('') +
+    (r.al_dia && r.al_dia.recomendado ? fila('NVIDIA', r.al_dia.hay_nuevo ? `<span class="lime">hay uno nuevo: ${r.al_dia.recomendado}</span>` : `al día (${r.al_dia.instalado || r.al_dia.recomendado})`) : '') +
+    avisosHtml((r.plan || {}).notas) + `<div class="dim" style="font-size:10px;margin-top:8px">Los drivers se actualizan con el sistema. El firmware y el BIOS (fwupd) solo con tu permiso.</div>`);
+  say((r.gpus || []).length ? `Tienes ${r.gpus.map(g => g.fabricante + ' ' + g.modelo).join(' y ')}. ${r.al_dia && r.al_dia.hay_nuevo ? 'Hay un driver más nuevo.' : 'Los drivers están al día.'}` : 'Revisé el procesador y la gráfica.');
+}
+
+/* ---- llave de voz: tu frase con tu voz (como «Oye Siri», pero la frase la eliges tú) ---- */
+async function grabarVoz(n) { return SERV.si ? (await fetch('/api/voz/grabar', { method: 'POST', headers: { 'X-Orion': '1', 'Content-Type': 'application/json' }, body: JSON.stringify({ n }) })).json() : new Promise(r => setTimeout(() => r({ ok: true }), 900)); }
+const MODOS_LLAVE = { voz_o_clave: 'con mi frase o mi clave', voz: 'solo con mi frase', voz_y_clave: 'frase y clave (las dos)', clave: 'solo con mi clave' };
+async function llavePanel() {
+  const est = await accion('llave', { accion: 'estado' }, { ok: true, configurada: true, frase: 'Neo Orión, soy yo', modo: 'voz_o_clave', grabaciones: 3 });
+  const p = panel('llave', 'LLAVE DE VOZ', 'Tu frase y cómo desbloquear'); if (!p) return;
+  const sel = (id, ops, v) => `<select id="${id}" style="flex:1">${Object.entries(ops).map(([k, n]) => `<option value="${k}" ${k == v ? 'selected' : ''}>${n}</option>`).join('')}</select>`;
+  p.insertAdjacentHTML('beforeend', fila('AHORA', est.configurada ? `«${est.frase}» · ${est.grabaciones || '?'} grabación(es)` : 'sin frase') +
+    `<div class="row"><span class="lbl">DESBLOQUEAR</span>${sel('ll-modo', MODOS_LLAVE, est.modo || 'voz_o_clave')}</div>
+    <div class="row"><span class="lbl">NUEVA FRASE</span><input id="ll-f" value="${est.frase || ''}" maxlength="60" style="flex:1;background:#0a0b0c;color:var(--txt);border:1px solid var(--line);font:13px var(--mono);padding:6px"></div>
+    <div class="row"><span class="lbl">GRABARLA</span>${sel('ll-v', { 3: '3 veces (más preciso)', 1: '1 vez (rápido)' }, 3)}</div>
+    <div id="ll-b" style="display:flex;gap:4px;margin:10px 0"></div>
+    <button class="btn" id="ll-g">● GRABAR FRASE</button><div class="dim" id="ll-m" style="font-size:11px;margin-top:6px">3 o 4 palabras fáciles de decir. Se revisa la frase y tu voz.</div>
+    <button class="btn" id="ll-o" style="margin-top:10px;background:transparent;color:var(--red);border:1px solid var(--red)">OLVIDAR MI VOZ</button>`);
+  const m = p.querySelector('#ll-m'), barras = v => { p.querySelector('#ll-b').innerHTML = '<i style="flex:1;height:10px;background:#26282c;display:block"></i>'.repeat(v); };
+  barras(3); p.querySelector('#ll-v').onchange = e => barras(+e.target.value);
+  p.querySelector('#ll-modo').onchange = async e => { const r = await accion('llave', { accion: 'modo', modo: e.target.value }, { ok: true, explicacion: 'se desbloquea ' + MODOS_LLAVE[e.target.value] });
+    m.innerHTML = r.ok ? `<span class="lime">Listo: ${r.explicacion}.</span>` : r.error; say(r.ok ? 'Listo, ' + r.explicacion + '.' : r.error); };
+  p.querySelector('#ll-g').onclick = async () => {
+    const frase = p.querySelector('#ll-f').value.trim(), veces = +p.querySelector('#ll-v').value, b = [...p.querySelectorAll('#ll-b i')];
+    if (frase.split(/\s+/).length < 2) { m.textContent = 'La frase necesita al menos 2 palabras.'; return; }
+    for (let n = 1; n <= veces; n++) { m.innerHTML = `Di: <span class="lime">«${frase}»</span> (${n}/${veces})`; say(veces > 1 ? `Di tu frase. ${n} de ${veces}.` : 'Di tu frase.'); const r = await grabarVoz(n);
+      if (!r.ok) { m.textContent = 'No pude grabar: ' + (r.error || 'sin micrófono'); return; } b[n - 1].style.background = 'var(--lime)'; }
+    const r = await accion('llave', { accion: 'configurar', frase, veces }, { ok: true, frase, aviso: veces === 1 ? 'con una sola grabación te reconoce peor: 3 veces es más preciso' : '' });
+    m.innerHTML = r.ok ? `<span class="lime">Listo: «${r.frase}» con tu voz.</span>${r.aviso ? '<br>' + r.aviso : ''}` : (r.error || 'no se pudo'); say(r.ok ? 'Tu frase quedó guardada.' : r.error);
+  };
+  p.querySelector('#ll-o').onclick = async () => { const r = await accion('llave', { accion: 'olvidar' }, { ok: true }); say(r.ok ? 'Borré tu huella de voz. Ahora se desbloquea con tu clave.' : 'No pude.'); };
+}
+async function bloquear() {
+  if ($('#candado')) return;
+  const est = await accion('llave', { accion: 'estado' }, { modo: 'voz_o_clave' }), modo = est.modo || 'clave';
+  const conVoz = modo !== 'clave', conClave = modo !== 'voz';
+  const c = el('div', '', `<div style="text-align:center"><div class="px" style="font-size:12px;color:var(--grey);margin-bottom:18px">NEO ORIÓN · BLOQUEADO</div>
+    <div id="cd-ico" style="margin:0 auto 18px"></div>
+    ${conClave ? '<form id="cd-f"><input id="cd-c" type="password" placeholder="' + (modo === 'voz_y_clave' ? 'tu clave y luego tu frase' : modo === 'clave' ? 'tu clave' : 'o tu clave') + '" style="width:280px;background:#0a0b0c;color:var(--txt);border:1px solid var(--line);font:13px var(--mono);padding:10px;text-align:center"></form>' : ''}
+    ${conVoz ? '<button class="btn" id="cd-voz" style="width:280px;margin-top:12px">● DI TU FRASE</button>' : ''}
+    <div class="dim" id="cd-m" style="font-size:11px;margin-top:10px;min-height:16px">${modo === 'voz_y_clave' ? 'Se necesitan las dos: clave y frase.' : ''}</div></div>`);
+  c.id = 'candado'; Object.assign(c.style, { position: 'fixed', inset: 0, background: 'var(--bg)', zIndex: 9000, display: 'grid', placeItems: 'center' });
+  document.body.append(c); const ic = MX.pixel('candado', { px: 10, gap: 2 }); ic.style.display = 'block'; ic.style.margin = '0 auto'; c.querySelector('#cd-ico').append(ic);
+  const msg = t => { c.querySelector('#cd-m').textContent = t; MX.glitch(c.querySelector('#cd-m')); };
+  const intentar = async conV => {
+    const clave = conClave ? c.querySelector('#cd-c').value : '';
+    if (modo === 'voz_y_clave' && !clave) { msg('primero escribe tu clave'); return; }
+    if (conV) msg('te escucho…');
+    const r = await accion('llave', { accion: 'desbloquear', con_voz: conV, clave }, { ok: true });
+    if (conClave) c.querySelector('#cd-c').value = '';
+    if (r.ok) { MX.corte(() => c.remove()); return; }
+    const v = r.voz || {};
+    msg(conV && v.ok === false ? (v.error || (!v.frase_ok ? 'no era la frase' : 'no reconocí la voz')) + (modo === 'voz_y_clave' && !r.clave_ok ? ' · y la clave no calza' : '') : 'clave incorrecta');
+  };
+  if (conClave) c.querySelector('#cd-f').onsubmit = e => { e.preventDefault(); modo === 'voz_y_clave' ? msg('ahora di tu frase') : intentar(false); };
+  if (conVoz) c.querySelector('#cd-voz').onclick = () => intentar(true);
+}
+
+/* ---- formas de iniciar: frases («Buenos días, señoritas»), palmadas y rutinas; reposo atento ---- */
+const ACC_RUT = { despertar: 'DESPERTAR', saludo: 'SALUDO', luces: 'LUCES', musica: 'MÚSICA', resumen: 'RESUMEN DEL DÍA', proyecto: 'ÚLTIMO PROYECTO', taller: 'MODO TALLER', reposo: 'REPOSO', suspender: 'SUSPENDER' };
+let ACT_DEMO = { saludo: '{saludo}, {nombre}. Todo listo.', nombre: '', palmadas: { sensibilidad: 'normal' }, activadores: [{ id: 'buenos-dias', tipo: 'frase', frase: 'Buenos días, señoritas', rutina: ['despertar', 'saludo', 'luces', 'resumen'] },
+  { id: 'palmadas', tipo: 'palmadas', veces: 2, rutina: ['despertar', 'saludo'] }, { id: 'a-dormir', tipo: 'frase', frase: 'Buenas noches', solo_dueno: true, rutina: ['reposo'] }],
+  reposo: { tras_minutos: 20, nivel: 'atento' }, wol: { mac: '' } };
+function hacerRutina(rutina, como) {
+  if (rutina.includes('despertar')) despertar();
+  setTimeout(() => {
+    for (const a of rutina) {
+      if (a === 'saludo') { const h = new Date().getHours(), parte = h >= 5 && h < 12 ? 'Buenos días' : h < 20 ? 'Buenas tardes' : 'Buenas noches';
+        say((ACT_DEMO.saludo || '{saludo}. Todo listo.').replace('{saludo}', parte).replace('{nombre}', ACT_DEMO.nombre || '').replace(/,\s*\./, '.').replace(/,\s*,/, ',')); }
+      if (a === 'resumen') memoryPanel();
+      if (a === 'proyecto') proyectoPanel();
+      if (a === 'taller') { cncPanel(); camarasPanel(); }
+      if (a === 'musica') navegadorPanel('chrome', 'https://music.youtube.com');
+      if (a === 'luces' && !SERV.si) logChat('ia', 'Luces del taller: encendidas.');
+      if (a === 'reposo') reposo();
+      if (a.startsWith('di:')) say(a.slice(3).trim());
+      if (a.startsWith('abre:')) navegadorPanel('chrome', a.slice(5).trim());
+      if (a.startsWith('orden:')) handle(a.slice(6).trim());
+    }
+  }, rutina.includes('despertar') ? 900 : 0);
+  if (como) logChat('ia', `▸ ${como}: ${rutina.map(r => ACC_RUT[r] || r).join(' · ')}`);
+}
+function reposo() {
+  if ($('#reposo')) return;
+  const r = el('div', '', '<div class="px" style="font-size:10px;color:#2a2c30;letter-spacing:.2em">REPOSO · DI TU FRASE O DA DOS PALMADAS</div>');
+  r.id = 'reposo'; Object.assign(r.style, { position: 'fixed', inset: 0, background: '#000', zIndex: 8500, display: 'grid', placeItems: 'end center', paddingBottom: '30px', cursor: 'none' });
+  document.body.append(r); r.onclick = () => despertar(); setState('REPOSO', false);
+}
+function despertar() { const r = $('#reposo'); if (!r) return; MX.disolver(() => r.remove()); setState('ESCUCHANDO', false); }
+addEventListener('keydown', e => { if ($('#reposo')) { e.preventDefault(); despertar(); } }, true);
+// reposo por inactividad
+let ultimoUso = Date.now(); ['pointerdown', 'keydown', 'pointermove'].forEach(ev => addEventListener(ev, () => ultimoUso = Date.now(), true));
+setInterval(() => { const m = (ACT_DEMO.reposo || {}).tras_minutos || 20; if (m > 0 && Date.now() - ultimoUso > m * 60000 && !$('#reposo') && !$('#candado')) reposo(); }, 30000);
+// eventos del oído (equipo real): frases y palmadas que dispararon rutinas
+let EV_DESDE = -1;
+setInterval(async () => { if (!SERV.si) return; try {
+  const r = await (await fetch('/api/eventos?desde=' + EV_DESDE, { headers: { 'X-Orion': '1' } })).json();
+  if (EV_DESDE < 0) { EV_DESDE = r.total; return; } EV_DESDE = r.total;
+  for (const e of r.eventos) { ultimoUso = Date.now(); hacerRutina(e.rutina, e.como); }
+} catch (e) {} }, 2000);
+const nombrePaso = p => ACC_RUT[p] || (p.startsWith('di:') ? `DECIR «${p.slice(3)}»` : p.startsWith('abre:') ? `ABRIR ${p.slice(5)}` : p.startsWith('orden:') ? `ORDEN «${p.slice(6)}»` : p);
+async function activacionPanel() {
+  const c = await accion('activacion', {}, () => ({ ok: true, ...ACT_DEMO, acciones: ACC_RUT }));
+  if (c.ok) { ACT_DEMO = { ...ACT_DEMO, ...c }; delete ACT_DEMO.ok; }
+  const p = panel('act', 'INICIO', 'Formas de despertar a Neo Orión', true); if (!p) return;
+  let edit = null, pasos = ['despertar', 'saludo'];
+  const inp = 'background:#0a0b0c;color:var(--txt);border:1px solid var(--line);font:13px var(--mono);padding:6px';
+  const lista = () => (ACT_DEMO.activadores || []).map(a => `<div class="row" style="align-items:flex-start;opacity:${a.activo === false ? .4 : 1}"><span class="lbl">${a.tipo === 'palmadas' ? a.veces + ' PALMADAS' : 'FRASE'}</span>
+      <span style="flex:1">${a.tipo === 'frase' ? `«${a.frase}»${a.solo_dueno ? ' <span class="dim">· solo tu voz</span>' : ''}<br>` : ''}<span class="dim" style="font-size:11px">${a.rutina.map(nombrePaso).join(' → ')}</span></span>
+      <span class="chip" data-on="${a.id}">${a.activo === false ? 'ACTIVAR' : 'PAUSAR'}</span><span class="chip" data-editar="${a.id}">EDITAR</span><span class="chip" data-probar="${a.id}">PROBAR</span><span class="chip" data-quitar="${a.id}">QUITAR</span></div>`).join('');
+  p.insertAdjacentHTML('beforeend', `<div id="act-l">${lista()}</div>
+    <div class="dim px" style="font-size:9px;margin:14px 0 6px" id="act-tt">AGREGAR</div>
+    <div class="row"><select id="act-t"><option value="frase">FRASE</option><option value="palmadas">PALMADAS</option></select>
+      <input id="act-f" placeholder="Jarvis, a trabajar" style="flex:1;${inp}">
+      <select id="act-v" hidden><option value="2">2 palmadas</option><option value="3">3 palmadas</option><option value="4">4 palmadas</option></select>
+      <label class="dim" style="font-size:11px"><input type="checkbox" id="act-d"> solo mi voz</label></div>
+    <div class="dim" style="font-size:10px;margin-top:8px">RUTINA, EN ORDEN (toca un paso para quitarlo; ◂ lo adelanta)</div>
+    <div id="act-p" style="display:flex;flex-wrap:wrap;gap:6px;margin:6px 0;min-height:28px"></div>
+    <div class="row"><select id="act-s" style="flex:1"><option value="">+ agregar paso…</option>${Object.entries(ACC_RUT).map(([k, n]) => `<option value="${k}">${n}</option>`).join('')}<option value="di:">DECIR UNA FRASE…</option><option value="abre:">ABRIR UNA PÁGINA…</option><option value="orden:">DAR UNA ORDEN…</option></select>
+      <input id="act-x" placeholder="texto, página u orden" hidden style="flex:1.4;${inp}"><span class="chip" id="act-xa" hidden>AÑADIR</span></div>
+    <div style="display:flex;gap:8px;margin-top:8px"><button class="btn" id="act-ok">AGREGAR FORMA DE INICIO</button><button class="btn" id="act-cx" hidden style="width:auto;padding:12px 16px;background:transparent;color:var(--lime);border:1px solid var(--lime)">CANCELAR</button></div>
+    <div class="dim px" style="font-size:9px;margin:14px 0 6px">AJUSTES</div>
+    <div class="row"><span class="lbl">SALUDO</span><input id="act-sal" value="${(ACT_DEMO.saludo || '{saludo}, {nombre}. Todo listo.').replace(/"/g, '&quot;')}" style="flex:1;${inp}"></div>
+    <div class="dim" style="font-size:10px">{saludo} = buenos días / buenas tardes / buenas noches · {nombre} = tu nombre</div>
+    <div class="row"><span class="lbl">PALMADAS</span><select id="act-sen">${['sensible', 'normal', 'firme'].map(k => `<option ${k === ((ACT_DEMO.palmadas || {}).sensibilidad || 'normal') ? 'selected' : ''}>${k}</option>`).join('')}</select>
+      <span class="lbl">DORMIR TRAS</span><select id="act-m">${[5, 10, 20, 30, 60, 0].map(m => `<option value="${m}" ${m == (ACT_DEMO.reposo || {}).tras_minutos ? 'selected' : ''}>${m ? m + ' min sin uso' : 'nunca'}</option>`).join('')}</select>
+      <select id="act-n"><option value="atento">reposo atento (te escucha)</option><option value="suspender" ${(ACT_DEMO.reposo || {}).nivel === 'suspender' ? 'selected' : ''}>suspender (despierta con el nodo)</option></select></div>
+    <button class="btn" id="act-w" style="margin-top:8px;background:transparent;color:var(--lime);border:1px solid var(--lime)">PREPARAR ENCENDIDO POR RED (NODO DESPERTADOR)</button><div class="dim" id="act-wm" style="font-size:11px;margin-top:6px"></div>
+    <div class="dim" style="font-size:10px;margin-top:8px">En reposo atento la pantalla se apaga y la IA sale de la memoria, pero el oído sigue escuchando. Suspendido, el PC no puede oír: lo despierta un nodo con micrófono (Raspberry o ESP32), el teclado o el teléfono.</div>`);
+  const q = x => p.querySelector(x), t = q('#act-t');
+  const verTipo = () => { const pal = t.value === 'palmadas'; q('#act-f').hidden = pal; q('#act-v').hidden = !pal; q('#act-d').parentElement.hidden = pal; };
+  const verPasos = () => { q('#act-p').innerHTML = pasos.map((x, i) => `<span class="chip" data-i="${i}" title="quitar">${i ? '<b data-sube="' + i + '">◂</b> ' : ''}${i + 1}. ${nombrePaso(x)} ✕</span>`).join('') || '<span class="dim" style="font-size:11px">sin pasos</span>';
+    q('#act-p').querySelectorAll('[data-i]').forEach(ch => ch.onclick = e => { const i = +ch.dataset.i; if (e.target.dataset.sube) [pasos[i - 1], pasos[i]] = [pasos[i], pasos[i - 1]]; else pasos.splice(i, 1); verPasos(); }); };
+  const limpiar = () => { edit = null; pasos = ['despertar', 'saludo']; t.disabled = false; q('#act-f').value = ''; q('#act-d').checked = false; q('#act-tt').textContent = 'AGREGAR'; q('#act-ok').textContent = 'AGREGAR FORMA DE INICIO'; q('#act-cx').hidden = true; verTipo(); verPasos(); };
+  const guardarLista = () => { q('#act-l').innerHTML = lista(); enlazar(); };
+  const enlazar = () => {
+    p.querySelectorAll('[data-probar]').forEach(b => b.onclick = () => { const a = ACT_DEMO.activadores.find(x => x.id === b.dataset.probar); hacerRutina(a.rutina, 'prueba'); accion('activacion', { accion: 'ejecutar', id: a.id }, {}); });
+    p.querySelectorAll('[data-quitar]').forEach(b => b.onclick = async () => { await accion('activacion', { accion: 'quitar', id: b.dataset.quitar }, {}); ACT_DEMO.activadores = ACT_DEMO.activadores.filter(x => x.id !== b.dataset.quitar); guardarLista(); });
+    p.querySelectorAll('[data-on]').forEach(b => b.onclick = async () => { const a = ACT_DEMO.activadores.find(x => x.id === b.dataset.on); const activo = a.activo === false;
+      const r = await accion('activacion', { accion: 'editar', id: a.id, cambios: { activo } }, { ok: true }); if (r.ok !== false) { a.activo = activo; guardarLista(); } });
+    p.querySelectorAll('[data-editar]').forEach(b => b.onclick = () => { const a = ACT_DEMO.activadores.find(x => x.id === b.dataset.editar); edit = a.id;
+      t.value = a.tipo; t.disabled = true; q('#act-f').value = a.frase || ''; q('#act-v').value = a.veces || 2; q('#act-d').checked = !!a.solo_dueno; pasos = [...a.rutina];
+      q('#act-tt').textContent = 'EDITANDO ' + (a.frase ? '«' + a.frase + '»' : a.veces + ' PALMADAS'); q('#act-ok').textContent = 'GUARDAR CAMBIOS'; q('#act-cx').hidden = false; verTipo(); verPasos(); q('#act-f').focus(); });
+  };
+  t.onchange = verTipo; verTipo(); verPasos(); enlazar();
+  q('#act-s').onchange = e => { const v = e.target.value; if (!v) return; if (v.endsWith(':')) { q('#act-x').hidden = q('#act-xa').hidden = false; q('#act-x').placeholder = v === 'di:' ? 'Bienvenido al taller, jefe' : v === 'abre:' ? 'https://calendar.google.com' : 'muestra el gantt'; q('#act-x').dataset.tipo = v; q('#act-x').focus(); }
+    else { pasos.push(v); verPasos(); } e.target.value = ''; };
+  q('#act-xa').onclick = () => { const v = q('#act-x').value.trim(); if (!v) return; pasos.push(q('#act-x').dataset.tipo + v); q('#act-x').value = ''; q('#act-x').hidden = q('#act-xa').hidden = true; verPasos(); };
+  q('#act-cx').onclick = limpiar;
+  q('#act-ok').onclick = async () => {
+    const tipo = t.value, frase = q('#act-f').value.trim(), veces = +q('#act-v').value, solo_dueno = q('#act-d').checked;
+    if (tipo === 'frase' && frase.split(/\s+/).length < 2) { say('La frase necesita al menos dos palabras.'); return; }
+    if (!pasos.length) { say('Agrega al menos un paso.'); return; }
+    let r;
+    if (edit) { r = await accion('activacion', { accion: 'editar', id: edit, cambios: { frase, veces, solo_dueno, rutina: pasos } }, { ok: true });
+      if (r.ok !== false) Object.assign(ACT_DEMO.activadores.find(x => x.id === edit), tipo === 'frase' ? { frase, solo_dueno, rutina: [...pasos] } : { veces, rutina: [...pasos] }); }
+    else { const nuevo = { id: (frase || veces + '-palmadas').toLowerCase().normalize('NFD').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''), tipo, frase, veces, solo_dueno, rutina: [...pasos] };
+      r = await accion('activacion', { accion: 'agregar', ...nuevo }, { ok: true });
+      if (r.ok !== false) ACT_DEMO.activadores = [...ACT_DEMO.activadores.filter(x => x.id !== nuevo.id), nuevo]; }
+    if (r.ok === false) { say(r.error); return; }
+    say(edit ? 'Cambios guardados.' : tipo === 'frase' ? `Listo: cuando digas «${frase}», hago ${pasos.length} pasos.` : `Listo: ${veces} palmadas.`); limpiar(); guardarLista();
+  };
+  q('#act-sal').onchange = e => { ACT_DEMO.saludo = e.target.value; accion('activacion', { accion: 'ajustes', saludo: e.target.value }, {}); say('Saludo cambiado.'); };
+  q('#act-sen').onchange = e => { ACT_DEMO.palmadas = { sensibilidad: e.target.value }; accion('activacion', { accion: 'ajustes', sensibilidad: e.target.value }, {}); };
+  q('#act-m').onchange = q('#act-n').onchange = () => { const r = { tras_minutos: +q('#act-m').value, nivel: q('#act-n').value }; ACT_DEMO.reposo = r; accion('activacion', { accion: 'reposo', ...r }, {}); };
+  q('#act-w').onclick = async () => { const r = await accion('activacion', { accion: 'wol' }, { ok: true, interfaz: 'enp3s0', mac: '9c:6b:00:12:ab:cd', bios: 'activa «Wake on LAN» en el BIOS para encender desde apagado' });
+    q('#act-wm').innerHTML = r.ok ? `Tarjeta ${r.interfaz} · MAC <span class="lime">${r.mac}</span>. En el nodo: <code>python3 nodo-despertador.py ${r.mac}</code>. ${r.bios}.` : r.error; };
+}
+/* ---- servidor local (equipo instalado): conversación con la IA local ---- */
+const SERV = { si: false, hist: [] };
+if (location.protocol.startsWith('http')) fetch('/api/estado', { headers: { 'X-Orion': '1' } }).then(r => r.json()).then(e => {
+  SERV.si = true; SERV.ia = e.ia_local || [];
+  if (e.acento && /^#[0-9a-f]{6}$/i.test(e.acento) && typeof MX !== 'undefined') MX.acento(e.acento, false);
+}).catch(() => {});
+async function conversar(raw) {
+  setState('PENSANDO', true);
+  try {
+    const r = await (await fetch('/api/chat', { method: 'POST', headers: { 'X-Orion': '1', 'Content-Type': 'application/json' }, body: JSON.stringify({ texto: raw, historial: SERV.hist }) })).json();
+    SERV.hist.push({ role: 'user', content: raw }, { role: 'assistant', content: r.texto || '' }); SERV.hist = SERV.hist.slice(-8);
+    say(r.texto || '…');
+    try { const u = new SpeechSynthesisUtterance(r.texto); u.lang = 'es-CL'; speechSynthesis.speak(u); } catch (e) {}
+  } catch (e) { say('No pude hablar con la IA local.'); }
+  setState('ESCUCHANDO', false);
+}
+function handle(raw) {
+  const t = norm(raw.trim()); if (!t) return;
+  $('#heard').innerHTML = `<span class="dim">TÚ ›</span> ${raw}`; if (typeof logChat === 'function') logChat('yo', raw);
+  remember('voz', raw);
+  setState('PROCESANDO', true);
+  setTimeout(() => {
+    setState('ESCUCHANDO', false);
+    if (/^(investiga|investigar|investigacion|averigua|busca informacion)/.test(t)) { const tema = raw.replace(/^\s*(investiga(r)?|investigación|averigua|busca información)( sobre| de)?\s*/i, '') || 'LiDAR'; investigar(tema); say('Investigando por detrás. Te armo el muro con lo que encuentre.'); return; }
+    if (/(que cable|que conductor|seccion del cable|caida de tension|calcula(r)? (el )?(cable|conductor|alimentador))/.test(t) || (/\d\s*(a|amp|amperes?|w|kw|watts?)\b/.test(t) && /\d\s*(m|metros?)\b/.test(t))) { elecPanel(raw).then(r => r && r.ok && say(`${String(r.seccion_mm2).replace('.', ',')} milímetros cuadrados: cae ${String(r.caida_pct).replace('.', ',')} por ciento. ${r.cumple ? 'Cumple el RIC 3.' : 'No cumple.'}`)); return; }
+    { const act = (ACT_DEMO.activadores || []).find(x => x.tipo === 'frase' && norm(x.frase).replace(/[^a-z0-9 ]/g, '') === t.replace(/[^a-z0-9 ]/g, '').trim()); if (act) { hacerRutina(act.rutina, `«${act.frase}»`); return; } }
+    if (/(formas? de (iniciar|despertar|encender)|frases? de inicio|palmadas|como (lo )?despierto|modo jarvis|buenos dias senoritas)/.test(t)) { activacionPanel(); say('Elige tus frases, palmadas y qué hago con cada una.'); return; }
+    if (/^(reposo|a dormir|duerme|apaga la pantalla)\b/.test(t)) { reposo(); return; }
+    if (/(cambia(r)? (mi|la) frase|mi frase|llave de voz|olvida mi voz|registra(r)? mi voz|desbloque(a|ar) (solo )?con|como desbloque)/.test(t)) {
+      const m = /solo con (mi )?clave/.test(t) ? 'clave' : /solo con (mi )?(frase|voz)/.test(t) ? 'voz' : /(frase|voz) y (la |mi )?clave|las dos/.test(t) ? 'voz_y_clave' : /(frase|voz) o (la |mi )?clave/.test(t) ? 'voz_o_clave' : '';
+      if (m) { accion('llave', { accion: 'modo', modo: m }, { ok: true, explicacion: 'se desbloquea ' + MODOS_LLAVE[m] }).then(r => say(r.ok ? 'Listo, ' + r.explicacion + '.' : r.error)); return; }
+      llavePanel(); say('Elige tu frase, cuántas veces grabarla y cómo desbloquear.'); return; }
+    if (/^(bloquea(te)?|bloquear|candado|bloquea la pantalla)\b/.test(t)) { bloquear(); return; }
+    if (/(driver|controlador|que (grafica|procesador|tarjeta de video)|mi (grafica|procesador)|firmware|bios)/.test(t)) { drvPanel(); return; }
+    if (/respald/.test(t)) { respaldoPanel(/ahora|ya|respalda/.test(t)); say('Respaldo de la memoria y los proyectos.'); return; }
+    if (/(acceso remoto|escritorio remoto|entrar desde (el )?(telefono|celular|otro)|control remoto del pc|rustdesk|vnc)/.test(t)) { if (/apaga/.test(t)) { accion('remoto', { accion: 'apagar' }, {}); say('Acceso remoto apagado.'); } else { remotoPanel(); say('¿En la casa o desde afuera?'); } return; }
+    if (/(\bcnc\b|fresadora|g-?code|grbl)/.test(t)) { if (/(para|detente|deten)/.test(t)) { accion('cnc', { accion: 'parar' }, {}); MX.alerta('CNC DETENIDA', 1300); say('CNC detenida.'); } else { cncPanel(); say('Modo taller. Abre el G-code y lo reviso antes de cortar.'); } return; }
+    if (/(camara|camaras|frigate|vigilancia)/.test(t) && !/foto/.test(t)) { camarasPanel(); say('Cámaras con detección de personas, todo en este equipo.'); return; }
+    if (/^(apaga|enciende|prende|sube|baja|abre|cierra|desbloquea|bloquea)\b.*(luz|luces|enchufe|ventilador|estufa|calefaccion|aire|cortina|porton|cerradura|alarma|riego|tele)|(temperatura|humedad) (de|en|del)/.test(t)) { casaPanel(raw); return; }
+    if (/^(dicta|dictado|quiero dictar|redacta|escribe (un|una) (informe|documento|acta|carta|memoria))/.test(t)) { dictadoPanel(raw); say('Dicta y lo paso a Word con formato.'); return; }
+    if (/(actualiza|actualizacion|version nueva|hay algo nuevo)/.test(t)) { actualizarPanel(); return; }
+    if (/^(traduce|traductor|modo traductor|traduccion en vivo|ayudame a hablar con)/.test(t)) { traductorPanel(raw); say('Traductor listo. Hablen por turnos.'); return; }
+    if (/(notebook ?lm|gemini notebook|open notebook|cuaderno)/.test(t)) {
+      const local = /open notebook|local/.test(t), tema = raw.replace(/.*?(sobre|de|del|con)\s+/i, '').replace(/(notebook ?lm|gemini notebook|open notebook|cuaderno|en|a)$/i, '').trim() || 'proyecto actual';
+      if (local) { navegadorPanel('chrome', 'http://127.0.0.1:8502'); say(`Creo el cuaderno «${tema}» en Open Notebook y le cargo las fuentes de la memoria. Todo queda en este equipo.`); return; }
+      navegadorPanel('chrome', 'https://notebooklm.google.com');
+      say(`Junté las fuentes de «${tema}» en Orion/exportar/cuaderno y abrí Gemini Notebook, el ex NotebookLM. Súbelas tú: no se puede manejar por código. Después pega aquí lo que te responda.`); return; }
+    if (/^(abre|abrir)\s+(chrome|firefox|el navegador|navegador|youtube|gmail|drive|github|whatsapp|maps|google)\b|^busca(r)?\s+en\s+(google|internet|la web)\b/.test(t)) {
+      const ff = /firefox/.test(t);
+      const q = raw.replace(/^\s*(abre|abrir)\s+(chrome|firefox|el navegador|navegador)\s*(en|y (anda|ve) a)?\s*/i, '').replace(/^\s*busca(r)?\s+en\s+(google|internet|la web)\s*/i, '').replace(/^\s*(abre|abrir)\s+/i, '').trim();
+      navegadorPanel(ff ? 'firefox' : 'chrome', q); say(`Abriendo ${ff ? 'Firefox' : 'Chrome'} normal: pestañas, barra y todo. Lo manejas tú; si quieres, dime «maneja tú» y lo hago yo.`); return; }
+    if (/^(maneja tu|manejalo tu|hazlo tu en (chrome|firefox|el navegador))/.test(t) && NAV) { modoNav('ia'); return; }
+    if (/^(yo sigo|dejame a mi|suelta(lo)?)$/.test(t) && NAV) { modoNav('tu'); return; }
+    if (/^(usa|pidele a|preguntale a|dile a)\s+(claude|gemini|chatgpt|codex|openai|gpt|opencode|ollama|la ia local)\b|que lo haga (claude|gemini|chatgpt)/.test(t)) { colaborarPanel(raw); say('Le paso el encargo con el contexto de lo que hemos hablado.'); return; }
+    if (/(modo (liviano|patata|ligero)|ahorra(r)? recursos)/.test(t)) { MX.liviano(true); say('Modo liviano: sin 3D, sin brillos y animaciones mínimas.'); return; }
+    if (/modo completo/.test(t)) { MX.liviano(false); say('Modo completo activado.'); return; }
+    if (/(color|colou?r)/.test(t) && /(cambia|pon|usa|quiero)/.test(t)) {
+      const mapa = { 'acido': '#cdf564', 'neon': '#c6ff00', 'verde': '#c6ff00', 'rojo': PEL(), 'cian': '#3ef0ff', 'celeste': '#3ef0ff', 'azul': '#3ef0ff', 'magenta': '#ff3d9a', 'rosado': '#ff3d9a', 'rosa': '#ff3d9a', 'ambar': '#ffb000', 'naranjo': '#ffb000', 'amarillo': '#ffb000', 'violeta': '#9d7bff', 'morado': '#9d7bff', 'blanco': '#e6e8ea', 'hielo': '#e6e8ea' };
+      const hex = (raw.match(/#[0-9a-f]{6}/i) || [])[0] || mapa[Object.keys(mapa).find(k => t.includes(k))];
+      if (hex) { MX.corte(() => { MX.acento(hex); document.querySelectorAll('.panel .title').forEach(x => MX.glitch(x)); }); say(`Color cambiado a ${hex}.`); }
+      else colorPanel();
+      return; }
+    if (/(instalador|instalacion|reinstalar)/.test(t)) { MX.corte(() => location.href = 'instalar.html'); say('Abriendo el instalador.'); return; }
+    if (/(jugar|juego|geforce|gaming|steam|mando|boosteroid|shadow|luna|blacknut|nube de juegos|control de juego|emulador|netflix|disney|series|pelicula|jellyfin|kodi|moonlight)/.test(t)) {
+      const k = /boosteroid/.test(t) ? 'boosteroid' : /shadow/.test(t) ? 'shadow' : /luna/.test(t) ? 'luna' : /blacknut/.test(t) ? 'blacknut' : /steam link|remote play/.test(t) ? 'steamlink' : /geforce/.test(t) ? 'geforcenow' : /xbox/.test(t) ? 'xboxcloud' : /netflix|disney|prime|youtube/.test(t) ? 'servicios' : /series|pelicula|jellyfin/.test(t) ? 'jellyfin' : /kodi/.test(t) ? 'kodi' : /emulador/.test(t) ? 'retroarch' : /moonlight/.test(t) ? 'moonlight' : /steam/.test(t) ? 'steam' : null;
+      juegosPanel(k); say(k ? 'Sala de juegos lista.' : 'Sala de juegos: en este equipo puedes jugar aquí mismo o en la nube. Conecta tu mando cuando quieras.'); return; }
+    if (/\blidar\b/.test(t)) { lidarPanel(); say('LiDAR en vivo: mapa, personas en rojo y decisión de frenado.'); return; }
+    if (/(lentes|meta|gafas)/.test(t) && !/vincul/.test(t)) { lentesPanel(); say('Vista de los lentes con radar en la esquina.'); return; }
+    if (/\bradar\b|entorno|personas cerca/.test(t)) { radarPanel(); say('Radar del entorno desde el lidar del nodo 02.'); return; }
+    if (/(gantt|carta|programa de obra|cronograma|ruta critica|oficina)/.test(t)) { ganttPanel(); say('Carta Gantt del proyecto con la ruta crítica en rojo.'); return; }
+    if (/(excel|avance)/.test(t) && OPEN['gantt']) { job('Proyecto · exportar', ['recalculando CPM', 'armando hojas'], 'Listo: <span class="lime">oficina-30m2.xlsx</span> con Programa, Carta Gantt, Presupuesto y RACI.'); say('Proyecto actualizado y exportado.'); return; }
+    if (/(proyecto|documentos|archivos del)/.test(t)) { proyectoPanel(); say('Documentos del proyecto, ordenados.'); return; }
+    if (/(alternativ|variantes|opciones del robot)/.test(t)) { alternativasPanel(); say('Tres alternativas generadas. Elige una.'); return; }
+    if (/me gusta la ([abc])/.test(t)) { cadPanel(); robotPanel(); say('Llevé la alternativa a CAD con los servos integrados; el gemelo digital ya tiene sus ejes.'); return; }
+    if (/(placa|pcb|circuito|tarjeta de control)/.test(t)) { placaPanel(); say('Placa de control de bajo costo: ESP32-S3 y PCA9685. Exporto Gerber cuando confirmes.'); return; }
+    if (/(conectate|clona|repositorio|\brepo\b)/.test(t)) {
+      const name = (t.match(/(?:conectate a|clona(?: el)?(?: repositorio)?(?: de)?)\s+([a-z0-9-]+)/) || [, 'mi-proyecto'])[1];
+      job(`${name.toUpperCase()} · repositorio`, ['clonando github.com/…/' + name, 'leyendo estructura del código', 'instalando dependencias', 'ejecutando pruebas', 'resumiendo arquitectura'],
+        `<span class="lime">${name}</span> listo en ~/orion/repos/${name} · 214 archivos · pruebas OK. Dime qué cambio quieres y lo hago por detrás.`);
+      say(`Trabajando con ${name} por detrás. Te muestro el resultado al terminar.`); return; }
+    if (/(soporte|pieza|modelo 3d|\bcad\b|3d)/.test(t) && !/(grosor|pared|largo|ancho|alto|tornillo)\D*\d/.test(t)) { cadPanel(); say('Pieza generada por código. Pídeme cambios: «reduce el grosor a 3».'); return; }
+    if (/(grosor|espesor|pared|largo|ancho|alto|tornillo|perforacion|agujero)\D*?\d/.test(t) && cadEdit(t)) return;
+    if (/(vincul|qr|telefono|celular|empareja)/.test(t)) { pairPanel(); say('Escanea el código con el teléfono para vincularlo.'); return; }
+    if (/(plc|siemens|s7|tia portal)/.test(t)) {
+      job('PLC Siemens · análisis de línea', ['analizando fotos del tablero', 'identificando CPU S7-1200 y módulos', 'leyendo variables por red (solo lectura)', 'generando programa SCL'],
+        'Programa generado en ~/orion/plc/linea2.scl. <span class="red">Cargarlo al PLC requiere tu confirmación</span>: una línea real puede arrancar con personas cerca.');
+      say('Analizando el sistema Siemens. Nada se escribe al PLC sin tu confirmación.'); return; }
+    if (/(hardware|escane|\bram\b|que ia|\bmodelo|cuanta memoria)/.test(t)) { hwPanel(); say('Escaneé el equipo. Este es el modelo más grande que corre fluido.'); }
+    else if (/(calibr|foto)/.test(t)) { calibPanel(); say('Sube una foto del robot y marca dónde está cada servo.'); }
+    else if (/(nodo|raspberry|flota|sincroniz)/.test(t)) { nodesPanel(); say('Estos son los nodos enlazados a la central.'); }
+    else if (/(memoria|registro|bitacora|historial)/.test(t)) { memoryPanel(); say('Todo lo registrado en esta sesión.'); }
+    else if (/(muestr|ver|digital|gemelo|como funciona).*(robot|brazo)|^robot$/.test(t)) { robotPanel(); say('Gemelo digital del brazo. Cada servo con su rango y ángulo actual.'); }
+    else if (/(onda|ecuacion|matematica|seno)/.test(t) && !/(hombro|codo|muneca|base|a[1-6])/.test(t)) { wavePanel(); say('θ(t) = c + A·sin(2π·f·k·t). Juega con A, f y k.'); }
+    else if (/(mueve|gira|sube|baja|abre la pinza|cierra la pinza|hombro|codo|muneca|base|pinza|\ba[1-6]\b|home|saluda)/.test(t) || !SERV.si) { motion(raw); say('Orden traducida y revisada por el guardián.'); }
+    else conversar(raw);
+  }, 450);
+}
+
+/* ---------- CHAT ---------- */
+function abrirChat(foco = true) { document.body.classList.add('chat'); if (foco) setTimeout(() => $('#q').focus(), 60); }
+function cerrarChat() { document.body.classList.remove('chat'); $('#q').blur(); }
+function logChat(quien, txt) { const l = $('#chatlog'); if (!l) return; const d = document.createElement('div'); d.className = quien;
+  d.innerHTML = `<b>${quien === 'yo' ? 'TÚ' : 'ORION'}</b>`; d.append(document.createTextNode(txt.replace(/<[^>]+>/g, ''))); l.append(d);
+  while (l.children.length > 30) l.firstChild.remove(); l.scrollTop = 1e6; }
+$('#chattab').onclick = () => abrirChat();
+addEventListener('keydown', e => {
+  const enCampo = /INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName);
+  if ((e.key === '/' && !enCampo) || (e.ctrlKey && e.code === 'Space') || e.key === 'F2') { e.preventDefault(); abrirChat(); }
+  else if (e.key === 'Escape' && document.body.classList.contains('chat') && !(window.RS)) cerrarChat();
+});
+// Sin micrófono → el chat queda abierto siempre
+(async () => { try { const d = await navigator.mediaDevices.enumerateDevices(); if (!d.some(x => x.kind === 'audioinput')) { abrirChat(false); $('#micmsg').innerHTML = 'Este equipo no tiene micrófono: el chat queda abierto. <kbd>Esc</kbd> lo esconde, <kbd>/</kbd> lo vuelve a abrir.'; } } catch (e) { abrirChat(false); } })();
+$('#ask').onsubmit = e => { e.preventDefault(); handle($('#q').value); $('#q').value = ''; };
+</script>
+</body>
+</html>

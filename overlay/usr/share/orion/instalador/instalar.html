@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Neo Orión OS — Instalación</title>
+<style>/* letras locales: funcionan sin internet (instalador en el pendrive); Google Fonts queda de respaldo */
+@font-face{font-family:'Silkscreen';font-weight:400;src:url(fuentes/silkscreen-latin-400-normal.woff2) format('woff2')}
+@font-face{font-family:'Silkscreen';font-weight:700;src:url(fuentes/silkscreen-latin-700-normal.woff2) format('woff2')}
+@font-face{font-family:'JetBrains Mono';font-weight:400;src:url(fuentes/jetbrains-mono-latin-400-normal.woff2) format('woff2')}
+@font-face{font-family:'JetBrains Mono';font-weight:600;src:url(fuentes/jetbrains-mono-latin-600-normal.woff2) format('woff2')}
+@font-face{font-family:'JetBrains Mono';font-weight:700;src:url(fuentes/jetbrains-mono-latin-700-normal.woff2) format('woff2')}
+/* controles nativos en oscuro (WebKitGTK usa el tema de GTK si no se le dice nada) */
+:root{color-scheme:dark}
+select{-webkit-appearance:none;appearance:none;background:#0b0c0d url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0h10L5 6z' fill='%238b8e94'/%3E%3C/svg%3E") no-repeat right 10px center;color:var(--txt);border:1px solid #3a3d42;border-radius:0;padding-right:28px}
+input,textarea{-webkit-appearance:none;appearance:none;border-radius:0;color:var(--txt);background:#0b0c0d}
+option{background:#0b0c0d;color:#e6e8ea}
+.fila>*{min-width:0}.caja{overflow-wrap:anywhere;box-sizing:border-box;max-width:100%}
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Silkscreen&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0d0e10;--panel:#141518;--line:#2a2c30;--lime:#ff2438;--lime-d:#9e1624;--acc-bg:#170a0c;--red:#ffd400;--ink:#111;--grey:#8b8e94;--dim:#55585e;--txt:#e6e8ea;
+  --px:'Silkscreen',monospace;--mono:'JetBrains Mono',monospace}
+*{box-sizing:border-box;margin:0;padding:0}
+[hidden]{display:none!important}
+[hidden]{display:none!important}
+html,body{height:100%;background:var(--bg);color:var(--txt);font-family:var(--mono);font-size:13px}
+body{background-image:radial-gradient(#202226 1px,transparent 1.2px);background-size:22px 22px;overflow:hidden}
+body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:50;background:repeating-linear-gradient(0deg,#0000 0 2px,#0000002e 2px 3px)}
+button,input,select{font:inherit;color:inherit}
+.px{font-family:var(--px);text-transform:uppercase;letter-spacing:.06em}
+.dim{color:var(--grey)}.lime{color:var(--lime)}.red{color:var(--red)}
+/* marco con marcas de registro */
+.reg{position:fixed;width:16px;height:16px;border-color:var(--grey);opacity:.55;z-index:5}
+.reg.a{left:12px;top:12px;border-left:1px solid;border-top:1px solid}.reg.b{right:12px;top:12px;border-right:1px solid;border-top:1px solid}
+.reg.c{left:12px;bottom:12px;border-left:1px solid;border-bottom:1px solid}.reg.d{right:12px;bottom:12px;border-right:1px solid;border-bottom:1px solid}
+/* ---------- arranque ---------- */
+#intro{position:fixed;inset:0;z-index:30;display:grid;place-items:center;background:var(--bg);cursor:pointer}
+#intro .logo{font-family:var(--px);font-size:clamp(46px,12vw,110px);line-height:.88;text-align:center;color:#fff;text-shadow:0 0 22px #fff4}
+#intro .logo b{display:block;color:var(--lime);font-weight:400;text-shadow:0 0 22px var(--lime)}
+#intro .chk{display:flex;gap:6px;justify-content:center;margin:26px 0 12px}
+#intro .chk i{width:14px;height:14px;background:#222;display:block}
+#intro .chk i.on{background:var(--lime);box-shadow:0 0 8px var(--lime)}
+#intro .msg{font-family:var(--px);font-size:11px;color:var(--grey);text-align:center;min-height:16px}
+#intro .bar{position:absolute;left:0;right:0;bottom:46px;display:flex;gap:12px;justify-content:space-between;padding:0 28px;font-family:var(--px);font-size:9px;color:var(--dim)}
+#intro .code{position:absolute;left:28px;top:30px;font-size:10px;color:var(--dim);line-height:1.6;max-width:46vw;white-space:pre}
+/* ---------- estructura ---------- */
+#app{position:fixed;inset:0;display:grid;grid-template-columns:240px 1fr;grid-template-rows:auto 1fr auto}
+header{grid-column:1/-1;display:flex;align-items:center;gap:14px;padding:16px 26px 12px;border-bottom:1px solid var(--line)}
+header .brand{font-family:var(--px);background:var(--lime);color:var(--ink);padding:3px 8px;font-size:12px}
+header .t{font-family:var(--px);font-size:10px;color:var(--grey)}
+header .tick{margin-left:auto;font-family:var(--px);font-size:9px;color:var(--dim);display:flex;gap:16px}
+nav{border-right:1px solid var(--line);padding:18px 0;overflow:auto}
+nav .st{display:flex;align-items:center;gap:10px;padding:9px 22px;font-family:var(--px);font-size:10px;color:var(--dim);cursor:default;position:relative}
+nav .st b{font-weight:400;width:24px}
+nav .st i{width:9px;height:9px;border:1px solid var(--dim);display:block}
+nav .st.hecho{color:var(--grey)} nav .st.hecho i{background:var(--lime-d);border-color:var(--lime-d)}
+nav .st.act{color:#fff;background:linear-gradient(90deg,var(--acc-bg),transparent)} nav .st.act i{background:var(--lime);border-color:var(--lime);box-shadow:0 0 8px var(--lime)}
+nav .st.act::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--lime)}
+nav .sum{margin:18px 22px 0;padding-top:14px;border-top:1px dashed var(--line);font-size:10px;color:var(--grey);line-height:1.7}
+nav .sum span{color:var(--txt)}
+main{overflow:auto;padding:30px clamp(18px,4vw,56px) 40px;position:relative}
+footer{grid-column:1/-1;display:flex;align-items:center;gap:12px;padding:12px 26px calc(12px + env(safe-area-inset-bottom));border-top:1px solid var(--line);background:#0b0c0dcc}
+footer .seg{flex:1;display:flex;gap:3px;max-width:420px}
+footer .seg i{flex:1;height:6px;background:#222}footer .seg i.on{background:var(--lime)}
+.btn{white-space:nowrap;font-family:var(--px);font-size:12px;letter-spacing:.06em;border:1px solid var(--lime);background:var(--lime);color:var(--ink);padding:11px 20px;cursor:pointer;position:relative;overflow:hidden}
+.btn:hover{box-shadow:0 0 18px var(--lime)}
+.btn.sec{background:transparent;color:var(--grey);border-color:#3a3d42}
+.btn.peligro{background:transparent;color:var(--red);border-color:var(--red)}
+.btn.peligro.hecho{background:var(--red);color:var(--ink)}
+.btn:disabled{opacity:.35;cursor:not-allowed;box-shadow:none}
+/* ---------- contenido ---------- */
+.kick{font-family:var(--px);font-size:10px;color:var(--grey);display:flex;gap:10px;align-items:center}
+.kick::after{content:"";flex:1;height:1px;background:var(--line);max-width:260px}
+h1 canvas{display:block;max-width:100%;height:auto}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.ico{display:inline-block;vertical-align:middle;margin-right:8px}
+#okf{position:fixed;inset:0;z-index:60;display:grid;place-items:center;background:#0d0e10cc;pointer-events:none}
+#okf div{background:var(--lime);width:min(340px,70vw);aspect-ratio:1.45;display:grid;place-items:center}
+.fil{display:flex;gap:5px;flex-wrap:wrap;margin:0 0 12px}.fil b{font-family:var(--px);font-weight:400;font-size:9px;padding:5px 8px;border:1px solid #3a3d42;color:var(--grey);cursor:pointer}.fil b.on{background:var(--lime);color:var(--ink);border-color:var(--lime)}
+.b5{display:inline-flex;gap:3px}.b5 i{width:12px;height:10px;background:#222;display:block}.b5 i.on{background:var(--lime)}
+.l2{display:flex;justify-content:space-between;gap:10px;font-size:11px;margin:5px 0}.l2>span:first-child{font-family:var(--px);font-size:8px;color:var(--grey);padding-top:2px}
+.tg{font-family:var(--px);font-size:7px;padding:1px 4px;border:1px solid currentColor}.tsin{color:#ffb000}.op.sel .tsin{color:var(--ink)}
+.op .inf{position:absolute;right:30px;bottom:8px;width:16px;height:16px;border:1px solid var(--grey);background:none;color:var(--grey);font-family:var(--px);font-size:9px;cursor:pointer;padding:0}.op.sel .inf{border-color:var(--ink);color:var(--ink)}
+.det{max-height:70vh;overflow:auto}
+.pwb{display:flex;gap:3px;min-height:14px;margin-top:4px}.pwb i{width:12px;height:12px;background:var(--lime);display:block}.pwb i:nth-child(odd){background:#fff}
+#col{position:fixed;right:22px;top:40%;font-family:var(--px);font-size:11px;line-height:1.25;color:#3a3d42;white-space:pre;text-align:right;z-index:1}
+h1{font-family:var(--px);font-weight:400;font-size:clamp(26px,4.4vw,44px);line-height:1;margin:10px 0 10px;color:#fff;text-transform:uppercase}
+.lead{color:var(--grey);max-width:620px;line-height:1.55;margin-bottom:22px}
+.grid{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(min(100%,230px),1fr))}
+.op{border:1px solid #2c2f33;background:#0f1012;padding:13px;cursor:pointer;position:relative;transition:border-color .15s}
+.op:hover{border-color:var(--lime-d)}
+.op.sel{border-color:var(--lime);background:var(--lime);color:var(--ink)}
+.op.sel .n,.op.sel .d,.op.sel .k,.op.sel .k span{color:var(--ink)!important}.op.sel .fit{background:#0003}.op.sel .fit i{background:var(--ink)}.op.sel .chk{background:#111!important;border-color:var(--ink)!important}.op.sel::before{display:none}
+.op.sel::before{content:"";position:absolute;left:-1px;top:-1px;width:10px;height:10px;border-left:2px solid var(--lime);border-top:2px solid var(--lime)}
+.op .k{font-family:var(--px);font-size:8px;color:var(--dim);display:flex;justify-content:space-between;margin-bottom:6px}
+.op .n{font-family:var(--px);font-size:14px;color:#fff;margin-bottom:4px}
+.op .d{font-size:11px;color:var(--grey);line-height:1.45}
+.op .chk{position:absolute;right:10px;bottom:10px;width:12px;height:12px;border:1px solid var(--dim)}
+.op.sel .chk{background:var(--lime);border-color:var(--lime)}
+.op.no{opacity:.4;cursor:not-allowed}
+.tag{font-family:var(--px);font-size:8px;padding:2px 5px;border:1px solid currentColor}
+.fit{height:6px;background:#222;margin-top:8px;position:relative}.fit i{position:absolute;inset:0;right:auto;background:var(--lime)}
+.fit.lento i{background:#ffb000}.fit.no i{background:var(--red)}
+.campo{display:flex;flex-direction:column;gap:6px;margin-bottom:14px;max-width:420px}
+.campo label{font-family:var(--px);font-size:9px;color:var(--grey)}
+.campo input,.campo select{background:#0b0c0d;border:1px solid #3a3d42;padding:11px 12px;outline:0}
+.campo input:focus,.campo select:focus{border-color:var(--lime);box-shadow:0 0 0 1px var(--lime)}
+.fila{display:flex;gap:18px;flex-wrap:wrap;align-items:flex-start}
+.caja{border:1px solid var(--line);padding:14px;background:#0f1012}
+.scan{font-size:12px;line-height:1.9}
+.scan .l{display:flex;gap:12px}.scan .l span:first-child{width:90px;color:var(--grey);font-family:var(--px);font-size:9px;padding-top:3px}
+.tier{display:flex;gap:4px;margin:14px 0 6px}.tier i{flex:1;height:26px;background:#1b1d21;display:grid;place-items:center;font-family:var(--px);font-size:8px;color:var(--dim);font-style:normal}
+.tier i.on{background:var(--lime);color:var(--ink)}
+.disco{display:flex;height:34px;border:1px solid #3a3d42;margin:10px 0 6px}
+.disco div{display:grid;place-items:center;font-family:var(--px);font-size:8px;color:var(--ink);overflow:hidden;white-space:nowrap;transition:flex .5s}
+.sw{width:42px;height:42px;border:1px solid #3a3d42;cursor:pointer;position:relative}
+.sw.sel{outline:2px solid #fff;outline-offset:2px}
+.sw span{position:absolute;left:0;right:0;bottom:-16px;font-family:var(--px);font-size:7px;color:var(--grey);text-align:center}
+.prev{border:1px solid var(--lime);padding:14px;min-width:260px;background:#0b0c0d}
+.prev .vu{display:flex;gap:2px;align-items:center;height:24px;margin:10px 0}.prev .vu i{width:3px;background:var(--lime);display:block}
+.blk{display:flex;gap:5px;margin:10px 0}.blk i{width:18px;height:18px;background:#222;display:block}.blk i.on{background:var(--lime);box-shadow:0 0 8px var(--lime)}
+.log{font-size:11px;line-height:1.7;color:var(--grey);max-height:40vh;overflow:auto;border:1px solid var(--line);padding:10px 12px;background:#0a0b0c}
+.log b{color:var(--lime);font-weight:400}
+.big{font-family:var(--px);font-size:clamp(40px,9vw,88px);line-height:1;color:#fff}
+.aviso{border:1px solid var(--red);color:#ffb3a5;padding:12px;max-width:620px;margin:12px 0;background:#1a0f0d;font-size:12px;line-height:1.5}
+.aviso b{color:var(--red);font-family:var(--px);font-weight:400;font-size:10px;display:block;margin-bottom:4px}
+pre.json{font-size:10px;color:var(--lime);background:#0a0b0c;border:1px solid var(--line);padding:10px;max-height:34vh;overflow:auto;white-space:pre-wrap}
+@media (max-width:760px){
+  body{overflow:auto}
+  #app{position:static;display:block;min-height:100%}
+  nav{display:flex;overflow-x:auto;border-right:0;border-bottom:1px solid var(--line);padding:6px 8px}
+  nav .st{padding:6px 10px;white-space:nowrap}nav .st span.nm{display:none}nav .st.act span.nm{display:inline}nav .sum{display:none}
+  main{padding:20px 16px 110px}
+  footer{position:fixed;left:0;right:0;bottom:0}
+  header .tick{display:none}
+  #fpaso{display:none}footer .btn{padding:10px 14px}
+}
+</style>
+</head>
+<body>
+<i class="reg a"></i><i class="reg b"></i><i class="reg c"></i><i class="reg d"></i>
+
+<div id="intro">
+  <div class="code" id="code"></div>
+  <div>
+    <div class="logo" id="logo" aria-label="Neo Orión"></div><div style="width:min(300px,64vw);height:18px;border:2px solid #fff;margin:22px auto 0;padding:3px"><div id="ibar" style="height:100%;width:0;background:#fff"></div></div>
+    <div class="chk" id="chk"></div>
+    <div class="msg" id="imsg">CARGANDO INSTALADOR</div>
+  </div>
+  <div id="col"></div><div class="bar"><span>NEO ORIÓN OS · 0.8 · NOBLE 24.04</span><span id="iclk">00:00:00</span><span>TOCA O PRESIONA UNA TECLA</span></div>
+</div>
+
+<div id="app" hidden>
+  <header><span class="brand">ORION</span><span class="t px">INSTALACIÓN // <span id="hpaso">01</span> / 09</span>
+    <span class="tick"><span>RAM <b class="lime" id="hram">—</b></span><span>CPU <b class="lime" id="hcpu">—</b></span><span>GPU <b class="lime" id="hgpu">—</b></span><span id="hclk"></span></span></header>
+  <nav id="nav"></nav>
+  <main id="main" class="mx-cruz"></main>
+  <footer><button class="btn sec" id="atras">◂ ATRÁS</button><div class="seg" id="seg"></div><span class="px dim" style="font-size:9px" id="fpaso"></span>
+    <button class="btn" id="sig" style="margin-left:auto">SIGUIENTE ▸</button></footer>
+</div>
+
+<script src="marathon.js"></script>
+<script>
+const $ = s => document.querySelector(s);
+/* ---------------- estado de la instalación ---------------- */
+const C = { idioma: 'es-CL', teclado: 'latam', zona: 'America/Santiago', equipo: null, disco: null, modo: 'borrar', confirmado: false,
+  ia: [], nube: [], oido: 'faster-whisper', voz: 'piper', memoriaApp: 'obsidian', nombre: 'Neo Orión', genero: 'femenina', tono: 'cercano',
+  color: window.ACC, modulos: ['robotica', 'maker', 'proyectos', 'juegos', 'dev'], capa: 'base', usuario: '', equipoNombre: 'orion', frase: false };
+
+/* ---------------- servidor local (en el pendrive real) ---------------- */
+// Servido por orion_core.servidor en http://127.0.0.1:7700 → datos y acciones reales.
+// Abierto como archivo o en la vista previa → todo simulado, igual que antes.
+const API = { si: false, eq: null, sinMic: false, clave: '' };
+async function api(ruta, datos) {
+  const r = await fetch(ruta, datos === undefined ? { headers: { 'X-Orion': '1' } } : { method: 'POST', headers: { 'X-Orion': '1', 'Content-Type': 'application/json' }, body: JSON.stringify(datos) });
+  return r.json();
+}
+const LISTO_API = (async () => { if (!location.protocol.startsWith('http')) return;
+  try { const e = await api('/api/estado'); if (e.modo !== 'instalador') return; API.si = true; API.eq = await api('/api/equipo'); API.sinMic = !API.eq.microfono; } catch (e) {} })();
+function perfilReal(q) { // equipo real → mismo formato que PERFILES
+  const ram = Math.round(q.ram_gb), vram = q.vram_gb || 0;
+  const k = vram >= 20 ? 'estacion' : vram >= 8 ? 'potente' : ram <= 4.5 || !q.avx2 ? 'patata' : ram >= 16 ? 'medio' : 'liviano';
+  return { k, n: 'ESTE EQUIPO', ram, vram, d: (q.gpu || '').slice(0, 26) };
+}
+/* ---------------- hardware real del navegador + perfiles ---------------- */
+function detectar() {
+  let gpu = '';
+  try { const c = document.createElement('canvas').getContext('webgl'); const e = c.getExtension('WEBGL_debug_renderer_info'); gpu = e ? c.getParameter(e.UNMASKED_RENDERER_WEBGL) : ''; } catch (e) {}
+  gpu = gpu.replace(/ANGLE \(|\)$|Direct3D.*|OpenGL.*|\(0x.*?\)/g, '').replace(/,.*$/, '').trim();
+  return { ram: navigator.deviceMemory ? navigator.deviceMemory + '+ GB' : '?', cpu: navigator.hardwareConcurrency || '?', gpu: gpu || 'no informada' };
+}
+const PERFILES = [
+  { k: 'micro', n: 'RASPBERRY PI 5', ram: 8, vram: 0, d: 'nodo de robot' },
+  { k: 'patata', n: 'PC PATATA', ram: 2, vram: 0, d: 'viejo, 2–4 GB, sin GPU' },
+  { k: 'liviano', n: 'NOTEBOOK BÁSICO', ram: 8, vram: 0, d: 'sin GPU dedicada' },
+  { k: 'medio', n: 'NOTEBOOK 16 GB', ram: 16, vram: 0, d: 'iGPU' },
+  { k: 'potente', n: 'TORRE RTX 3060', ram: 32, vram: 12, d: 'GPU 12 GB' },
+  { k: 'estacion', n: 'ESTACIÓN RTX 4090', ram: 64, vram: 24, d: 'GPU 24 GB' }];
+const CAT = {"_nota": "Catálogo de IA de Neo Orión (revisado y confirmado 3-nov-2026). Fuente única para el instalador, orion-fit y la explicación al cliente. velocidad y calidad van de 1 a 5 (velocidad = en el equipo para el que está pensado). filtro: con = rechaza temas sensibles; neutral = sigue el prompt de sistema; sin = ajuste fino o abliterado sin rechazos. Los sin filtro no tocan el guardián de Neo Orión: robots, PLC y acciones irreversibles siguen pidiendo permiso humano.", "locales": [{"id": "gemma3:270m", "tipo": "local", "familia": "Gemma", "de": "Google", "origen": "EE.UU.", "params_b": 0.27, "memoria_gb": 0.5, "filtro": "con", "velocidad": 5, "calidad": 1, "para": "órdenes simples en un PC muy lento", "licencia": "Gemma", "nota": "Lo justo para entender 'abre', 'apaga', 'mueve'.", "moe": false, "verificar": false}, {"id": "smollm2:360m", "tipo": "local", "familia": "SmolLM", "de": "Hugging Face", "origen": "Francia/EE.UU.", "params_b": 0.36, "memoria_gb": 0.6, "filtro": "con", "velocidad": 5, "calidad": 1, "para": "Raspberry Pi 4, respuestas muy cortas", "licencia": "Apache-2.0", "nota": "", "moe": false, "verificar": false}, {"id": "qwen3:0.6b", "tipo": "local", "familia": "Qwen", "de": "Alibaba", "origen": "China", "params_b": 0.6, "memoria_gb": 0.8, "filtro": "con", "velocidad": 5, "calidad": 1, "para": "mínimo que sigue órdenes con herramientas", "licencia": "Apache-2.0", "nota": "", "moe": false, "verificar": false}, {"id": "gemma3:1b", "tipo": "local", "familia": "Gemma", "de": "Google", "origen": "EE.UU.", "params_b": 1, "memoria_gb": 1.0, "filtro": "con", "velocidad": 5, "calidad": 2, "para": "PC patata con buen español", "licencia": "Gemma", "nota": "", "moe": false, "verificar": false}, {"id": "llama3.2:1b", "tipo": "local", "familia": "Llama", "de": "Meta", "origen": "EE.UU.", "params_b": 1.2, "memoria_gb": 1.3, "filtro": "con", "velocidad": 5, "calidad": 2, "para": "PC patata, 128K de contexto", "licencia": "Llama", "nota": "", "moe": false, "verificar": false}, {"id": "qwen3:1.7b", "tipo": "local", "familia": "Qwen", "de": "Alibaba", "origen": "China", "params_b": 1.7, "memoria_gb": 1.6, "filtro": "con", "velocidad": 4, "calidad": 2, "para": "nodo de robot / Raspberry Pi 5", "licencia": "Apache-2.0", "nota": "", "moe": false, "verificar": false}, {"id": "dolphin-phi", "tipo": "local", "familia": "Dolphin", "de": "Eric Hartford (sobre Phi de Microsoft)", "origen": "EE.UU.", "params_b": 2.7, "memoria_gb": 2.0, "filtro": "sin", "velocidad": 4, "calidad": 2, "para": "el sin filtro más liviano", "licencia": "MIT", "nota": "Ajuste fino sin rechazos.", "moe": false, "verificar": false}, {"id": "llama3.2:3b", "tipo": "local", "familia": "Llama", "de": "Meta", "origen": "EE.UU.", "params_b": 3.2, "memoria_gb": 2.5, "filtro": "con", "velocidad": 4, "calidad": 3, "para": "general liviano", "licencia": "Llama", "nota": "", "moe": false, "verificar": false}, {"id": "phi4-mini", "tipo": "local", "familia": "Phi", "de": "Microsoft", "origen": "EE.UU.", "params_b": 3.8, "memoria_gb": 2.5, "filtro": "con", "velocidad": 4, "calidad": 3, "para": "razonamiento y código con poca RAM", "licencia": "MIT", "nota": "", "moe": false, "verificar": false}, {"id": "gemma3:4b", "tipo": "local", "familia": "Gemma", "de": "Google", "origen": "EE.UU.", "params_b": 4, "memoria_gb": 3.6, "filtro": "con", "velocidad": 4, "calidad": 3, "para": "liviano con visión (lee fotos)", "licencia": "Gemma", "nota": "", "moe": false, "verificar": false}, {"id": "gemma4:e2b-it-qat", "tipo": "local", "familia": "Gemma 4", "de": "Google", "origen": "EE.UU.", "params_b": 5.1, "memoria_gb": 4.5, "filtro": "con", "velocidad": 4, "calidad": 3, "para": "visión y audio, liviano (versión QAT de 4,3 GB)", "licencia": "Apache-2.0", "nota": "Confirmado en Ollama (nov-2026). Se usa la etiqueta -it-qat: la normal pesa 7,2 GB.", "moe": false, "verificar": false}, {"id": "deepseek-r1:7b", "tipo": "local", "familia": "DeepSeek R1", "de": "DeepSeek", "origen": "China", "params_b": 7, "memoria_gb": 5, "filtro": "con", "velocidad": 3, "calidad": 3, "para": "razonamiento paso a paso (piensa antes de responder)", "licencia": "MIT", "nota": "Filtra temas políticos de China.", "moe": false, "verificar": false}, {"id": "dolphin-mistral", "tipo": "local", "familia": "Dolphin", "de": "Eric Hartford (sobre Mistral)", "origen": "EE.UU./Francia", "params_b": 7, "memoria_gb": 4.5, "filtro": "sin", "velocidad": 3, "calidad": 3, "para": "sin filtro rápido en CPU", "licencia": "Apache-2.0", "nota": "", "moe": false, "verificar": false}, {"id": "dolphin3:8b", "tipo": "local", "familia": "Dolphin", "de": "Eric Hartford", "origen": "EE.UU.", "params_b": 8, "memoria_gb": 5.0, "filtro": "sin", "velocidad": 3, "calidad": 3, "para": "asistente general sin sermones, herramientas", "licencia": "Llama", "nota": "Ajuste fino reentrenado sin rechazos.", "moe": false, "verificar": false}, {"id": "gemma4:e4b-it-qat", "tipo": "local", "familia": "Gemma 4", "de": "Google", "origen": "EE.UU.", "params_b": 8, "memoria_gb": 6.5, "filtro": "con", "velocidad": 3, "calidad": 4, "para": "visión, audio y herramientas (QAT 6,1 GB)", "licencia": "Apache-2.0", "nota": "La etiqueta normal pesa 9,6 GB; la QAT casi lo mismo en calidad.", "moe": false, "verificar": false}, {"id": "hermes3:8b", "tipo": "local", "familia": "Hermes", "de": "Nous Research", "origen": "EE.UU.", "params_b": 8, "memoria_gb": 5.0, "filtro": "neutral", "velocidad": 3, "calidad": 3, "para": "escritura, rol, herramientas; obedece al prompt de sistema", "licencia": "Llama", "nota": "Neutral: tú pones las reglas en el prompt de sistema.", "moe": false, "verificar": false}, {"id": "huihui_ai/dolphin3-abliterated:8b", "tipo": "local", "familia": "Dolphin (abliterado)", "de": "huihui-ai", "origen": "comunidad", "params_b": 8, "memoria_gb": 5.0, "filtro": "sin", "velocidad": 3, "calidad": 3, "para": "sin filtro de doble capa", "licencia": "Llama", "nota": "Abliterado: se le quitó la 'dirección de rechazo' de los pesos.", "moe": false, "verificar": false}, {"id": "qwen3:8b", "tipo": "local", "familia": "Qwen", "de": "Alibaba", "origen": "China", "params_b": 8, "memoria_gb": 6, "filtro": "con", "velocidad": 3, "calidad": 4, "para": "general, muy buen español", "licencia": "Apache-2.0", "nota": "", "moe": false, "verificar": false}, {"id": "gemma3:12b", "tipo": "local", "familia": "Gemma", "de": "Google", "origen": "EE.UU.", "params_b": 12, "memoria_gb": 9, "filtro": "con", "velocidad": 3, "calidad": 4, "para": "general + visión", "licencia": "Gemma", "nota": "", "moe": false, "verificar": false}, {"id": "gemma4:12b", "tipo": "local", "familia": "Gemma 4", "de": "Google", "origen": "EE.UU.", "params_b": 12, "memoria_gb": 8, "filtro": "con", "velocidad": 3, "calidad": 4, "para": "12B Unified: texto, imagen y audio, 256K", "licencia": "Apache-2.0", "nota": "Agregado en junio de 2026; 7,6 GB.", "moe": false, "verificar": false}, {"id": "deepseek-r1:14b", "tipo": "local", "familia": "DeepSeek R1", "de": "DeepSeek", "origen": "China", "params_b": 14, "memoria_gb": 9.5, "filtro": "con", "velocidad": 2, "calidad": 4, "para": "razonamiento más profundo", "licencia": "MIT", "nota": "Filtra temas políticos de China.", "moe": false, "verificar": false}, {"id": "huihui_ai/qwen3-abliterated:14b", "tipo": "local", "familia": "Qwen (abliterado)", "de": "huihui-ai", "origen": "comunidad", "params_b": 14, "memoria_gb": 9, "filtro": "sin", "velocidad": 3, "calidad": 4, "para": "el sin filtro más fuerte para 12–16 GB", "licencia": "Apache-2.0", "nota": "Abliterado de Qwen3 14B.", "moe": false, "verificar": false}, {"id": "phi4", "tipo": "local", "familia": "Phi", "de": "Microsoft", "origen": "EE.UU.", "params_b": 14, "memoria_gb": 9, "filtro": "con", "velocidad": 3, "calidad": 4, "para": "ciencia y matemáticas", "licencia": "MIT", "nota": "", "moe": false, "verificar": false}, {"id": "qwen3:14b", "tipo": "local", "familia": "Qwen", "de": "Alibaba", "origen": "China", "params_b": 14, "memoria_gb": 10.5, "filtro": "con", "velocidad": 3, "calidad": 4, "para": "razonamiento + herramientas", "licencia": "Apache-2.0", "nota": "", "moe": false, "verificar": false}, {"id": "gpt-oss:20b", "tipo": "local", "familia": "gpt-oss", "de": "OpenAI", "origen": "EE.UU.", "params_b": 21, "memoria_gb": 14, "filtro": "con", "velocidad": 3, "calidad": 4, "para": "agente con herramientas (abierto de OpenAI)", "licencia": "Apache-2.0", "nota": "", "moe": true, "verificar": false}, {"id": "devstral:24b", "tipo": "local", "familia": "Devstral", "de": "Mistral", "origen": "Francia", "params_b": 24, "memoria_gb": 16, "filtro": "con", "velocidad": 2, "calidad": 4, "para": "programación agéntica", "licencia": "Apache-2.0", "nota": "", "moe": false, "verificar": false}, {"id": "gemma4:26b", "tipo": "local", "familia": "Gemma 4", "de": "Google", "origen": "EE.UU.", "params_b": 26, "memoria_gb": 18, "filtro": "con", "velocidad": 4, "calidad": 5, "para": "MoE (4B activos): rápido y fuerte en GPU de 24 GB", "licencia": "Apache-2.0", "nota": "18 GB, 256K de contexto.", "moe": true, "verificar": false}, {"id": "qwen3.6:27b", "tipo": "local", "familia": "Qwen 3.6", "de": "Alibaba", "origen": "China", "params_b": 27, "memoria_gb": 17, "filtro": "con", "velocidad": 2, "calidad": 5, "para": "mejor todo-terreno para GPU de 24 GB", "licencia": "Apache-2.0", "nota": "Confirmado en Ollama (abr-2026): Q4_K_M de ~17 GB, 262K de contexto.", "moe": false, "verificar": false}, {"id": "qwen3.8:27b", "tipo": "local", "familia": "Qwen 3.8", "de": "Alibaba", "origen": "China", "params_b": 27, "memoria_gb": 18, "filtro": "con", "velocidad": 2, "calidad": 5, "para": "Qwen 3.8: texto + imagen, 256K", "licencia": "Apache-2.0", "nota": "Confirmado en Ollama (oct-2026): 18 GB, texto + imagen, 256K.", "moe": false, "verificar": false}, {"id": "glm-4.7-flash", "tipo": "local", "familia": "GLM", "de": "Z.ai", "origen": "China", "params_b": 30, "memoria_gb": 19, "filtro": "con", "velocidad": 4, "calidad": 4, "para": "agentes y código: MoE 30B con 3B activos", "licencia": "MIT", "nota": "Corregido: es 30B-A3B (no 9B). Pide Ollama ≥ 0.14.3; necesita ~24 GB de RAM/VRAM.", "moe": true, "verificar": false}, {"id": "qwen3:30b-a3b", "tipo": "local", "familia": "Qwen", "de": "Alibaba", "origen": "China", "params_b": 30, "memoria_gb": 19, "filtro": "con", "velocidad": 4, "calidad": 4, "para": "MoE: rápido incluso en CPU", "licencia": "Apache-2.0", "nota": "", "moe": true, "verificar": false}, {"id": "gemma4:31b", "tipo": "local", "familia": "Gemma 4", "de": "Google", "origen": "EE.UU.", "params_b": 31, "memoria_gb": 20, "filtro": "con", "velocidad": 2, "calidad": 5, "para": "Gemma 4 grande", "licencia": "Apache-2.0", "nota": "Confirmado en Ollama: 20 GB, 256K de contexto.", "moe": false, "verificar": false}, {"id": "dolphin-mixtral:8x7b", "tipo": "local", "familia": "Dolphin", "de": "Eric Hartford (sobre Mixtral)", "origen": "EE.UU./Francia", "params_b": 47, "memoria_gb": 26, "filtro": "sin", "velocidad": 2, "calidad": 3, "para": "sin filtro, mezcla de expertos", "licencia": "Apache-2.0", "nota": "", "moe": true, "verificar": false}, {"id": "huihui_ai/llama3.3-abliterated:70b", "tipo": "local", "familia": "Llama (abliterado)", "de": "huihui-ai", "origen": "comunidad", "params_b": 70, "memoria_gb": 40, "filtro": "sin", "velocidad": 1, "calidad": 4, "para": "techo sin filtro para 48 GB", "licencia": "Llama", "nota": "", "moe": false, "verificar": false}, {"id": "llama4:scout", "tipo": "local", "familia": "Llama 4", "de": "Meta", "origen": "EE.UU.", "params_b": 109, "memoria_gb": 58, "filtro": "con", "velocidad": 2, "calidad": 4, "para": "contexto gigante (MoE, 17B activos)", "licencia": "Llama", "nota": "", "moe": true, "verificar": false}, {"id": "gpt-oss:120b", "tipo": "local", "familia": "gpt-oss", "de": "OpenAI", "origen": "EE.UU.", "params_b": 117, "memoria_gb": 66, "filtro": "con", "velocidad": 2, "calidad": 5, "para": "agente grande", "licencia": "Apache-2.0", "nota": "", "moe": true, "verificar": false}], "nube": [{"id": "claude", "tipo": "nube", "nombre": "Claude", "de": "Anthropic", "origen": "EE.UU.", "filtro": "con", "calidad": 5, "velocidad": 4, "para": "razonamiento largo, código, planos, agentes", "precio": "pago por uso / suscripción", "nota": ""}, {"id": "openai", "tipo": "nube", "nombre": "GPT (5.5 y sucesores)", "de": "OpenAI", "origen": "EE.UU.", "filtro": "con", "calidad": 5, "velocidad": 4, "para": "general, código, voz", "precio": "pago por uso / suscripción", "nota": ""}, {"id": "gemini", "tipo": "nube", "nombre": "Gemini", "de": "Google", "origen": "EE.UU.", "filtro": "con", "calidad": 5, "velocidad": 4, "para": "multimodal, contexto enorme", "precio": "tiene capa gratis", "nota": ""}, {"id": "grok", "tipo": "nube", "nombre": "Grok", "de": "xAI", "origen": "EE.UU.", "filtro": "neutral", "calidad": 4, "velocidad": 4, "para": "actualidad, menos restrictivo", "precio": "pago por uso", "nota": ""}, {"id": "mistral", "tipo": "nube", "nombre": "Mistral (Large 4, Devstral, Codestral)", "de": "Mistral", "origen": "Francia", "filtro": "con", "calidad": 4, "velocidad": 4, "para": "europeo, código", "precio": "tiene capa gratis", "nota": ""}, {"id": "deepseek", "tipo": "nube", "nombre": "DeepSeek (V4.x)", "de": "DeepSeek", "origen": "China", "filtro": "con", "calidad": 4, "velocidad": 4, "para": "muy barato, razonamiento", "precio": "muy barato", "nota": "Filtra temas políticos de China; datos en servidores chinos."}, {"id": "qwen", "tipo": "nube", "nombre": "Qwen (3.8-Max)", "de": "Alibaba", "origen": "China", "filtro": "con", "calidad": 5, "velocidad": 4, "para": "general, multilingüe", "precio": "barato", "nota": "Datos en servidores chinos."}, {"id": "kimi", "tipo": "nube", "nombre": "Kimi (K3)", "de": "Moonshot AI", "origen": "China", "filtro": "con", "calidad": 5, "velocidad": 3, "para": "agentes, código largo", "precio": "barato", "nota": ""}, {"id": "glm", "tipo": "nube", "nombre": "GLM (5.3)", "de": "Z.ai", "origen": "China", "filtro": "con", "calidad": 5, "velocidad": 3, "para": "1M de contexto, todo-terreno", "precio": "barato", "nota": ""}, {"id": "minimax", "tipo": "nube", "nombre": "MiniMax (M3)", "de": "MiniMax", "origen": "China", "filtro": "con", "calidad": 4, "velocidad": 4, "para": "agentes, contexto largo", "precio": "barato", "nota": ""}, {"id": "mimo", "tipo": "nube", "nombre": "MiMo", "de": "Xiaomi", "origen": "China", "filtro": "con", "calidad": 4, "velocidad": 3, "para": "razonamiento", "precio": "barato", "nota": ""}, {"id": "meta", "tipo": "nube", "nombre": "Muse / Llama", "de": "Meta", "origen": "EE.UU.", "filtro": "con", "calidad": 4, "velocidad": 4, "para": "Muse Spark Open por plataformas de API", "precio": "según plataforma", "nota": ""}, {"id": "cohere", "tipo": "nube", "nombre": "Command", "de": "Cohere", "origen": "Canadá", "filtro": "con", "calidad": 3, "velocidad": 4, "para": "búsqueda en documentos (RAG)", "precio": "tiene capa de prueba", "nota": ""}, {"id": "perplexity", "tipo": "nube", "nombre": "Sonar", "de": "Perplexity", "origen": "EE.UU.", "filtro": "con", "calidad": 4, "velocidad": 4, "para": "respuestas con búsqueda web y fuentes", "precio": "pago por uso", "nota": ""}, {"id": "nvidia", "tipo": "nube", "nombre": "NIM / Nemotron", "de": "NVIDIA", "origen": "EE.UU.", "filtro": "con", "calidad": 4, "velocidad": 4, "para": "modelos abiertos acelerados", "precio": "capa de prueba", "nota": ""}, {"id": "groq", "tipo": "nube", "nombre": "Groq", "de": "Groq", "origen": "EE.UU.", "filtro": "según modelo", "calidad": 4, "velocidad": 5, "para": "modelos abiertos ultra rápidos", "precio": "capa gratis", "nota": ""}, {"id": "together", "tipo": "nube", "nombre": "Together / Fireworks", "de": "Together AI · Fireworks", "origen": "EE.UU.", "filtro": "según modelo", "calidad": 4, "velocidad": 4, "para": "cualquier modelo abierto por API, incluidos sin filtro", "precio": "pago por uso", "nota": ""}, {"id": "hf", "tipo": "nube", "nombre": "Hugging Face", "de": "Hugging Face", "origen": "Francia/EE.UU.", "filtro": "según modelo", "calidad": 4, "velocidad": 3, "para": "miles de modelos", "precio": "capa gratis", "nota": ""}, {"id": "openrouter", "tipo": "nube", "nombre": "OpenRouter", "de": "OpenRouter", "origen": "EE.UU.", "filtro": "según modelo", "calidad": 5, "velocidad": 4, "para": "todos los anteriores con una sola cuenta y clave", "precio": "pago por uso", "nota": ""}], "solo_servidor": [{"nombre": "Muse Spark Open", "de": "Meta", "origen": "EE.UU.", "nota": "816B/42B activos, 1M de contexto (15-oct-2026)"}, {"nombre": "GLM-5.3", "de": "Z.ai", "origen": "China", "nota": "1M de contexto"}, {"nombre": "Kimi K3", "de": "Moonshot AI", "origen": "China", "nota": ""}, {"nombre": "DeepSeek V4.1 (Flash)", "de": "DeepSeek", "origen": "China", "nota": ""}, {"nombre": "MiMo-V2.6-Pro / Flash", "de": "Xiaomi", "origen": "China", "nota": "MIT"}, {"nombre": "Mistral Large 4", "de": "Mistral", "origen": "Francia", "nota": "~1T/52B activos; pesos anunciados para fines de oct-2026"}, {"nombre": "Reflection Beam 1.0", "de": "Reflection", "origen": "EE.UU.", "nota": "501B/23B activos, Apache-2.0"}, {"nombre": "Nemotron 3.5", "de": "NVIDIA", "origen": "EE.UU.", "nota": "Bolt 74B/9B activos"}, {"nombre": "Kolibri-1", "de": "Aleph Alpha", "origen": "Alemania", "nota": "78B/3.5B activos"}, {"nombre": "LFM2.5-24B-A2B", "de": "Liquid AI", "origen": "EE.UU.", "nota": "~13 GB, licencia con tope de ingresos"}, {"nombre": "MiniMax M3", "de": "MiniMax", "origen": "China", "nota": ""}, {"nombre": "Huihui GLM-5.1 abliterado", "de": "huihui-ai", "origen": "comunidad", "nota": "el abliterado abierto más grande; 256 GB+"}], "apps": [{"id": "odysseus", "nombre": "Odysseus", "de": "PewDiePie (Felix Kjellberg)", "tipo": "app", "para": "Espacio de trabajo de IA local: chat, agentes, investigación, correo, calendario, memoria; recomienda modelos según tu hardware.", "repo": "pewdiepie-archdaemon/odysseus", "nota": "No es un modelo: es una interfaz que usa modelos locales o por API. Se instala como app opcional junto a Neo Orión. Su modelo propio, Ajax (sobre Qwen3.5-9B, con rechazos reducidos), estaba anunciado pero sin descarga pública a octubre de 2026: Neo Orión lo agrega solo cuando se publique."}, {"id": "gemini-notebook", "nombre": "Gemini Notebook (antes NotebookLM)", "de": "Google", "tipo": "app", "para": "Cuaderno de investigación con tus fuentes: resúmenes con citas, guías de estudio, resúmenes en audio y video, preguntas de prueba.", "repo": "", "web": "https://notebooklm.google.com", "origen": "EE.UU.", "nota": "Google lo renombró el 16-jul-2026; mismo producto y misma dirección. Sin API para cuentas personales: Neo Orión arma las fuentes desde la memoria y abre la página; tú las subes y pegas la respuesta de vuelta. Gratis con cuenta de Google (más límites con Google AI Pro)."}, {"id": "open-notebook", "nombre": "Open Notebook", "de": "Luis Novo (lfnovo) y comunidad", "tipo": "app", "para": "La alternativa libre a NotebookLM en tu propio PC: cuadernos, fuentes, chat con citas y pódcast, con tus IA locales (Ollama) o en la nube.", "repo": "lfnovo/open-notebook", "web": "http://127.0.0.1:8502", "origen": "comunidad", "nota": "MIT. Se instala con Docker. Tiene API local: Neo Orión crea el cuaderno y carga las fuentes solo. Nada sale del equipo si usas IA local."}]};  // = config/ia-catalogo.json (3-nov-2026)
+const MODELOS = CAT.locales.map(m => [m.id, m.params_b, m.memoria_gb, m.para, m.licencia, m.moe ? 1 : 0, m.verificar ? 1 : 0, m.filtro]);
+const SERVIDOR = CAT.solo_servidor.map(x => [x.nombre, x.de, x.nota]);
+function cabe(m, eq) { // misma regla que orion-fit
+  const gpu = eq.vram > 0, mem = gpu ? eq.vram * .92 : Math.max(0, eq.ram - (eq.ram > 4.5 ? 3 : .9)) * .9, moe = !!m[5];
+  if (m[2] > mem) return { e: 'no', t: 'no cabe', p: Math.min(100, mem / m[2] * 100) };
+  if (!gpu && m[2] > 6.5 && !moe) return { e: 'lento', t: 'cabe pero lento', p: 100 };
+  return { e: 'ok', t: gpu ? 'rápido en GPU' : 'rápido en CPU', p: m[2] / mem * 100 };
+}
+function recomendado(eq) { const ok = MODELOS.filter(m => cabe(m, eq).e === 'ok' && !m[6] && m[7] !== 'sin').sort((x, y) => x[1] - y[1] || (CAT.locales.find(c => c.id === x[0]).calidad - CAT.locales.find(c => c.id === y[0]).calidad)); return ok.length ? ok[ok.length - 1][0] : MODELOS[0][0]; }
+
+/* ---------------- pasos ---------------- */
+const PASOS = [
+  { id: 'idioma', n: 'IDIOMA Y REGIÓN', r: pIdioma }, { id: 'equipo', n: 'ESCANEO DEL EQUIPO', r: pEquipo },
+  { id: 'disco', n: 'DISCO', r: pDisco, ok: () => C.disco && (C.modo !== 'borrar' || C.confirmado) },
+  { id: 'ia', n: 'INTELIGENCIA', r: pIA, ok: () => C.ia.length > 0 }, { id: 'voz', n: 'OÍDO, VOZ Y MEMORIA', r: pVoz },
+  { id: 'identidad', n: 'IDENTIDAD Y COLOR', r: pIdentidad, ok: () => C.nombre.trim() }, { id: 'modulos', n: 'MÓDULOS', r: pModulos },
+  { id: 'cuenta', n: 'TU CUENTA', r: pCuenta, ok: () => C.usuario.trim().length > 1 && C.clave && C.frase && (C.desbloqueo === 'clave' || (C.fraseVoz || '').trim().split(/\s+/).length >= 2) },
+  { id: 'instalar', n: 'INSTALAR', r: pInstalar }];
+let P = 0;
+
+function nav() {
+  $('#nav').innerHTML = PASOS.map((p, i) => `<div class="st ${i < P ? 'hecho' : i === P ? 'act' : ''}"><i></i><b>${String(i + 1).padStart(2, '0')}</b><span class="nm">${p.n}</span></div>`).join('') +
+    `<div class="sum">EQUIPO <span>${C.equipo ? C.equipo.n : '—'}</span><br>IA <span>${C.ia.join(', ') || '—'}</span><br>NOMBRE <span>${C.nombre}</span><br>COLOR <span style="color:var(--lime)">■ ${C.color}</span></div>`;
+  $('#seg').innerHTML = PASOS.map((_, i) => `<i class="${i <= P ? 'on' : ''}"></i>`).join('');
+  $('#hpaso').textContent = String(P + 1).padStart(2, '0'); $('#fpaso').textContent = PASOS[P].n;
+  $('#atras').disabled = P === 0 || P === PASOS.length - 1 && INST.corriendo;
+  const ult = P === PASOS.length - 1; $('#sig').hidden = ult;
+  $('#sig').textContent = P === PASOS.length - 2 ? 'INSTALAR ▸' : 'SIGUIENTE ▸';
+  validar();
+}
+function validar() { const ok = PASOS[P].ok ? !!PASOS[P].ok() : true; $('#sig').disabled = !ok; }
+async function ir(n) {
+  if (n < 0 || n >= PASOS.length) return;
+  if (n > P) await okFlash();
+  MX.corte(() => { P = n; $('#main').innerHTML = ''; PASOS[P].r($('#main')); nav(); $('#main').scrollTop = 0; animarEntrada(); });
+}
+function animarEntrada() {
+  pintarEncab(); const h = $('#main h1'); if (h) setTimeout(() => MX.glitch(h), 620);
+  document.querySelectorAll('#main .op, #main .caja, #main .campo').forEach((e, i) => { e.style.animationDelay = (i * 45) + 'ms'; e.classList.add('mx-in'); });
+}
+$('#sig').onclick = () => ir(P + 1); $('#atras').onclick = () => ir(P - 1);
+addEventListener('keydown', e => { if (e.key === 'Enter' && !$('#app').hidden && !$('#sig').disabled && !$('#sig').hidden && e.target.tagName !== 'BUTTON') ir(P + 1); });
+const ICO = { idioma: 'mundo', equipo: 'cpu', disco: 'disco', ia: 'ia', voz: 'mic', identidad: 'color', modulos: 'robot', cuenta: 'candado', instalar: 'play' };
+const encab = (k, t, d) => `<div class="kick"><span class="ico" data-ico="${ICO[PASOS[P].id]}"></span>${k}</div><h1 data-t="${t}"><span class="sr">${t}</span></h1><p class="lead">${d}</p>`;
+function pintarEncab() {
+  const ic = $('#main .ico'); if (ic) ic.append(MX.pixel(ic.dataset.ico, { px: 3, gap: 1, ms: 300 }));
+  const h = $('#main h1'); if (h && h.dataset.t) { const ancho = $('#main').clientWidth - 40; const px = Math.max(3, Math.min(7, Math.floor(ancho / (h.dataset.t.length * 6.6)))); h.append(MX.pixel(h.dataset.t.toUpperCase(), { px, ms: 600 })); }
+}
+function okFlash() { if (matchMedia('(prefers-reduced-motion: reduce)').matches) return Promise.resolve();
+  const d = document.createElement('div'); d.id = 'okf'; d.innerHTML = '<div></div>'; d.firstChild.append(MX.pixel('check', { px: innerWidth < 600 ? 14 : 20, gap: 3, color: () => window.INK, ms: 260 })); document.body.append(d);
+  return new Promise(r => setTimeout(() => { d.remove(); r(); }, 520)); }
+function opciones(cont, lista, clave, multi, alCambiar) {
+  cont.querySelectorAll('.op[data-v]').forEach(o => o.onclick = () => {
+    if (o.classList.contains('no')) return;
+    const v = o.dataset.v;
+    if (multi) { C[clave] = C[clave].includes(v) ? C[clave].filter(x => x !== v) : [...C[clave], v]; o.classList.toggle('sel'); }
+    else { C[clave] = v; cont.querySelectorAll('.op[data-v]').forEach(x => x.classList.toggle('sel', x === o)); }
+    MX.glitch(o.querySelector('.n')); alCambiar && alCambiar(v); validar(); nav();
+  });
+}
+
+/* 01 */ function pIdioma(m) {
+  m.innerHTML = encab('PASO 01 // SISTEMA', 'Idioma y región', 'Todo el sistema y la voz quedan en este idioma. Se puede cambiar después diciéndoselo a Neo Orión.') +
+    `<div class="grid">${[['es-CL', 'ESPAÑOL · CHILE', 'voz y fechas de Chile'], ['es-MX', 'ESPAÑOL · MÉXICO', ''], ['es-ES', 'ESPAÑOL · ESPAÑA', ''], ['en-US', 'ENGLISH · US', '']].map(([v, n, d]) =>
+      `<div class="op ${C.idioma === v ? 'sel' : ''}" data-v="${v}"><div class="k"><span>${v}</span></div><div class="n">${n}</div><div class="d">${d}</div><i class="chk"></i></div>`).join('')}</div>
+    <div class="px dim" style="font-size:9px;margin:22px 0 10px">TU COLOR · LO PUEDES CAMBIAR CUANDO QUIERAS</div>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;padding-bottom:20px" id="col1">${MX.PALETA.map(([n, c]) => `<div class="sw ${C.color === c ? 'sel' : ''}" data-c="${c}" style="background:${c}" title="${n}"><span>${n}</span></div>`).join('')}</div>
+    <div class="fila" style="margin-top:6px"><div class="campo"><label>TECLADO</label><select id="tec"><option value="latam">Latinoamericano</option><option value="es">Español (España)</option><option value="us">Inglés (EE.UU.)</option></select></div>
+    <div class="campo"><label>ZONA HORARIA</label><select id="zona"><option>America/Santiago</option><option>America/Punta_Arenas</option><option>Pacific/Easter</option><option>America/Mexico_City</option><option>Europe/Madrid</option></select></div></div>`;
+  opciones(m, null, 'idioma');
+  m.querySelectorAll('#col1 .sw').forEach(w => w.onclick = () => MX.disolver(() => { C.color = MX.acento(w.dataset.c); m.querySelectorAll('#col1 .sw').forEach(x => x.classList.toggle('sel', x === w)); nav(); }));
+  $('#tec').value = C.teclado; $('#tec').onchange = e => C.teclado = e.target.value;
+  $('#zona').value = C.zona; $('#zona').onchange = e => C.zona = e.target.value;
+}
+
+/* 02 */ function pEquipo(m) {
+  const d = detectar();
+  if (!C.equipo) { const ram = navigator.deviceMemory || 8; C.equipo = API.si ? perfilReal(API.eq) : PERFILES[ram >= 16 ? 3 : ram >= 8 ? 2 : 1]; }
+  m.innerHTML = encab('PASO 02 // HARDWARE', 'Escaneo del equipo', 'Neo Orión mide el equipo para saber qué IA cabe y qué conviene correr aquí o en la nube.') +
+    `<div class="fila"><div class="caja scan" style="flex:1;min-width:260px" id="scan"></div>
+     <div style="flex:1;min-width:260px"><div class="px dim" style="font-size:9px">NIVEL DEL EQUIPO</div><div class="tier" id="tier"></div><div id="tierd" class="dim" style="font-size:11px"></div>
+     <div class="px dim" style="font-size:9px;margin-top:18px">VISTA PREVIA: ELIGE OTRO EQUIPO PARA VER CÓMO CAMBIA</div>
+     <div class="grid" style="margin-top:8px;grid-template-columns:repeat(auto-fill,minmax(150px,1fr))">${PERFILES.map((p, i) =>
+      `<div class="op ${C.equipo.k === p.k ? 'sel' : ''}" data-v="${i}"><div class="n" style="font-size:11px">${p.n}</div><div class="d">${p.ram} GB · ${p.d}</div></div>`).join('')}</div></div></div>`;
+  const q = API.eq;
+  const filas = q ? [['CPU', `${q.cpu.replace(/\(R\)|\(TM\)|CPU|@.*$/g, '').trim().slice(0, 30)} · ${q.hilos} hilos`], ['RAM', q.ram_gb + ' GB'], ['GPU', q.gpu.slice(0, 34) + (q.vram_gb ? ` · ${q.vram_gb} GB` : '')],
+      ['DISCO', q.discos.map(x => `${x.nombre} ${x.gb} GB`).join(' · ') || 'ninguno ≥ 16 GB'], ['RED', q.red], ['MICRÓFONO', q.microfono ? 'detectado' : 'no hay · se usa el chat'], ['ARRANQUE', q.uefi ? 'UEFI' : 'BIOS (legado)'],
+      ['CONTROLADORES', ((q.controladores || {}).plan || {}).notas?.length ? q.controladores.plan.notas.map(n => n.split(':')[0]).join(' · ') + ' · se instalan solos' : 'microcódigo ' + (((q.controladores || {}).cpu || {}).fabricante || '') + ' · nada más que bajar']]
+    : [['CPU', d.cpu + ' hilos'], ['RAM', d.ram], ['GPU', d.gpu], ['DISCO', 'NVMe 512 GB'], ['RED', 'ethernet · 1 Gb/s'], ['MICRÓFONO', 'detectado'], ['CÁMARA', 'detectada']];
+  const sc = $('#scan'); filas.forEach((f, i) => setTimeout(() => { sc.insertAdjacentHTML('beforeend', `<div class="l mx-flick"><span>${f[0]}</span><span class="v"></span></div>`); MX.scramble(sc.lastElementChild.querySelector('.v'), String(f[1]), 400); }, 120 + i * 170));
+  const tier = () => { const k = C.equipo.k; $('#tier').innerHTML = PERFILES.map(p => `<i class="${p.k === k ? 'on' : ''}">${p.k}</i>`).join('');
+    $('#tierd').innerHTML = `IA recomendada: <span class="lime">${recomendado(C.equipo)}</span> · ${C.equipo.vram ? 'corre en la GPU' : 'corre en la CPU'}`; };
+  tier();
+  if (API.si) { const g = m.querySelectorAll('.grid')[0]; g.previousElementSibling.textContent = 'MEDIDO EN ESTE EQUIPO · LOS OTROS SON SOLO DE REFERENCIA'; }
+  m.querySelectorAll('.op[data-v]').forEach(o => o.onclick = () => { C.equipo = PERFILES[+o.dataset.v]; C.ia = []; m.querySelectorAll('.op').forEach(x => x.classList.toggle('sel', x === o)); tier(); nav(); });
+}
+
+/* 03 */ function pDisco(m) {
+  const COLP = { ntfs: '#3a7bd5', vfat: '#7f9a3a', ext4: '#55585e', libre: '#2a2c30' };
+  const DISCOS = API.si ? API.eq.discos.map(x => [x.nombre, `${x.modelo || x.bus.toUpperCase() || 'disco'} · ${x.gb} GB${x.windows ? ' · WINDOWS' : ''}`, x.gb,
+      x.partes.length ? x.partes.map(p => [p.nombre === 'libre' ? 'libre' : p.fs === 'ntfs' ? 'Windows' : p.nombre, p.gb, COLP[p.nombre === 'libre' ? 'libre' : p.fs] || '#55585e']) : [['libre', x.gb, '#2a2c30']]])
+    : [['nvme0n1', 'Samsung 980 · 512 GB', 512, [['Windows', 340, '#3a7bd5'], ['libre', 172, '#2a2c30']]], ['sda', 'SSD SATA · 1 TB', 1000, [['datos', 1000, '#55585e']]]];
+  if (API.si && !DISCOS.length) { m.innerHTML = encab('PASO 03 // ALMACENAMIENTO', 'Dónde instalar', '') + '<div class="aviso"><b>NO HAY DISCO</b>No encontré un disco de al menos 16 GB aparte del pendrive. Conecta uno y vuelve a este paso.</div>'; return; }
+  if (API.si && C.modo === 'manual') C.modo = 'borrar';
+  m.innerHTML = encab('PASO 03 // ALMACENAMIENTO', 'Dónde instalar', 'Elige el disco y cómo usarlo. Nada se toca hasta el último paso.') +
+    `<div class="grid">${DISCOS.map(([v, n, gb]) => `<div class="op ${C.disco === v ? 'sel' : ''}" data-v="${v}"><div class="k"><span>/dev/${v}</span><span>${gb} GB</span></div><div class="n">${n}</div><i class="chk"></i></div>`).join('')}</div>
+    <div class="px dim" style="font-size:9px;margin-top:20px">MODO</div>
+    <div class="grid" id="modos" style="margin-top:8px">${[['borrar', 'BORRAR TODO', 'Neo Orión ocupa el disco completo. Lo más simple.'], ['junto', 'JUNTO A WINDOWS', 'Usa el espacio libre y deja Windows. Al encender eliges cuál.'], ...(API.si ? [] : [['manual', 'MANUAL', 'Particiones a mano, para expertos.']])].map(([v, n, d]) =>
+      `<div class="op ${C.modo === v ? 'sel' : ''}" data-m="${v}"><div class="n">${n}</div><div class="d">${d}</div><i class="chk"></i></div>`).join('')}</div>
+    <div class="disco" id="barra"></div><div class="dim" style="font-size:10px" id="barrad"></div><div id="conf"></div>`;
+  const pintar = () => {
+    const D = DISCOS.find(x => x[0] === C.disco); if (!D) { $('#barra').innerHTML = ''; $('#conf').innerHTML = ''; return; }
+    let partes = C.modo === 'borrar' ? [['NEO ORIÓN', D[2] - 0.5, 'var(--lime)'], ['EFI', 0.5, '#7f9a3a']] : C.modo === 'junto' ? D[3].map(p => p[0] === 'libre' ? ['NEO ORIÓN', p[1], 'var(--lime)'] : p) : D[3];
+    $('#barra').innerHTML = partes.map(p => `<div style="flex:${Math.max(p[1], D[2] * .06)};background:${p[2]}">${p[0]} · ${p[1] < 1 ? p[1] * 1000 + ' MB' : Math.round(p[1]) + ' GB'}</div>`).join('');
+    $('#barrad').textContent = C.modo === 'borrar' ? 'Se borran todas las particiones del disco.' : C.modo === 'junto' ? 'Windows queda intacto.' : 'Se abrirá el editor de particiones.';
+    if (C.modo === 'borrar') {
+      const hay = D[3].filter(p => p[0] !== 'libre').map(p => p[0]);
+      $('#conf').innerHTML = `<div class="aviso"><b>ACCIÓN IRREVERSIBLE</b>Se borra todo /dev/${C.disco}${hay.length ? ', incluido ' + hay.join(' y ') : ' (hoy está vacío)'}. Mantén apretado el botón para confirmar.</div>
+        <button class="btn peligro ${C.confirmado ? 'hecho' : ''}" id="hold">${C.confirmado ? 'CONFIRMADO ✓' : 'MANTÉN PARA BORRAR'}</button>`;
+      if (!C.confirmado) MX.mantener($('#hold'), 1600, () => { C.confirmado = true; $('#hold').textContent = 'CONFIRMADO ✓'; MX.alerta('BORRADO AUTORIZADO', 1300); validar(); });
+    } else $('#conf').innerHTML = '';
+    validar();
+  };
+  m.querySelectorAll('.op[data-v]').forEach(o => o.onclick = () => { C.disco = o.dataset.v; C.confirmado = false; m.querySelectorAll('.op[data-v]').forEach(x => x.classList.toggle('sel', x === o)); pintar(); });
+  m.querySelectorAll('.op[data-m]').forEach(o => o.onclick = () => { C.modo = o.dataset.m; C.confirmado = false; m.querySelectorAll('.op[data-m]').forEach(x => x.classList.toggle('sel', x === o)); pintar(); });
+  pintar();
+}
+
+/* 04 */ let FIA = 'RECOMENDADAS';
+function barra5(n, rojo) { return `<span class="b5">${[1, 2, 3, 4, 5].map(i => `<i class="${i <= n ? 'on' : ''}${rojo && i <= n ? ' r' : ''}"></i>`).join('')}</span>`; }
+const FILTRO_TXT = { con: 'CON FILTRO', neutral: 'NEUTRAL', sin: 'SIN FILTRO', 'según modelo': 'SEGÚN MODELO' };
+function pIA(m) {
+  const eq = C.equipo || PERFILES[2], rec = recomendado(eq), patata = eq.k === 'patata';
+  if (!C.ia.length) C.ia = [rec];
+  const FIL = ['RECOMENDADAS', 'TODAS', 'LOCALES', 'NUBE', 'SIN FILTRO', 'CON FILTRO', 'CHINA', 'EE.UU.', 'EUROPA', 'APPS'];
+  m.innerHTML = (patata ? '<div class="aviso" style="border-color:var(--lime);color:var(--txt);background:var(--acc-bg)"><b style="color:var(--lime)">PC PATATA</b>La IA local queda para órdenes rápidas; para pensar en grande marca al menos una IA en la nube. Si el equipo se pone lento, Neo Orión baja solo a modo liviano.</div>' : '') +
+    encab('PASO 04 // INTELIGENCIA', 'Elige las IA', `Calculado para <span class="lime">${eq.n}</span> (${eq.ram} GB${eq.vram ? ` · GPU ${eq.vram} GB` : ''}). Toca <b class="lime">i</b> para ver cómo rinde cada una. Puedes elegir varias: Neo Orión usa la adecuada para cada tarea.`) +
+    `<div class="fil" id="fil">${FIL.map(f => `<b class="${f === FIA ? 'on' : ''}" data-f="${f}">${f}</b>`).join('')}</div>
+     <div class="fila" style="align-items:flex-start"><div class="grid" id="lista" style="flex:2;min-width:280px"></div><div class="caja det" id="det" style="flex:1;min-width:260px;position:sticky;top:0"></div></div>
+     <p class="dim" style="font-size:11px;margin-top:12px;max-width:680px">Las claves de las IA en la nube las pegas tú después de instalar; nunca pasan por el instalador. El catálogo se actualiza solo y avisa cuando sale una IA nueva que cabe en tu equipo.</p>`;
+  const region = o => /China/.test(o) ? 'CHINA' : /EE\.UU|Canadá/.test(o) ? 'EE.UU.' : /Francia|Alemania/.test(o) ? 'EUROPA' : '';
+  const items = () => {
+    const L = CAT.locales.map(x => ({ ...x, f: cabe(MODELOS.find(y => y[0] === x.id), eq) })), N = CAT.nube, A = CAT.apps;
+    const ok = x => ({ RECOMENDADAS: x.tipo === 'nube' ? ['claude', 'gemini', 'openrouter', 'deepseek'].includes(x.id) : x.tipo === 'local' ? x.f.e !== 'no' && x.calidad >= 3 && x.filtro !== 'sin' || x.id === rec : false,
+      TODAS: true, LOCALES: x.tipo === 'local', NUBE: x.tipo === 'nube', 'SIN FILTRO': x.filtro === 'sin' || x.filtro === 'neutral', 'CON FILTRO': x.filtro === 'con',
+      CHINA: region(x.origen || '') === 'CHINA', 'EE.UU.': region(x.origen || '') === 'EE.UU.', EUROPA: region(x.origen || '') === 'EUROPA', APPS: x.tipo === 'app' })[FIA];
+    return [...L, ...N, ...A].filter(ok);
+  };
+  const pinta = () => {
+    $('#lista').innerHTML = items().map(x => {
+      const loc = x.tipo === 'local', sel = loc ? C.ia.includes(x.id) : C.nube.includes(x.id), no = loc && x.f.e === 'no';
+      const est = loc ? (x.id === rec ? 'RECOMENDADA' : x.verificar && !no ? 'POR CONFIRMAR' : x.f.t.toUpperCase()) : x.tipo === 'app' ? 'APP' : 'NUBE';
+      return `<div class="op ${sel ? 'sel' : ''} ${no ? 'no' : ''}" data-id="${x.id}" data-t="${x.tipo}"><div class="k"><span>${loc ? `${x.params_b}B · ${x.memoria_gb} GB` : x.de}</span><span class="${loc && x.f.e === 'no' ? 'red' : loc && x.f.e === 'ok' ? 'lime' : ''}">${est}</span></div>
+        <div class="n">${x.nombre || x.id}</div><div class="d">${x.para}</div>
+        <div class="k" style="margin-top:8px"><span class="tg ${x.filtro === 'sin' ? 'tsin' : ''}">${FILTRO_TXT[x.filtro] || 'APP'}</span><span>${x.origen || ''}</span></div>
+        ${loc ? `<div class="fit ${x.f.e === 'ok' ? '' : x.f.e}"><i style="width:${x.f.p}%"></i></div>` : ''}<button class="inf" data-i="${x.id}" aria-label="ver detalle">i</button></div>`; }).join('') || '<div class="dim">Nada en este filtro.</div>';
+    $('#lista').querySelectorAll('.op').forEach(o => o.onclick = e => {
+      if (e.target.classList.contains('inf')) return detalle(o.dataset.id);
+      if (o.classList.contains('no') || o.dataset.t === 'app') return detalle(o.dataset.id);
+      const k = o.dataset.t === 'local' ? 'ia' : 'nube', v = o.dataset.id;
+      C[k] = C[k].includes(v) ? C[k].filter(z => z !== v) : [...C[k], v]; o.classList.toggle('sel'); MX.glitch(o.querySelector('.n')); detalle(v); validar(); nav();
+    });
+  };
+  const detalle = id => {
+    const x = CAT.locales.find(z => z.id === id) || CAT.nube.find(z => z.id === id) || CAT.apps.find(z => z.id === id); if (!x) return;
+    const loc = x.tipo === 'local', f = loc ? cabe(MODELOS.find(y => y[0] === x.id), eq) : null;
+    const filtroExp = { con: 'Rechaza temas sensibles según las reglas de quien lo hizo.', neutral: 'Obedece el prompt de sistema: tú pones las reglas.', sin: 'Sin rechazos (ajuste fino o abliterado). El guardián de Neo Orión sigue igual: robots, PLC e irreversibles piden permiso.', 'según modelo': 'Depende del modelo que elijas dentro del servicio.' }[x.filtro] || '';
+    $('#det').innerHTML = `<div class="px dim" style="font-size:8px">${x.tipo.toUpperCase()} // ${x.de}</div><div class="px" style="font-size:16px;margin:6px 0 10px;color:#fff">${x.nombre || x.id}</div>
+      <div class="dim" style="font-size:12px;margin-bottom:10px">${x.para}</div>
+      ${x.velocidad ? `<div class="l2"><span>VELOCIDAD</span>${barra5(x.velocidad)}</div><div class="l2"><span>CALIDAD</span>${barra5(x.calidad)}</div>` : ''}
+      ${loc ? `<div class="l2"><span>MEMORIA</span><span>${x.memoria_gb} GB · ${x.params_b}B parámetros${x.moe ? ' · MoE' : ''}</span></div>
+        <div class="l2"><span>EN TU EQUIPO</span><span class="${f.e === 'ok' ? 'lime' : f.e === 'no' ? 'red' : ''}">${f.t}</span></div>` : ''}
+      ${x.filtro ? `<div class="l2"><span>FILTRO</span><span>${FILTRO_TXT[x.filtro]}</span></div><div class="dim" style="font-size:11px;margin:4px 0 8px">${filtroExp}</div>` : ''}
+      ${x.licencia ? `<div class="l2"><span>LICENCIA</span><span>${x.licencia}</span></div>` : ''}${x.precio ? `<div class="l2"><span>PRECIO</span><span>${x.precio}</span></div>` : ''}
+      ${x.origen ? `<div class="l2"><span>ORIGEN</span><span>${x.origen}</span></div>` : ''}${x.repo ? `<div class="l2"><span>REPOSITORIO</span><span>${x.repo}</span></div>` : ''}
+      ${x.nota ? `<div style="font-size:11px;margin-top:8px;color:var(--txt)">${x.nota}</div>` : ''}
+      ${x.tipo === 'app' ? `<button class="btn" style="margin-top:12px;font-size:10px;padding:9px 12px" id="appb">${C.modulos.includes('app:' + x.id) ? 'QUITAR' : 'INSTALAR TAMBIÉN'}</button>` : ''}`;
+    const ab = $('#appb'); if (ab) ab.onclick = () => { const k = 'app:' + x.id; C.modulos = C.modulos.includes(k) ? C.modulos.filter(z => z !== k) : [...C.modulos, k]; detalle(id); };
+  };
+  $('#fil').querySelectorAll('b').forEach(b => b.onclick = () => { FIA = b.dataset.f; $('#fil').querySelectorAll('b').forEach(z => z.classList.toggle('on', z === b)); pinta(); });
+  pinta(); detalle(rec);
+}
+
+/* 05 */ function pVoz(m) {
+  const g = (t, clave, lista) => `<div class="px dim" style="font-size:9px;margin-top:20px">${t}</div><div class="grid" data-g="${clave}" style="margin-top:8px">${lista.map(([v, n, d, l]) =>
+    `<div class="op ${C[clave] === v ? 'sel' : ''}" data-v="${v}"><div class="k"><span>${l}</span></div><div class="n">${n}</div><div class="d">${d}</div><i class="chk"></i></div>`).join('')}</div>`;
+  m.innerHTML = encab('PASO 05 // SENTIDOS', 'Oído, voz y memoria', 'Neo Orión escucha siempre y no necesita botón. Todo se procesa en tu equipo, y la memoria queda en archivos que cualquier IA puede leer.') +
+    g('OÍDO · VOZ A TEXTO', 'oido', [['faster-whisper', 'FASTER-WHISPER', 'el más preciso en español', 'MIT'], ['whisper.cpp', 'WHISPER.CPP', 'liviano, ideal sin GPU', 'MIT'], ['vosk', 'VOSK', 'muy liviano, para Raspberry', 'Apache-2.0']]) +
+    g('VOZ · TEXTO A VOZ', 'voz', [['piper', 'PIPER', 'natural y rápida, voces en español', 'GPL-3.0'], ['kokoro', 'KOKORO', 'muy natural', 'Apache-2.0'], ['espeak-ng', 'ESPEAK-NG', 'robótica, mínima', 'GPL-3.0'], ['elevenlabs', 'ELEVENLABS', 'nube, la más humana (clave después)', 'servicio']]) +
+    g('MEMORIA · DÓNDE LA VES', 'memoriaApp', [['obsidian', 'OBSIDIAN', 'notas enlazadas, gráfico', 'gratis (propietaria)'], ['logseq', 'LOGSEQ', 'esquemas y diario', 'AGPL-3.0'], ['silverbullet', 'SILVERBULLET', 'en el navegador, desde el teléfono', 'MIT'], ['ninguna', 'SOLO ARCHIVOS', 'Markdown puro, cualquier editor', '—']]);
+  m.querySelectorAll('.grid[data-g]').forEach(gr => opciones(gr, null, gr.dataset.g));
+}
+
+/* 06 */ function pIdentidad(m) {
+  m.innerHTML = encab('PASO 06 // IDENTIDAD', 'Nombre, voz y color', 'Así se llama, así suena y de este color se ve todo. Se puede cambiar cuando quieras: "cámbiate el color a rojo".') +
+    `<div class="fila"><div style="flex:1;min-width:260px">
+      <div class="campo"><label>NOMBRE</label><input id="nom" value="${C.nombre}" maxlength="24"></div>
+      <div class="campo"><label>VOZ</label><select id="gen"><option value="femenina">Femenina</option><option value="masculina">Masculina</option><option value="neutra">Neutra / robótica</option></select></div>
+      <div class="campo"><label>TONO</label><select id="ton"><option value="cercano">Cercano</option><option value="formal">Formal</option><option value="tecnico">Técnico y breve</option></select></div>
+      <div class="px dim" style="font-size:9px;margin:6px 0 10px">COLOR DE LA INTERFAZ</div>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;padding-bottom:20px">${MX.PALETA.map(([n, c]) => `<div class="sw ${C.color === c ? 'sel' : ''}" data-c="${c}" style="background:${c}" title="${n}"><span>${n}</span></div>`).join('')}
+        <label class="sw" style="display:grid;place-items:center;background:#0b0c0d" title="otro"><input type="color" id="otro" value="${C.color}" style="opacity:0;position:absolute;inset:0;cursor:pointer"><b class="px" style="font-size:16px;font-weight:400">+</b><span>OTRO</span></label></div>
+     </div>
+     <div class="prev" id="prev"><div class="px dim" style="font-size:8px;display:flex;justify-content:space-between"><span>VISTA PREVIA</span><span id="pc">${C.color}</span></div>
+      <div class="px" style="font-size:22px;margin:10px 0 2px" id="pn">${C.nombre.toUpperCase()}</div><div class="px lime" style="font-size:9px">■ ESCUCHANDO</div>
+      <div class="vu" id="vu"></div><div class="dim" style="font-size:11px" id="pfrase"></div>
+      <button class="btn" style="margin-top:12px;font-size:10px;padding:9px 12px" id="oir">▶ ESCUCHAR</button></div></div>`;
+  $('#gen').value = C.genero; $('#ton').value = C.tono;
+  const frase = () => ({ cercano: `Hola, soy ${C.nombre}. Estoy escuchando; pídeme lo que necesites.`, formal: `Buenos días. Soy ${C.nombre}, a su disposición.`, tecnico: `${C.nombre} en línea. Sistemas nominales.` })[C.tono];
+  const act = () => { $('#pn').textContent = C.nombre.toUpperCase() || '—'; $('#pfrase').textContent = '«' + frase() + '»'; $('#pc').textContent = C.color; nav(); validar(); };
+  $('#nom').oninput = e => { C.nombre = e.target.value; act(); };
+  $('#gen').onchange = e => C.genero = e.target.value; $('#ton').onchange = e => { C.tono = e.target.value; act(); };
+  const color = c => { C.color = MX.acento(c); m.querySelectorAll('.sw[data-c]').forEach(s => s.classList.toggle('sel', s.dataset.c === C.color)); MX.glitch($('#pn')); act(); };
+  m.querySelectorAll('.sw[data-c]').forEach(s => s.onclick = () => color(s.dataset.c));
+  $('#otro').oninput = e => color(e.target.value);
+  let hablando = false;
+  $('#oir').onclick = () => { try { speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(frase()); u.lang = C.idioma;
+    u.pitch = C.genero === 'femenina' ? 1.25 : C.genero === 'masculina' ? .8 : .5; u.rate = C.tono === 'tecnico' ? 1.15 : 1;
+    u.onstart = () => hablando = true; u.onend = () => hablando = false; speechSynthesis.speak(u); } catch (e) {} };
+  (function vu() { const v = $('#vu'); if (!v) return; v.innerHTML = Array.from({ length: 40 }, (_, i) => `<i style="height:${hablando ? 4 + Math.random() * 20 : 2 + Math.abs(Math.sin(Date.now() / 300 + i / 3)) * 4}px"></i>`).join(''); setTimeout(vu, 80); })();
+  act();
+}
+
+/* 07 */ function pModulos(m) {
+  const MOD = [['robotica', 'ROBÓTICA', 'ROS 2 Jazzy, Gazebo, LiDAR, control de robots por voz', '≈ 4 GB'], ['maker', 'TALLER', 'ESP32/Arduino, KiCad, FreeCAD, slicers, CNC', '≈ 3 GB'],
+    ['proyectos', 'PROYECTOS', 'Carta Gantt, presupuesto, RACI, Excel', '≈ 50 MB'],
+    ['juegos', 'JUEGOS Y MEDIOS', 'Steam, GeForce NOW y todas las nubes, Jellyfin', '≈ 2 GB'], ['dev', 'DESARROLLO', 'Python, Node, Docker, VS Code', '≈ 3 GB'],
+    ['cuerpo', 'ESCANEO 3D', 'fotos → modelo 3D, medidas del cuerpo (maniquí)', '≈ 2 GB'], ['oficina', 'OFICINA', 'LibreOffice, PDF, escáner', '≈ 1 GB']];
+  m.innerHTML = encab('PASO 07 // CAPACIDADES', 'Módulos', 'Instala solo lo que vas a usar. Lo demás se agrega después diciéndolo: "instala el módulo de robótica".') +
+    `<div class="grid">${MOD.map(([v, n, d, t]) => `<div class="op ${C.modulos.includes(v) ? 'sel' : ''}" data-v="${v}"><div class="k"><span>${t}</span></div><div class="n">${n}</div><div class="d">${d}</div><i class="chk"></i></div>`).join('')}</div>
+    <div class="px dim" style="font-size:9px;margin-top:22px">INSTALACIÓN</div>
+    <div class="grid" id="capa" style="margin-top:8px">${[['base', 'LIMPIA', 'Neo Orión neutro, sin datos de nadie. Para regalar o vender.'], ['personal', 'CON MI CAPA PERSONAL', 'Importa tu capa (bitácora, memoria, módulos privados) desde un archivo o desde tu otro equipo.']].map(([v, n, d]) =>
+      `<div class="op ${C.capa === v ? 'sel' : ''}" data-v="${v}"><div class="n">${n}</div><div class="d">${d}</div><i class="chk"></i></div>`).join('')}</div>`;
+  opciones(m.querySelector('.grid'), null, 'modulos', true); opciones($('#capa'), null, 'capa');
+}
+
+/* 08 */ function pCuenta(m) {
+  m.innerHTML = encab('PASO 08 // ACCESO', 'Tu cuenta', 'Entras con tu voz. La clave queda de respaldo y para los permisos de sistema.') +
+    `<div class="fila"><div style="flex:1;min-width:260px">
+      <div class="campo"><label>TU NOMBRE</label><input id="usr" value="${C.usuario}" placeholder="Ana" autocomplete="off"></div>
+      <div class="campo"><label>NOMBRE DEL EQUIPO</label><input id="eqn" value="${C.equipoNombre}"></div>
+      <div class="campo"><label>CLAVE</label><input id="cl1" type="password" autocomplete="new-password"><div class="pwb" id="pwb"></div></div>
+      <div class="campo"><label>REPETIR CLAVE</label><input id="cl2" type="password" autocomplete="new-password"><span class="dim" style="font-size:10px" id="clm"></span></div></div>
+     <div class="caja" style="flex:1;min-width:260px"><div class="px" style="font-size:12px">IDENTIFICACIÓN POR VOZ</div>
+      <p class="dim" style="font-size:11px;margin:6px 0">Elige tu frase, como «Oye Siri» pero tuya, y dila tres veces. Neo Orión revisa que sea la frase <b>y</b> que sea tu voz: con ella despiertas el equipo, lo desbloqueas y solo tú das órdenes de sistema. La cambias cuando quieras: «cambia mi frase».</p>
+      <div class="campo"><label>TU FRASE</label><input id="frs" value="${C.fraseVoz || C.nombre + ', soy yo'}" maxlength="60" autocomplete="off"></div>
+      <div class="fila" style="gap:10px;margin:4px 0 10px"><div class="campo" style="flex:1"><label>GRABARLA</label><select id="vcs"><option value="3">3 veces (más preciso)</option><option value="1">1 vez (rápido)</option></select></div>
+       <div class="campo" style="flex:1.4"><label>DESBLOQUEAR</label><select id="dsb"><option value="voz_o_clave">con mi frase o mi clave</option><option value="voz">solo con mi frase</option><option value="voz_y_clave">frase y clave (las dos)</option><option value="clave">solo con mi clave</option></select></div></div>
+      <div class="blk" id="blk">${'<i></i>'.repeat(12)}</div><button class="btn sec" id="grab">● GRABAR FRASE</button><div class="dim" style="font-size:10px;margin-top:8px" id="grm"></div></div></div>`;
+  const chk = () => { const a = $('#cl1').value, b = $('#cl2').value; $('#pwb').innerHTML = '<i></i>'.repeat(Math.min(24, a.length)); C.clave = a.length >= 6 && a === b; API.clave = C.clave ? a : '';
+    $('#clm').innerHTML = !a ? '' : a.length < 6 ? '<span class="red">mínimo 6 caracteres</span>' : a !== b ? '<span class="red">no coinciden</span>' : '<span class="lime">ok</span>'; validar(); };
+  C.fraseVoz = C.fraseVoz || C.nombre + ', soy yo';
+  C.veces = C.veces || 3; C.desbloqueo = C.desbloqueo || 'voz_o_clave';
+  $('#vcs').value = C.veces; $('#dsb').value = C.desbloqueo;
+  const reiniciarVoz = msg => { if (API.si && API.sinMic) return; C.frase = false; n = 0; document.querySelectorAll('#blk i').forEach(i => i.classList.remove('on')); $('#grab').textContent = '● GRABAR FRASE'; $('#grm').textContent = msg; validar(); };
+  const soloClave = () => { const sc = C.desbloqueo === 'clave'; $('#frs').closest('.campo').style.opacity = sc ? .35 : 1; $('#grab').hidden = sc || (API.si && API.sinMic);
+    if (sc) { C.frase = true; $('#grm').textContent = 'Se desbloquea solo con tu clave. Puedes grabar tu frase después: «cambia mi frase».'; } validar(); };
+  $('#vcs').onchange = e => { C.veces = +e.target.value; reiniciarVoz(`graba tu frase ${C.veces === 1 ? 'una vez' : '3 veces'}`); };
+  $('#dsb').onchange = e => { const antes = C.desbloqueo; C.desbloqueo = e.target.value; if (antes === 'clave' && C.desbloqueo !== 'clave') reiniciarVoz('graba tu frase'); soloClave(); };
+  $('#frs').oninput = e => { C.fraseVoz = e.target.value; if (C.frase && !API.sinMic) { C.frase = false; n = 0; document.querySelectorAll('#blk i').forEach(i => i.classList.remove('on')); $('#grab').textContent = '● GRABAR FRASE'; $('#grm').textContent = 'frase nueva: grábala otra vez'; } validar(); };
+  $('#usr').oninput = e => { C.usuario = e.target.value; validar(); }; $('#eqn').oninput = e => C.equipoNombre = e.target.value.replace(/[^a-z0-9-]/gi, '').toLowerCase();
+  $('#cl1').oninput = chk; $('#cl2').oninput = chk; C.clave = false;
+  if (C.frase) { document.querySelectorAll('#blk i').forEach(i => i.classList.add('on')); $('#grm').innerHTML = `<span class="lime">voz registrada · ${C.veces}/${C.veces}</span>`; }
+  let n = 0;
+  if (API.si && API.sinMic) { C.frase = true; $('#grab').hidden = true; $('#grm').innerHTML = 'Este equipo no tiene micrófono: entras con tu clave y el chat (tecla /). La voz se registra cuando conectes uno.'; validar(); }
+  soloClave();
+  $('#grab').onclick = () => {
+    if (API.si && !C.frase) { // grabación real de 3 s por frase
+      $('#grab').disabled = true; $('#grm').textContent = `di la frase ahora… (${n + 1}/${C.veces})`; const b = [...document.querySelectorAll('#blk i')];
+      let k = 0; const t = setInterval(() => { k++; b.forEach((x, i) => x.classList.toggle('on', i < n * (12 / C.veces) + Math.round(Math.min(4, k) / 4 * (12 / C.veces)))); if (k >= 4) clearInterval(t); }, 700);
+      api('/api/voz/grabar', { n: n + 1 }).then(r => { n++; $('#grab').disabled = false;
+        $('#grm').innerHTML = !r.ok ? '<span class="red">no se pudo grabar: ' + (r.error || '') + '</span>' : n < C.veces ? `listo ${n}/${C.veces} · otra vez` : `<span class="lime">voz registrada · ${C.veces}/${C.veces}</span>`;
+        if (n >= C.veces) { C.frase = true; $('#grab').textContent = '✓ LISTO'; validar(); } });
+      return;
+    }
+    if (C.frase) return; const b = [...document.querySelectorAll('#blk i')]; $('#grab').disabled = true; $('#grm').textContent = `escuchando… (${n + 1}/${C.veces})`;
+    let k = 0; const t = setInterval(() => { k++; b.forEach((x, i) => x.classList.toggle('on', i < n * (12 / C.veces) + Math.round(Math.min(4, k) / 4 * (12 / C.veces)))); if (k >= 4) { clearInterval(t); n++;
+      $('#grab').disabled = false; $('#grm').innerHTML = n < C.veces ? `listo ${n}/${C.veces} · otra vez` : `<span class="lime">voz registrada · ${C.veces}/${C.veces}</span>`; if (n >= C.veces) { C.frase = true; $('#grab').textContent = '✓ LISTO'; validar(); } } }, 260);
+  };
+}
+
+/* 09 */ const INST = { corriendo: false };
+function pInstalar(m) {
+  const eq = C.equipo || PERFILES[2];
+  const etapas = [['PARTICIONANDO', `/dev/${C.disco} · ${C.modo}`], ['COPIANDO SISTEMA', 'Ubuntu 24.04 + núcleo Neo Orión'], ['CONTROLADORES', eq.vram ? 'NVIDIA + CUDA' : 'Mesa / iGPU'],
+    ['MÓDULOS', C.modulos.join(' · ')], ['MOTOR DE IA', 'Ollama'], ...C.ia.map(x => ['DESCARGANDO IA', x]), ['OÍDO Y VOZ', `${C.oido} · ${C.voz}`],
+    ['MEMORIA', `bóveda Markdown · ${C.memoriaApp}`], ['IDENTIDAD', `${C.nombre} · ${C.color}`], ['CUENTA', `${C.usuario} @ ${C.equipoNombre}`], ['ARRANQUE', 'GRUB + arranque seguro']];
+  m.innerHTML = encab('PASO 09 // INSTALACIÓN', 'Instalando', 'Puedes dejarlo solo: al terminar te avisa con la voz.') +
+    `<div class="fila"><div style="flex:1;min-width:260px"><div class="big" id="pct">0%</div><div class="blk" id="pb" style="flex-wrap:wrap">${'<i></i>'.repeat(30)}</div>
+      <div class="px" style="font-size:12px;margin:8px 0" id="etapa">INICIANDO</div><div class="dim" style="font-size:11px" id="etd"></div></div>
+     <div style="flex:1;min-width:260px"><div class="log" id="log"></div></div></div><div id="fin"></div>`;
+  INST.corriendo = true; nav();
+  if (API.si) return instalarReal();
+  let i = 0; const total = etapas.length;
+  const paso = () => {
+    if (i >= total) return terminar();
+    const [e, d] = etapas[i]; MX.scramble($('#etapa'), e, 300); $('#etd').textContent = d;
+    $('#log').insertAdjacentHTML('beforeend', `<div class="mx-flick"><b>[ OK ]</b> ${e.toLowerCase()} · ${d}</div>`); $('#log').scrollTop = 1e6;
+    i++; const p = Math.round(i / total * 100); $('#pct').textContent = p + '%'; document.querySelectorAll('#pb i').forEach((x, k) => x.classList.toggle('on', k < p * .3));
+    setTimeout(paso, e === 'DESCARGANDO IA' ? 1100 : 520 + Math.random() * 380);
+  };
+  setTimeout(paso, 600);
+  function instalarReal() {
+    const cfg = configuracion(); cfg.clave = API.clave; cfg.disco.confirmado = C.modo !== 'borrar' || C.confirmado;
+    const visto = new Set(); let desde = 0;
+    api('/api/instalar', cfg).then(r => {
+      if (!r.ok) return fallo(r.error || 'no se pudo iniciar');
+      const t = setInterval(async () => {
+        let pr; try { pr = await api('/api/progreso?desde=' + desde); } catch (e) { return; }
+        desde = pr.total;
+        for (const ev of pr.eventos) {
+          if (ev.etapa && !visto.has(ev.etapa)) { visto.add(ev.etapa); MX.scramble($('#etapa'), ev.etapa, 300); }
+          if (ev.detalle) $('#etd').textContent = ev.detalle;
+          const p = ev.pct || 0; $('#pct').textContent = p + '%'; document.querySelectorAll('#pb i').forEach((x, k) => x.classList.toggle('on', k < p * .3));
+          if (ev.etapa && ev.etapa !== 'COPIANDO SISTEMA' || (ev.detalle || '').endsWith('0% copiado'))
+            $('#log').insertAdjacentHTML('beforeend', `<div class="mx-flick"><b>[ ${ev.error ? '!!' : 'OK'} ]</b> ${(ev.etapa || '').toLowerCase()} · ${ev.detalle || ev.log || ''}</div>`);
+          $('#log').scrollTop = 1e6;
+          if (ev.error) { clearInterval(t); return fallo(ev.detalle || ev.log); }
+          if (ev.terminado) { clearInterval(t); return terminar(); }
+        }
+        if (!pr.corriendo && pr.codigo !== null && pr.codigo !== 0) { clearInterval(t); fallo('el instalador terminó con error ' + pr.codigo); }
+      }, 700);
+    }).catch(e => fallo(String(e)));
+  }
+  function fallo(msg) {
+    INST.corriendo = false; nav(); MX.alerta('INSTALACIÓN DETENIDA', 1500);
+    $('#fin').innerHTML = `<div class="aviso" style="margin-top:20px"><b>NO SE PUDO INSTALAR</b>${String(msg).replace(/</g, '&lt;')}<br>El disco puede haber quedado a medias. Revisa y vuelve a intentar con ATRÁS.</div>`;
+  }
+  function configuracion() {
+    return { version: '0.9', idioma: C.idioma, teclado: C.teclado, zona: C.zona, equipo: eq.k, disco: { dispositivo: '/dev/' + C.disco, modo: C.modo },
+      ia: { locales: C.ia.filter(x => !CAT.nube.some(n => n.id === x)), nube: C.nube }, oido: C.oido, voz: C.voz, memoria: { app: C.memoriaApp }, identidad: { nombre: C.nombre, voz: C.genero, tono: C.tono, color: C.color },
+      modulos: C.modulos, capa: C.capa, cuenta: { usuario: C.usuario.trim().toLowerCase(), equipo: C.equipoNombre || 'neo-orion', frase: C.desbloqueo === 'clave' ? '' : (C.fraseVoz || '').trim(),
+        veces: C.veces || 3, desbloqueo: C.desbloqueo || 'voz_o_clave' } };
+  }
+  function terminar() {
+    INST.corriendo = false; nav(); MX.glitch($('#pct'));
+    const cfg = configuracion();
+    $('#fin').innerHTML = `<div class="caja mx-in mx-cruz" style="margin-top:20px;background:var(--lime);color:var(--ink);border-color:var(--lime)"><div id="okfin" style="margin:6px 0 10px"></div><div class="px" style="font-size:16px">INSTALACIÓN COMPLETA</div>
+      <p style="margin:6px 0 12px;color:var(--ink)">Al reiniciar no hay escritorio: pantalla vacía y ${C.nombre} escuchando. Di tu frase para entrar.</p>
+      <div class="fila"><button class="btn" id="rein">REINICIAR ▸</button><button class="btn sec" id="ver">VER CONFIGURACIÓN</button><a class="btn sec" href="index.html" style="text-decoration:none">ABRIR EL HUD</a></div>
+      <pre class="json" id="json" hidden>${JSON.stringify(cfg, null, 2)}</pre></div>`;
+    $('#okfin').append(MX.pixel('check', { px: 12, gap: 2, color: () => window.INK, ms: 500 }));
+    document.querySelectorAll('#fin .btn').forEach(b => { b.style.background = '#111'; b.style.color = 'var(--lime)'; b.style.borderColor = '#111'; });
+    $('#ver').onclick = () => $('#json').hidden = !$('#json').hidden;
+    $('#rein').onclick = () => API.si ? MX.corte(() => { api('/api/reiniciar', {}); document.body.innerHTML = '<div style="display:grid;place-items:center;height:100vh;font-family:Silkscreen,monospace;color:var(--lime)">REINICIANDO · SACA EL PENDRIVE</div>'; })
+      : MX.corte(() => { location.href = 'index.html'; });
+    if (API.si) $('#fin').querySelector('a').remove();
+    try { const u = new SpeechSynthesisUtterance(`Instalación completa. Soy ${C.nombre}. Reinicia cuando quieras.`); u.lang = C.idioma; speechSynthesis.speak(u); } catch (e) {}
+  }
+}
+
+/* ---------------- arranque ---------------- */
+(function intro() {
+  const code = ['[ OK ] firmware uefi · arranque seguro', '[ OK ] casper · imagen en vivo montada', '[ OK ] detectando hardware', '[ OK ] red: ethernet', '[ OK ] audio: pipewire',
+    '[ OK ] instalador orion · v0.8', '[ .. ] esperando a la persona'];
+  code.forEach((l, i) => setTimeout(() => $('#code').textContent += l + '\n', 150 + i * 160));
+  $('#chk').innerHTML = '<i></i>'.repeat(10);
+  let k = 0; const t = setInterval(() => { k++; document.querySelectorAll('#chk i').forEach((x, i) => x.classList.toggle('on', i < k)); if (k >= 10) { clearInterval(t); MX.scramble($('#imsg'), 'TOCA O PRESIONA UNA TECLA PARA EMPEZAR', 600); } }, 140);
+  const tam = innerWidth < 600 ? 7 : 12;
+  $('#logo').append(MX.pixel('NEO', { px: tam, color: '#ffffff', ms: 700 }), document.createElement('br'), MX.pixel('ORIÓN', { px: tam, ms: 1000 }));
+  $('#logo').querySelectorAll('canvas').forEach(c => { c.style.margin = (tam * .8) + 'px auto'; c.style.display = 'block'; });
+  let b = 0; const ib = setInterval(() => { b += 4 + Math.random() * 9; $('#ibar').style.width = Math.min(100, b) + '%'; if (b >= 100) clearInterval(ib); }, 90);
+  MX.columna($('#col'), 12);
+  setInterval(() => MX.glitch($('#logo')), 2600);
+  const clk = () => { const s = new Date().toTimeString().slice(0, 8); $('#iclk').textContent = s; $('#hclk').textContent = s; }; clk(); setInterval(clk, 1000);
+  const d = detectar(); $('#hram').textContent = d.ram; $('#hcpu').textContent = d.cpu; $('#hgpu').textContent = d.gpu.slice(0, 18);
+  LISTO_API.then(() => { if (!API.si) return; const q = API.eq; $('#hram').textContent = q.ram_gb + ' GB'; $('#hcpu').textContent = q.hilos; $('#hgpu').textContent = q.gpu.slice(0, 18);
+    $('#code').textContent = $('#code').textContent.replace('firmware uefi · arranque seguro', q.uefi ? 'firmware uefi · arranque seguro' : 'firmware bios (legado)'); $('#code').textContent += '[ OK ] equipo medido: ' + q.ram_gb + ' GB · ' + q.discos.length + ' disco(s)\n'; });
+  const go = async () => { if ($('#intro').hidden) return; removeEventListener('keydown', go); await LISTO_API;
+    MX.corte(() => { $('#intro').hidden = true; $('#app').hidden = false; PASOS[0].r($('#main')); nav(); animarEntrada(); }); };
+  $('#intro').onclick = go; addEventListener('keydown', go);
+  MX.glitchAzar('#main h1, header .brand', 5200);
+})();
+</script>
+</body>
+</html>

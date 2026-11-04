@@ -1,0 +1,432 @@
+{
+ "_nota": "Catálogo de respaldo (revisado 3-nov-2026). Fuente principal en vivo: llmfit y el catálogo de Ollama (orion-fit --actualizar). need_gb ≈ memoria con Q4 + 4k de contexto. 'solo_servidor' = abiertos pero demasiado grandes para un PC: se usan por API o en un servidor.",
+ "llm": [
+  {
+   "tag": "gemma3:270m",
+   "params_b": 0.27,
+   "need_gb": 0.5,
+   "disk_gb": 0.5,
+   "rol": "órdenes simples en un PC muy lento",
+   "filtro": "con",
+   "calidad": 1
+  },
+  {
+   "tag": "smollm2:360m",
+   "params_b": 0.36,
+   "need_gb": 0.6,
+   "disk_gb": 0.5,
+   "rol": "Raspberry Pi 4, respuestas muy cortas",
+   "filtro": "con",
+   "calidad": 1
+  },
+  {
+   "tag": "qwen3:0.6b",
+   "params_b": 0.6,
+   "need_gb": 0.8,
+   "disk_gb": 0.7,
+   "rol": "mínimo que sigue órdenes con herramientas",
+   "filtro": "con",
+   "calidad": 1
+  },
+  {
+   "tag": "gemma3:1b",
+   "params_b": 1,
+   "need_gb": 1.0,
+   "disk_gb": 0.9,
+   "rol": "PC patata con buen español",
+   "filtro": "con",
+   "calidad": 2
+  },
+  {
+   "tag": "llama3.2:1b",
+   "params_b": 1.2,
+   "need_gb": 1.3,
+   "disk_gb": 1.2,
+   "rol": "PC patata, 128K de contexto",
+   "filtro": "con",
+   "calidad": 2
+  },
+  {
+   "tag": "qwen3:1.7b",
+   "params_b": 1.7,
+   "need_gb": 1.6,
+   "disk_gb": 1.4,
+   "rol": "nodo de robot / Raspberry Pi 5",
+   "filtro": "con",
+   "calidad": 2
+  },
+  {
+   "tag": "dolphin-phi",
+   "params_b": 2.7,
+   "need_gb": 2.0,
+   "disk_gb": 1.8,
+   "rol": "el sin filtro más liviano",
+   "filtro": "sin",
+   "calidad": 2
+  },
+  {
+   "tag": "llama3.2:3b",
+   "params_b": 3.2,
+   "need_gb": 2.5,
+   "disk_gb": 2.2,
+   "rol": "general liviano",
+   "filtro": "con",
+   "calidad": 3
+  },
+  {
+   "tag": "phi4-mini",
+   "params_b": 3.8,
+   "need_gb": 2.5,
+   "disk_gb": 2.2,
+   "rol": "razonamiento y código con poca RAM",
+   "filtro": "con",
+   "calidad": 3
+  },
+  {
+   "tag": "gemma3:4b",
+   "params_b": 4,
+   "need_gb": 3.6,
+   "disk_gb": 3.2,
+   "rol": "liviano con visión (lee fotos)",
+   "filtro": "con",
+   "calidad": 3
+  },
+  {
+   "tag": "gemma4:e2b-it-qat",
+   "params_b": 5.1,
+   "need_gb": 4.5,
+   "disk_gb": 4.5,
+   "rol": "visión y audio, liviano (versión QAT de 4,3 GB)",
+   "filtro": "con",
+   "calidad": 3
+  },
+  {
+   "tag": "deepseek-r1:7b",
+   "params_b": 7,
+   "need_gb": 5,
+   "disk_gb": 4.5,
+   "rol": "razonamiento paso a paso (piensa antes de responder)",
+   "filtro": "con",
+   "calidad": 3
+  },
+  {
+   "tag": "dolphin-mistral",
+   "params_b": 7,
+   "need_gb": 4.5,
+   "disk_gb": 4.0,
+   "rol": "sin filtro rápido en CPU",
+   "filtro": "sin",
+   "calidad": 3
+  },
+  {
+   "tag": "dolphin3:8b",
+   "params_b": 8,
+   "need_gb": 5.0,
+   "disk_gb": 4.5,
+   "rol": "asistente general sin sermones, herramientas",
+   "filtro": "sin",
+   "calidad": 3
+  },
+  {
+   "tag": "gemma4:e4b-it-qat",
+   "params_b": 8,
+   "need_gb": 6.5,
+   "disk_gb": 6.5,
+   "rol": "visión, audio y herramientas (QAT 6,1 GB)",
+   "filtro": "con",
+   "calidad": 4
+  },
+  {
+   "tag": "hermes3:8b",
+   "params_b": 8,
+   "need_gb": 5.0,
+   "disk_gb": 4.5,
+   "rol": "escritura, rol, herramientas; obedece al prompt de sistema",
+   "filtro": "neutral",
+   "calidad": 3
+  },
+  {
+   "tag": "huihui_ai/dolphin3-abliterated:8b",
+   "params_b": 8,
+   "need_gb": 5.0,
+   "disk_gb": 4.5,
+   "rol": "sin filtro de doble capa",
+   "filtro": "sin",
+   "calidad": 3
+  },
+  {
+   "tag": "qwen3:8b",
+   "params_b": 8,
+   "need_gb": 6,
+   "disk_gb": 5.4,
+   "rol": "general, muy buen español",
+   "filtro": "con",
+   "calidad": 4
+  },
+  {
+   "tag": "gemma3:12b",
+   "params_b": 12,
+   "need_gb": 9,
+   "disk_gb": 8.1,
+   "rol": "general + visión",
+   "filtro": "con",
+   "calidad": 4
+  },
+  {
+   "tag": "gemma4:12b",
+   "params_b": 12,
+   "need_gb": 8,
+   "disk_gb": 8,
+   "rol": "12B Unified: texto, imagen y audio, 256K",
+   "filtro": "con",
+   "calidad": 4
+  },
+  {
+   "tag": "deepseek-r1:14b",
+   "params_b": 14,
+   "need_gb": 9.5,
+   "disk_gb": 8.6,
+   "rol": "razonamiento más profundo",
+   "filtro": "con",
+   "calidad": 4
+  },
+  {
+   "tag": "huihui_ai/qwen3-abliterated:14b",
+   "params_b": 14,
+   "need_gb": 9,
+   "disk_gb": 8.1,
+   "rol": "el sin filtro más fuerte para 12–16 GB",
+   "filtro": "sin",
+   "calidad": 4
+  },
+  {
+   "tag": "phi4",
+   "params_b": 14,
+   "need_gb": 9,
+   "disk_gb": 8.1,
+   "rol": "ciencia y matemáticas",
+   "filtro": "con",
+   "calidad": 4
+  },
+  {
+   "tag": "qwen3:14b",
+   "params_b": 14,
+   "need_gb": 10.5,
+   "disk_gb": 9.5,
+   "rol": "razonamiento + herramientas",
+   "filtro": "con",
+   "calidad": 4
+  },
+  {
+   "tag": "gpt-oss:20b",
+   "params_b": 21,
+   "need_gb": 14,
+   "disk_gb": 12.6,
+   "rol": "agente con herramientas (abierto de OpenAI)",
+   "filtro": "con",
+   "calidad": 4,
+   "moe": true
+  },
+  {
+   "tag": "devstral:24b",
+   "params_b": 24,
+   "need_gb": 16,
+   "disk_gb": 14.4,
+   "rol": "programación agéntica",
+   "filtro": "con",
+   "calidad": 4
+  },
+  {
+   "tag": "gemma4:26b",
+   "params_b": 26,
+   "need_gb": 18,
+   "disk_gb": 18,
+   "rol": "MoE (4B activos): rápido y fuerte en GPU de 24 GB",
+   "filtro": "con",
+   "calidad": 5,
+   "moe": true
+  },
+  {
+   "tag": "qwen3.6:27b",
+   "params_b": 27,
+   "need_gb": 17,
+   "disk_gb": 16.2,
+   "rol": "mejor todo-terreno para GPU de 24 GB",
+   "filtro": "con",
+   "calidad": 5
+  },
+  {
+   "tag": "qwen3.8:27b",
+   "params_b": 27,
+   "need_gb": 18,
+   "disk_gb": 17.1,
+   "rol": "Qwen 3.8: texto + imagen, 256K",
+   "filtro": "con",
+   "calidad": 5
+  },
+  {
+   "tag": "glm-4.7-flash",
+   "params_b": 30,
+   "need_gb": 19,
+   "disk_gb": 6.3,
+   "rol": "agentes y código: MoE 30B con 3B activos",
+   "filtro": "con",
+   "calidad": 4,
+   "moe": true
+  },
+  {
+   "tag": "qwen3:30b-a3b",
+   "params_b": 30,
+   "need_gb": 19,
+   "disk_gb": 17.1,
+   "rol": "MoE: rápido incluso en CPU",
+   "filtro": "con",
+   "calidad": 4,
+   "moe": true
+  },
+  {
+   "tag": "gemma4:31b",
+   "params_b": 31,
+   "need_gb": 20,
+   "disk_gb": 18.0,
+   "rol": "Gemma 4 grande",
+   "filtro": "con",
+   "calidad": 5
+  },
+  {
+   "tag": "dolphin-mixtral:8x7b",
+   "params_b": 47,
+   "need_gb": 26,
+   "disk_gb": 23.4,
+   "rol": "sin filtro, mezcla de expertos",
+   "filtro": "sin",
+   "calidad": 3,
+   "moe": true
+  },
+  {
+   "tag": "huihui_ai/llama3.3-abliterated:70b",
+   "params_b": 70,
+   "need_gb": 40,
+   "disk_gb": 36.0,
+   "rol": "techo sin filtro para 48 GB",
+   "filtro": "sin",
+   "calidad": 4
+  },
+  {
+   "tag": "llama4:scout",
+   "params_b": 109,
+   "need_gb": 58,
+   "disk_gb": 52.2,
+   "rol": "contexto gigante (MoE, 17B activos)",
+   "filtro": "con",
+   "calidad": 4,
+   "moe": true
+  },
+  {
+   "tag": "gpt-oss:120b",
+   "params_b": 117,
+   "need_gb": 66,
+   "disk_gb": 59.4,
+   "rol": "agente grande",
+   "filtro": "con",
+   "calidad": 5,
+   "moe": true
+  }
+ ],
+ "stt": [
+  {
+   "modelo": "whisper tiny",
+   "need_gb": 0.3,
+   "rol": "Raspberry Pi"
+  },
+  {
+   "modelo": "whisper base",
+   "need_gb": 0.5,
+   "rol": "PC sin GPU, 8 GB"
+  },
+  {
+   "modelo": "whisper small",
+   "need_gb": 1.0,
+   "rol": "PC 16 GB"
+  },
+  {
+   "modelo": "whisper large-v3-turbo",
+   "need_gb": 3.0,
+   "rol": "GPU 6 GB+"
+  }
+ ],
+ "solo_servidor": [
+  {
+   "nombre": "Muse Spark Open",
+   "de": "Meta",
+   "origen": "EE.UU.",
+   "nota": "816B/42B activos, 1M de contexto (15-oct-2026)"
+  },
+  {
+   "nombre": "GLM-5.3",
+   "de": "Z.ai",
+   "origen": "China",
+   "nota": "1M de contexto"
+  },
+  {
+   "nombre": "Kimi K3",
+   "de": "Moonshot AI",
+   "origen": "China",
+   "nota": ""
+  },
+  {
+   "nombre": "DeepSeek V4.1 (Flash)",
+   "de": "DeepSeek",
+   "origen": "China",
+   "nota": ""
+  },
+  {
+   "nombre": "MiMo-V2.6-Pro / Flash",
+   "de": "Xiaomi",
+   "origen": "China",
+   "nota": "MIT"
+  },
+  {
+   "nombre": "Mistral Large 4",
+   "de": "Mistral",
+   "origen": "Francia",
+   "nota": "~1T/52B activos; pesos anunciados para fines de oct-2026"
+  },
+  {
+   "nombre": "Reflection Beam 1.0",
+   "de": "Reflection",
+   "origen": "EE.UU.",
+   "nota": "501B/23B activos, Apache-2.0"
+  },
+  {
+   "nombre": "Nemotron 3.5",
+   "de": "NVIDIA",
+   "origen": "EE.UU.",
+   "nota": "Bolt 74B/9B activos"
+  },
+  {
+   "nombre": "Kolibri-1",
+   "de": "Aleph Alpha",
+   "origen": "Alemania",
+   "nota": "78B/3.5B activos"
+  },
+  {
+   "nombre": "LFM2.5-24B-A2B",
+   "de": "Liquid AI",
+   "origen": "EE.UU.",
+   "nota": "~13 GB, licencia con tope de ingresos"
+  },
+  {
+   "nombre": "MiniMax M3",
+   "de": "MiniMax",
+   "origen": "China",
+   "nota": ""
+  },
+  {
+   "nombre": "Huihui GLM-5.1 abliterado",
+   "de": "huihui-ai",
+   "origen": "comunidad",
+   "nota": "el abliterado abierto más grande; 256 GB+"
+  }
+ ]
+}

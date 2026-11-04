@@ -1,0 +1,10 @@
+# Edición PATATA (WITH_KIOSK): sin escritorio. El HUD y el instalador corren a pantalla completa en un
+# compositor Wayland mínimo (cage) con orion-pantalla: WebKit sin barras (GTK 3 + WebKit2GTK 4.1).
+# (cog no está en Ubuntu 24.04; WebKitGTK es el mismo motor y viene en los repositorios oficiales.)
+cage
+python3-gi gir1.2-gtk-3.0 gir1.2-webkit2-4.1
+gstreamer1.0-plugins-good gstreamer1.0-pipewire   # micrófono y audio dentro de la interfaz
+zram-tools          # comprime la RAM: en 2 GB rinde como ~3
+espeak-ng           # voz mínima; Piper se agrega si hay ≥ 4 GB
+alsa-utils pipewire-audio wireplumber
+network-manager

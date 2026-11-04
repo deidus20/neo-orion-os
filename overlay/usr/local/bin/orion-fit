@@ -1,0 +1,239 @@
+#!/usr/bin/env python3
+"""
+orion-fit — escanea el hardware y dice cuál es la IA local más grande que
+este equipo puede correr bien (LLM + reconocimiento de voz).
+
+Fuente principal: llmfit (https://github.com/AlexsJones/llmfit), si está
+instalado, porque mantiene un catálogo de modelos al día.
+Respaldo: catálogo propio en /usr/share/orion/models-fallback.json.
+
+Uso:
+  orion-fit              # informe estilo HUD
+  orion-fit --json       # para que la IA / el HUD lo consuman
+  orion-fit --ram 16     # simular otro equipo (GB)
+  orion-fit --install    # descarga con Ollama el modelo recomendado
+"""
+import argparse, json, os, platform, re, shutil, subprocess, sys
+
+CATALOG_PATHS = [
+    "/usr/share/orion/models-fallback.json",
+    os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                 "../../share/orion/models-fallback.json"),
+]
+OS_RESERVE_GB = 2.0      # sistema + HUD
+VOICE_RESERVE_GB = 1.0   # micrófono siempre activo (VAD + Whisper) + TTS
+SAFETY = 0.90            # no llenar la memoria al 100 %
+CPU_FAST_CAP_GB = 6.5    # en CPU, sobre esto ya no es conversación fluida
+
+
+def sh(cmd):
+    try:
+        return subprocess.run(cmd, capture_output=True, text=True, timeout=10).stdout
+    except Exception:
+        return ""
+
+
+def detect(ram_override=None, vram_override=None):
+    hw = {"arch": platform.machine(), "cpu_cores": os.cpu_count() or 1}
+    # RAM
+    ram_gb = None
+    try:
+        with open("/proc/meminfo") as f:
+            m = re.search(r"MemTotal:\s+(\d+)", f.read())
+            ram_gb = int(m.group(1)) / 1024 / 1024
+    except OSError:
+        pass
+    hw["ram_gb"] = round(ram_override or ram_gb or 0, 1)
+    # Placa (Raspberry Pi, Jetson…)
+    model = ""
+    for p in ("/proc/device-tree/model", "/sys/firmware/devicetree/base/model"):
+        if os.path.exists(p):
+            model = open(p, "rb").read().decode(errors="ignore").strip("\x00 \n")
+            break
+    hw["board"] = model or platform.node()
+    # CPU
+    cpu = ""
+    try:
+        cpu = re.search(r"model name\s*:\s*(.+)", open("/proc/cpuinfo").read()).group(1)
+    except Exception:
+        pass
+    hw["cpu"] = cpu or platform.processor() or hw["arch"]
+    try:
+        flags = re.search(r"^flags\s*:(.*)$", open("/proc/cpuinfo").read(), re.M).group(1).split()
+    except Exception:
+        flags = []
+    hw["avx2"] = "avx2" in flags
+    # GPU
+    gpus = []
+    out = sh(["nvidia-smi", "--query-gpu=name,memory.total", "--format=csv,noheader,nounits"])
+    for line in out.strip().splitlines():
+        name, mem = [x.strip() for x in line.split(",")]
+        gpus.append({"vendor": "nvidia", "name": name, "vram_gb": round(int(mem) / 1024, 1)})
+    if not gpus:  # AMD vía sysfs
+        for card in sorted(os.listdir("/sys/class/drm")) if os.path.isdir("/sys/class/drm") else []:
+            f = f"/sys/class/drm/{card}/device/mem_info_vram_total"
+            if re.fullmatch(r"card\d+", card) and os.path.exists(f):
+                gpus.append({"vendor": "amd", "name": card,
+                             "vram_gb": round(int(open(f).read()) / 1024**3, 1)})
+    if vram_override is not None:
+        gpus = [{"vendor": "sim", "name": "simulada", "vram_gb": vram_override}] if vram_override else []
+    hw["gpus"] = gpus
+    hw["vram_gb"] = max([g["vram_gb"] for g in gpus], default=0)
+    # Disco libre donde Ollama guarda los modelos
+    target = os.path.expanduser("~/.ollama")
+    while not os.path.exists(target):
+        target = os.path.dirname(target)
+    hw["disk_free_gb"] = round(shutil.disk_usage(target).free / 1024**3, 1)
+    return hw
+
+
+def budget(hw):
+    """Memoria realmente usable por el LLM."""
+    if hw["vram_gb"] >= 4:
+        # Modelo en VRAM; si no cabe, Ollama reparte con RAM (más lento).
+        fast = hw["vram_gb"] * SAFETY
+        slow = fast + max(0, hw["ram_gb"] - OS_RESERVE_GB - VOICE_RESERVE_GB) * 0.6
+        return round(fast, 1), round(slow, 1), "GPU"
+    # PC patata: sin escritorio el sistema ocupa ~0,8 GB y la voz va con Vosk (~0,1 GB)
+    reserva = OS_RESERVE_GB + VOICE_RESERVE_GB if hw["ram_gb"] > 4.5 else 0.9
+    usable = max(0, hw["ram_gb"] - reserva) * SAFETY
+    # En CPU la velocidad la limita el ancho de banda de memoria: sobre ~8B densos
+    # baja de ~5 tokens/s, demasiado lento para conversar por voz.
+    return round(min(usable, CPU_FAST_CAP_GB), 1), round(usable, 1), "CPU"
+
+
+def load_catalog():
+    for p in CATALOG_PATHS:
+        if os.path.exists(p):
+            return json.load(open(p))
+    sys.exit("No encuentro models-fallback.json")
+
+
+def try_llmfit(hw_args):
+    if not shutil.which("llmfit"):
+        return None
+    out = sh(["llmfit", *hw_args, "recommend", "--json", "--limit", "5"])
+    try:
+        return json.loads(out)
+    except json.JSONDecodeError:
+        return None
+
+
+def recommend(hw, cat, sin_filtro=False):
+    fast, slow, mode = budget(hw)
+    quiere = (lambda m: m.get("filtro") == "sin") if sin_filtro else (lambda m: m.get("filtro") != "sin")
+    disk_ok = [m for m in cat["llm"] if m["disk_gb"] <= hw["disk_free_gb"] and not m.get("verificar") and quiere(m)]
+    is_moe = lambda m: m.get("moe") or re.search(r"-a\d+b", m["tag"]) is not None
+    # Los MoE (pocos parámetros activos) son rápidos en CPU aunque ocupen mucha RAM
+    fits = [m for m in disk_ok if m["need_gb"] <= fast or (mode == "CPU" and is_moe(m) and m["need_gb"] <= slow)]
+    fits.sort(key=lambda m: (m["params_b"], m.get("calidad", 3)))
+    stretch = [m for m in disk_ok if m not in fits and m["need_gb"] <= slow]
+    voice_budget = hw["vram_gb"] if mode == "GPU" else hw["ram_gb"] / 8
+    stt = [s for s in cat["stt"] if s["need_gb"] <= max(voice_budget, 0.3)]
+    if hw["arch"] in ("aarch64", "armv7l") and hw["ram_gb"] <= 8:
+        stt = cat["stt"][:1]
+    return {
+        "mode": mode, "budget_fast_gb": fast, "budget_max_gb": slow,
+        "best": fits[-1] if fits else None,
+        "stretch": stretch[-1] if stretch else None,
+        "all_fit": fits,
+        "stt": stt[-1] if stt else cat["stt"][0],
+        "patata": hw["arch"] == "x86_64" and (hw["ram_gb"] <= 4.5 or not hw.get("avx2", True)),
+        "role": "nodo-robot" if hw["arch"].startswith(("aarch64", "arm")) and hw["ram_gb"] <= 8 else "central",
+    }
+
+
+def bar(value, total, width=28):
+    filled = 0 if total <= 0 else min(width, int(width * value / total))
+    return "█" * filled + "░" * (width - filled)
+
+
+def report(hw, rec, llmfit_data):
+    G, D, R, O = "\033[38;2;205;245;100m", "\033[2m", "\033[38;2;255;80;60m", "\033[0m"
+    print(f"{G}╔══ O.R.I.O.N  ·  ESCANEO DE HARDWARE ══════════════════════╗{O}")
+    print(f"  CPU    {hw['cpu'][:44]}  ({hw['cpu_cores']} núcleos)")
+    print(f"  PLACA  {hw['board'][:52]}")
+    print(f"  RAM    {G}{bar(hw['ram_gb'], 128)}{O} {hw['ram_gb']} GB")
+    for g in hw["gpus"]:
+        print(f"  GPU    {G}{bar(g['vram_gb'], 48)}{O} {g['vram_gb']} GB  {D}{g['name']}{O}")
+    if not hw["gpus"]:
+        print(f"  GPU    {D}sin GPU dedicada → inferencia en CPU{O}")
+    print(f"  DISCO  {hw['disk_free_gb']} GB libres")
+    print(f"  ROL    {rec['role'].upper()}   ·   MODO {rec['mode']}   ·   presupuesto {rec['budget_fast_gb']} GB")
+    print(f"{G}╠══ RESULTADO ═══════════════════════════════════════════════╣{O}")
+    b = rec["best"]
+    if b:
+        print(f"  TOPE RÁPIDO   {G}{b['tag']}{O}  ({b['params_b']}B · {b['need_gb']} GB) — {b['rol']}")
+    else:
+        print(f"  {R}Ningún LLM local cabe con holgura. Usa la nube (Claude) como cerebro.{O}")
+    if rec.get("patata"):
+        print(f"  {R}PC PATATA{O}  {D}poca RAM o CPU sin AVX2: modo liviano (HUD sin 3D, voz Vosk + espeak,{O}")
+        print(f"  {D}IA local mínima para órdenes; lo pesado va a la nube si hay internet){O}")
+    if rec["stretch"]:
+        s = rec["stretch"]
+        why = "repartido GPU+RAM" if rec["mode"] == "GPU" else "en CPU"
+        print(f"  TOPE ABSOLUTO {s['tag']}  {D}(corre, pero {why}: lento para conversar){O}")
+    print(f"  OÍDO (STT)    {rec['stt']['modelo']}")
+    if llmfit_data:
+        print(f"  {D}llmfit detectado: catálogo actualizado disponible (orion-fit --json){O}")
+    else:
+        print(f"  {D}Consejo: instala llmfit para un catálogo de modelos al día.{O}")
+    print(f"{G}╚═══════════════════════════════════════════════════════════╝{O}")
+
+
+def actualizar(cat):
+    """Lee la lista pública de modelos de ollama.com y avisa de familias nuevas."""
+    import urllib.request
+    cache = os.path.expanduser("~/.orion/catalogo-vivo.json")
+    try:
+        html = urllib.request.urlopen("https://ollama.com/library?sort=newest", timeout=20).read().decode("utf-8", "ignore")
+    except Exception as e:
+        print(f"Sin conexión al catálogo ({e}). Sigo con el catálogo guardado."); return 1
+    vivos = sorted(set(re.findall(r'href="/library/([a-z0-9._-]+)"', html)))
+    conocidos = {m["tag"].split(":")[0] for m in cat["llm"]}
+    antes = set()
+    if os.path.exists(cache):
+        antes = set(json.load(open(cache)).get("familias", []))
+    nuevos = [v for v in vivos if v not in conocidos and v not in antes]
+    os.makedirs(os.path.dirname(cache), exist_ok=True)
+    json.dump({"familias": vivos}, open(cache, "w"))
+    print(f"Catálogo en vivo: {len(vivos)} familias.")
+    if nuevos:
+        print("NUEVAS desde la última revisión: " + ", ".join(nuevos[:40]))
+        print("Neo Orión las anuncia y calcula si caben con llmfit antes de ofrecerlas.")
+    return 0
+
+
+def main():
+    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("--json", action="store_true")
+    ap.add_argument("--ram", type=float, help="simular RAM (GB)")
+    ap.add_argument("--vram", type=float, help="simular VRAM (GB, 0 = sin GPU)")
+    ap.add_argument("--install", action="store_true", help="descargar el modelo recomendado con Ollama")
+    ap.add_argument("--sin-filtro", action="store_true", help="recomendar entre los modelos sin filtro (Dolphin, abliterados)")
+    ap.add_argument("--actualizar", action="store_true", help="revisar el catálogo en vivo de Ollama y avisar de modelos nuevos")
+    a = ap.parse_args()
+
+    if a.actualizar:
+        sys.exit(actualizar(load_catalog()))
+    hw = detect(a.ram, a.vram)
+    rec = recommend(hw, load_catalog(), a.sin_filtro)
+    llm_args = [f"--memory={int(hw['ram_gb'])}G"] if a.ram else []
+    llmfit_data = try_llmfit(llm_args)
+
+    if a.json:
+        print(json.dumps({"hardware": hw, "recommendation": rec, "llmfit": llmfit_data},
+                         ensure_ascii=False, indent=2))
+    else:
+        report(hw, rec, llmfit_data)
+
+    if a.install:
+        if not rec["best"]:
+            sys.exit("No hay modelo local recomendado para este equipo.")
+        if not shutil.which("ollama"):
+            sys.exit("Ollama no está instalado: orion install ollama")
+        sys.exit(subprocess.call(["ollama", "pull", rec["best"]["tag"]]))
+
+
+if __name__ == "__main__":
+    main()

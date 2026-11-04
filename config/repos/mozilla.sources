@@ -1,0 +1,7 @@
+# Repositorio oficial de Mozilla (Firefox en .deb, no snap). Llave: https://packages.mozilla.org/apt/repo-signing-key.gpg
+# → /etc/apt/keyrings/packages.mozilla.org.asc ; además se prioriza sobre el paquete de transición de Ubuntu (pin 1000).
+Types: deb
+URIs: https://packages.mozilla.org/apt
+Suites: mozilla
+Components: main
+Signed-By: /etc/apt/keyrings/packages.mozilla.org.asc

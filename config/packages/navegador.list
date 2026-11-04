@@ -1,0 +1,10 @@
+# Navegadores normales (con pestañas, barra y extensiones), los dos manejables por Neo Orión:
+#  - Google Chrome (repo oficial, config/repos/google-chrome.sources) → control por CDP (Playwright).
+#    Permite además la extensión oficial "Claude in Chrome".
+#  - Firefox (repo oficial de Mozilla, config/repos/mozilla.sources) → control por Marionette
+#    (geckodriver --connect-existing + Selenium). geckodriver se baja de github.com/mozilla/geckodriver.
+# En ARM (Raspberry) o sin Chrome: flatpak org.chromium.Chromium / org.mozilla.firefox.
+google-chrome-stable
+firefox
+python3-selenium
+wl-clipboard xclip      # copiar el encargo al portapapeles (orion_puente, modo web)

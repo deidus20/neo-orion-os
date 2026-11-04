@@ -1,0 +1,10 @@
+# ROS 2 Jazzy (repo oficial packages.ros.org)
+ros-dev-tools ros-jazzy-desktop
+ros-jazzy-rmw-cyclonedds-cpp
+# Simulación: Gazebo Harmonic integrado con ROS
+ros-jazzy-ros-gz
+# Manipulación, navegación y control
+ros-jazzy-moveit ros-jazzy-navigation2 ros-jazzy-nav2-bringup ros-jazzy-slam-toolbox
+ros-jazzy-ros2-control ros-jazzy-ros2-controllers
+ros-jazzy-xacro ros-jazzy-joint-state-publisher-gui ros-jazzy-teleop-twist-keyboard
+ros-jazzy-foxglove-bridge

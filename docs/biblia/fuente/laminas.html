@@ -1,0 +1,63 @@
+<!doctype html><html><head><meta charset="utf-8">
+<link rel="stylesheet" href="fuentes.css">
+<style>
+:root{--bg:#0d0e10;--panel:#141518;--line:#2a2c30;--lime:#ff2438;--ink:#111;--grey:#8b8e94;--txt:#e6e8ea;--px:'Silkscreen',monospace;--mono:'JetBrains Mono',monospace}
+body{margin:0;background:var(--bg);color:var(--txt);font-family:var(--mono)}
+.lam{width:1400px;padding:40px;box-sizing:border-box;background:var(--bg);background-image:radial-gradient(#202226 1px,transparent 1.2px);background-size:22px 22px;margin-bottom:20px}
+.t{font-family:var(--px);font-size:12px;color:var(--grey);letter-spacing:.06em;margin-bottom:18px}
+.px{font-family:var(--px)}
+.g{display:grid;gap:18px}
+.sw{height:120px;display:flex;flex-direction:column;justify-content:flex-end;padding:10px;font-family:var(--px);font-size:11px}
+.box{border:1px solid var(--line);background:var(--panel);padding:16px}
+.btn{font-family:var(--px);font-size:13px;padding:12px 22px;border:1px solid var(--lime);background:var(--lime);color:var(--ink);display:inline-block}
+.btn.sec{background:transparent;color:var(--grey);border-color:#3a3d42}.btn.pel{background:transparent;color:#ffd400;border-color:#ffd400}
+.op{border:1px solid #2c2f33;background:#0f1012;padding:13px;width:260px}.op .k{font-family:var(--px);font-size:9px;color:var(--grey);display:flex;justify-content:space-between}
+.op .n{font-family:var(--px);font-size:15px;color:#fff;margin:6px 0 4px}.op .d{font-size:12px;color:var(--grey)}
+.op.sel{background:var(--lime)}.op.sel .k,.op.sel .n,.op.sel .d{color:var(--ink)}
+.seg{display:flex;gap:3px}.seg i{flex:1;height:12px;background:#222}.seg i.on{background:var(--lime)}
+.blk{display:flex;gap:6px}.blk i{width:18px;height:18px;background:#222}.blk i.on{background:var(--lime)}
+.tag{font-family:var(--px);font-size:11px;border:1px solid var(--lime);color:var(--lime);padding:3px 8px;display:inline-block}
+canvas.mx-px{image-rendering:pixelated}
+</style></head><body>
+<div class="lam" id="logo"><div class="t">LOGO · NEO ORIÓN DIBUJADO CON BLOQUES</div><div style="display:flex;gap:60px;align-items:center">
+ <div id="l1"></div><div id="l2" style="background:var(--lime);padding:30px"></div><div id="l3"></div></div></div>
+<div class="lam" id="paleta"><div class="t">PALETA · ACENTO (LO ELIGE LA PERSONA) + NEUTROS + PELIGRO</div>
+ <div class="g" style="grid-template-columns:repeat(8,1fr)" id="acc"></div>
+ <div class="g" style="grid-template-columns:repeat(8,1fr);margin-top:18px" id="neu"></div></div>
+<div class="lam" id="tipo"><div class="t">TIPOGRAFÍA</div>
+ <div class="px" style="font-size:64px;line-height:1;color:#fff">SILKSCREEN</div><div class="px" style="font-size:16px;color:var(--grey);margin:8px 0 22px">ABCDEFGHIJKLMNÑOPQRSTUVWXYZ · 0123456789 · ÁÉÍÓÚ · // + ▸ ◂</div>
+ <div style="font-size:40px;font-weight:600;color:#fff">JetBrains Mono</div><div style="font-size:16px;color:var(--grey);margin:8px 0 22px">Neo Orión mide el equipo para saber qué IA cabe. abcdefghijklmnñopqrstuvwxyz 0123456789</div>
+ <div class="t" style="margin-top:10px">FUENTE DE BLOQUES 5×5 (PROPIA) · CON FILA PARA TILDES Y Ñ</div><div id="f1"></div><div id="f2" style="margin-top:14px"></div></div>
+<div class="lam" id="escala"><div class="t">ESCALA TIPOGRÁFICA</div><div id="esc"></div></div>
+<div class="lam" id="iconos"><div class="t">ICONOS DE BLOQUES</div><div class="g" style="grid-template-columns:repeat(10,1fr)" id="ic"></div></div>
+<div class="lam" id="comp"><div class="t">COMPONENTES</div>
+ <div style="display:flex;gap:16px;align-items:center;margin-bottom:26px"><span class="btn">SIGUIENTE ▸</span><span class="btn sec">◂ ATRÁS</span><span class="btn pel">MANTÉN PARA BORRAR</span><span class="tag">LIDAR</span><span class="tag" style="background:var(--lime);color:var(--ink)">ORION</span></div>
+ <div style="display:flex;gap:16px;margin-bottom:26px">
+  <div class="op"><div class="k"><span>0.6B · 0.8 GB</span><span style="color:var(--lime)">RÁPIDO EN CPU</span></div><div class="n">qwen3:0.6b</div><div class="d">mínimo absoluto</div></div>
+  <div class="op sel"><div class="k"><span>8B · 6 GB</span><span>RECOMENDADA</span></div><div class="n">qwen3:8b</div><div class="d">general, muy buen español</div></div>
+  <div class="op" style="opacity:.4"><div class="k"><span>31B · 20 GB</span><span style="color:#ffd400">NO CABE</span></div><div class="n">gemma4:31b</div><div class="d">Gemma 4 grande</div></div></div>
+ <div class="seg" style="width:600px;margin-bottom:14px">${'<i class="on"></i>'.repeat(16)}${'<i></i>'.repeat(10)}</div>
+ <div class="blk" style="margin-bottom:14px"></div>
+ <div style="width:320px;height:18px;border:2px solid #fff;padding:3px"><div style="height:100%;width:62%;background:#fff"></div></div></div>
+<div class="lam" id="hitos"><div class="t">CONFIRMACIÓN Y ALERTA</div><div style="display:flex;gap:30px">
+ <div id="ok" style="background:var(--lime);width:420px;height:280px;display:grid;place-items:center"></div>
+ <div style="background:#1a0705;width:600px;height:280px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px" id="al"><div class="px" style="color:#ffd400;font-size:30px">▲ BORRADO AUTORIZADO ▲</div></div></div></div>
+<div class="lam" id="mov"><div class="t">MOVIMIENTO · DECODIFICAR · BLOQUES QUE LLEGAN · DISOLUCIÓN</div><div id="scr" class="px" style="font-size:26px;line-height:1.5"></div><div style="display:flex;gap:16px;margin-top:20px" id="fr"></div></div>
+<script src="../neo-orion-os/hud/marathon.js"></script>
+<script>
+MX.acento('#ff2438',false);
+const P=(t,o)=>MX.pixel(t,Object.assign({anim:false},o));
+l1.append(P('NEO',{px:14,color:'#ffffff'}),document.createElement('br'),P('ORIÓN',{px:14}));
+l2.append(P('NEO',{px:8,color:'#111111'}),document.createElement('br'),P('ORIÓN',{px:8,color:'#111111'}));
+l3.append(P('NO',{px:6}));
+document.querySelectorAll('#l1 canvas,#l2 canvas').forEach(c=>c.style.margin='8px 0');
+MX.PALETA.forEach(([n,c])=>acc.insertAdjacentHTML('beforeend',`<div class="sw" style="background:${c};color:${['#b14bff'].includes(c)?'#fff':'#111'}">${n}<br>${c}</div>`));
+[['FONDO','#0d0e10'],['PANEL','#141518'],['PANEL 2','#1d1f22'],['LÍNEA','#2a2c30'],['TEXTO','#e6e8ea'],['GRIS','#8b8e94'],['PELIGRO*','#ffd400'],['PELIGRO','#ff4a2a']].forEach(([n,c])=>neu.insertAdjacentHTML('beforeend',`<div class="sw" style="background:${c};color:${['#e6e8ea','#8b8e94','#ffd400','#ff4a2a'].includes(c)?'#111':'#e6e8ea'};border:1px solid #2a2c30">${n}<br>${c}</div>`));
+f1.append(P('ABCDEFGHIJKLMN',{px:6,color:'#ffffff'}));f2.append(P('ÑOPQRSTUVWXYZ 0123456789 ÁÉÍÓÚ',{px:6}));
+[['MARCA','12px','pixel','ORION'],['TITULAR','34px','pixel','ESCANEO DEL EQUIPO'],['DATO','34px','pixel','54 CM'],['ETIQUETA','10px','pixel','PASO 04 // INTELIGENCIA'],['MICRO','8px','pixel','AGREGADO RECIÉN · 0X1A3F'],['CUERPO','13px','mono','Neo Orión mide el equipo para saber qué IA cabe.'],['DATO MONO','11px','mono','[ OK ] descargando ia · qwen3:8b']].forEach(([n,s,f,t])=>esc.insertAdjacentHTML('beforeend',`<div style="display:flex;gap:30px;align-items:baseline;border-bottom:1px solid #2a2c30;padding:10px 0"><span class="px" style="width:160px;font-size:11px;color:var(--grey)">${n} · ${s}</span><span style="font-family:${f==='pixel'?'Silkscreen':'JetBrains Mono'};font-size:${s};color:#fff;text-transform:${f==='pixel'?'uppercase':'none'}">${t}</span></div>`));
+Object.keys(MX.ICONOS).forEach(n=>{const d=document.createElement('div');d.className='box';d.style.cssText='display:flex;flex-direction:column;align-items:center;gap:10px';d.append(P(n,{px:6}));d.insertAdjacentHTML('beforeend',`<span class="px" style="font-size:10px;color:var(--grey)">${n}</span>`);ic.append(d)});
+document.querySelector('.seg').innerHTML='<i class="on"></i>'.repeat(16)+'<i></i>'.repeat(10);document.querySelector('.blk').innerHTML='<i class="on"></i>'.repeat(7)+'<i></i>'.repeat(3);
+ok.append(P('check',{px:22,gap:4,color:'#111111'}));al.prepend(P('senal',{px:12,gap:3,color:'#ffd400'}));al.append(P('senal',{px:12,gap:3,color:'#ffd400'}));
+const G='█▓▒░<>/\\|#=+*01ABCDEFXZ$%&',T='ESCANEO DEL EQUIPO';scr.innerHTML=[0,.25,.5,.75,1].map(k=>{let s=T.slice(0,Math.floor(k*T.length));for(let i=s.length;i<T.length;i++)s+=T[i]===' '?' ':G[(i*7)%G.length];return `<div style="color:${k===1?'#fff':'#8b8e94'}">${k*100|0}% · ${s}</div>`}).join('');
+for(let k=1;k<=4;k++){const c=document.createElement('canvas');c.width=48;c.height=27;c.style.cssText='width:260px;height:146px;image-rendering:pixelated;border:1px solid #2a2c30';const g=c.getContext('2d');g.fillStyle='#141518';g.fillRect(0,0,48,27);for(let y=0;y<27;y++)for(let x=0;x<48;x++){if(((x*37+y*91)%100)/100<k/4.2){g.fillStyle=(x+y)%7===0?'#ff2438':'#0a0b0c';g.fillRect(x,y,1,1)}}fr.append(c)}
+</script></body></html>

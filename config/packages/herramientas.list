@@ -1,0 +1,11 @@
+# Herramientas de Neo Orión que van en TODAS las ediciones (son livianas):
+rsync rclone                    # respaldo: disco externo con fotos enlazadas, o la nube de la persona (rclone config)
+wayvnc openssl                  # escritorio remoto en la red local (VNC con clave y TLS sobre cage/Wayland)
+python3-serial                  # CNC con GRBL y placas por USB
+python3-docx                    # dictado de documentos a Word
+python3-paho-mqtt python3-yaml  # cámaras (eventos de Frigate) y configuraciones
+python3-matplotlib              # vistas: recorrido CNC, gráficos
+unattended-upgrades             # parches de seguridad automáticos
+pci.ids usb.ids                 # nombres reales de GPU y dispositivos en el escaneo del equipo
+ubuntu-drivers-common fwupd     # controladores: driver NVIDIA recomendado por modelo; firmware/BIOS por LVFS (con permiso)
+wlopm brightnessctl ethtool wakeonlan   # reposo atento (pantalla), brillo, encendido por red

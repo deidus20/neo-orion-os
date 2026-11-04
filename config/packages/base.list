@@ -1,0 +1,10 @@
+# Núcleo del sistema + soporte Live (casper) + arranque para el sistema instalado
+linux-generic linux-firmware intel-microcode amd64-microcode
+casper discover laptop-detect os-prober
+grub-efi-amd64-signed shim-signed grub-pc-bin grub2-common efibootmgr
+systemd-sysv systemd-timesyncd dbus kbd console-setup locales tzdata
+sudo ca-certificates curl wget gnupg software-properties-common apt-transport-https
+network-manager wpasupplicant iputils-ping dnsutils openssh-client
+bash-completion less man-db nano vim-tiny htop btop
+usbutils pciutils lshw rsync unzip zip p7zip-full xz-utils zstd
+whiptail

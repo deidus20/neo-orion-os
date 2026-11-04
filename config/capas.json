@@ -1,0 +1,42 @@
+{
+  "_nota": "Neo Orión se instala NEUTRO (capa base). Todo lo personal va en capas aparte que se activan por persona. Las capacidades avanzadas existen, pero no se ofrecen hasta que la persona las pide.",
+  "base": {
+    "incluye": [
+      "orion-linux (MCP)",
+      "memoria Markdown",
+      "oído/voz",
+      "perfil por equipo",
+      "HUD",
+      "proyectos",
+      "forma 3D",
+      "robots (orion_motion)",
+      "buscador de repositorios"
+    ],
+    "ofrecer_al_inicio": [
+      "memoria",
+      "voz",
+      "IA local según equipo"
+    ],
+    "disponible_si_se_pide": [
+      "escaneo 3D",
+      "cuerpo 3D",
+      "avatares",
+      "huellas de voz con nombre",
+      "PLC",
+      "lentes",
+      "flota de nodos"
+    ]
+  },
+  "_limpia": "Cada capa personal vive en capas/<nombre>/ con su aplicar.sh; la ISO la lleva solo con CAPA=<nombre>.",
+  "ejemplo": {
+    "identidad": {
+      "nombre": "Neo Orión",
+      "color": "#ff2438"
+    },
+    "modulos": [],
+    "memoria_inicial": [
+      "notas propias"
+    ],
+    "carpeta": "capas/ejemplo"
+  }
+}
