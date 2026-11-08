@@ -1,6 +1,6 @@
-# Neo Orión OS 0.1 «Polaris» · edición patata
+# Neo Orión OS 0.2 · edición patata
 
-Primera versión pública. Sistema por voz sobre Ubuntu 24.04 (GPL-3.0). Autor: Davis Reyes.
+Núcleo en Rust (orion-nucleo) y vistas de archivo, documento y movimiento. Sistema por voz sobre Ubuntu 24.04 (GPL-3.0). Autor: Davis Reyes.
 
 **Descarga directa (un solo archivo, 1,4 GB):** `neo-orion-0.1-patata-amd64.iso`
 Revisa la suma: `sha256sum -c neo-orion-0.1-patata-amd64.iso.sha256`
