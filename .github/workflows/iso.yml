@@ -43,7 +43,7 @@ jobs:
           ETIQ: ${{ github.event.inputs.etiqueta || github.ref_name }}
         run: |
           cd out
-          sudo chown "$USER" ./*
+          sudo chown "$USER" . ./*
           cp ../orion-nucleo-x86_64-linux .
           ls -lh
           gh release view "$ETIQ" >/dev/null 2>&1 || gh release create "$ETIQ" --title "Neo Orión OS ${ETIQ#v}" --notes-file ../docs/NOTAS_VERSION.md
