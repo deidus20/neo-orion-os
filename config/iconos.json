@@ -1,0 +1,268 @@
+{
+ "_nota": "Íconos de Neo Orión (fuente única: la usan el núcleo en Rust y las herramientas). Regla en orion_iconos / nucleo iconos.rs.",
+ "regla": "1. Cuadrícula de 9 × 9 bloques. Cada fila es un texto de 9 caracteres: «#» bloque, «.» vacío.\n  2. Un solo color: el acento de la persona (lo pinta el HUD). Sin degradados, sin sombras, sin fotos.\n  3. Entre 20 % y 65 % de la cuadrícula lleno: ni mancha ni hilo.\n  4. Sin bloques sueltos: cada bloque toca a otro (también en diagonal).\n  5. Debe usar al menos 6 filas y 6 columnas (que se lea a distancia).\n  6. Pictograma de lo que HACE el programa, nunca su logo o marca registrada (eso es de su dueño).\n  7. Debajo del ícono va el nombre en letras de bloques y una sigla de 2 letras.\n  8. Ningún ícono se repite: cada programa tiene el suyo, para que se reconozca de un vistazo. Si el de la\n     categoría ya está ocupado y no trae uno propio, se le hace un monograma con su sigla.",
+ "categorias": {
+  "nube": ".........|...###...|..#...##.|.#......#|#.......#|#.......#|.#######.|.........|.........",
+  "video": "#########|#.......#|#..#....#|#..##...#|#..###..#|#..##...#|#..#....#|#.......#|#########",
+  "juego": ".........|.........|.#######.|##.###.##|#...#.#.#|##.###.##|#########|##.....##|.........",
+  "musica": "...######|...#....#|...#....#|...#....#|...#....#|.###..###|####.####|.##...##.|.........",
+  "navegador": "..#####..|.#..#..#.|#..###..#|#########|#..###..#|#########|#..###..#|.#..#..#.|..#####..",
+  "terminal": "#########|#########|#.......#|#.#.....#|#..#....#|#.#..##.#|#.......#|#########|.........",
+  "oficina": ".#####...|.#...##..|.#....##.|.#.###.#.|.#.....#.|.#.####.#|.#......#|.########|.........",
+  "ia": "....#....|...###...|..#####..|#########|.#######.|..#####..|..##.##..|.##...##.|##.....##",
+  "chat": ".........|#########|#.......#|#.##.##.#|#.......#|#########|..##.....|.#.......|.........",
+  "foto": ".........|..###....|#########|#...#...#|#..###..#|#...#...#|#.......#|#########|.........",
+  "cad": "....#....|..##.##..|##.....##|#.##.##.#|#...#...#|#...#...#|#...#...#|.##.#.##.|...###...",
+  "robot": "....#....|..#####..|.#.....#.|.#.#.#.#.|.#.#.#.#.|..#####..|#########|..#...#..|.##...##.",
+  "red": "#.#.#.#.#|.#.#.#.#.|#.#...#.#|.#.....#.|#.#...#.#|.#.#.#.#.|#.#.#.#.#|.........|.........",
+  "correo": ".........|#########|##.....##|#.#...#.#|#..#.#..#|#...#...#|#.......#|#########|.........",
+  "calendario": ".#.....#.|#########|#.......#|#.##.##.#|#.......#|#.##.##.#|#.......#|#########|.........",
+  "seguridad": ".........|...###...|..#...#..|..#...#..|.#######.|.###.###.|.###.###.|.#######.|.........",
+  "taller": "...#.#...|.#######.|.##...##.|###.#.###|.#.###.#.|###.#.###|.##...##.|.#######.|...#.#...",
+  "cuaderno": ".........|.###.###.|#...#...#|#.##.##.#|#...#...#|#.##.##.#|#...#...#|.###.###.|.........",
+  "app": "#########|#.......#|#.##.##.#|#.##.##.#|#.......#|#.##.##.#|#.##.##.#|#.......#|#########"
+ },
+ "sinonimos": {
+  "series": "video",
+  "peliculas": "video",
+  "tv": "video",
+  "streaming": "video",
+  "medios": "video",
+  "juegos": "juego",
+  "gaming": "juego",
+  "emulador": "juego",
+  "audio": "musica",
+  "podcast": "musica",
+  "web": "navegador",
+  "internet": "navegador",
+  "codigo": "terminal",
+  "programacion": "terminal",
+  "consola": "terminal",
+  "documentos": "oficina",
+  "texto": "oficina",
+  "planilla": "oficina",
+  "pdf": "oficina",
+  "notas": "cuaderno",
+  "estudio": "cuaderno",
+  "memoria": "cuaderno",
+  "investigacion": "cuaderno",
+  "mensajes": "chat",
+  "video-llamada": "chat",
+  "camara": "foto",
+  "imagenes": "foto",
+  "diseno": "cad",
+  "3d": "cad",
+  "electronica": "taller",
+  "cnc": "taller",
+  "impresion3d": "taller",
+  "robotica": "robot",
+  "remoto": "red",
+  "vpn": "red",
+  "respaldo": "nube",
+  "almacenamiento": "nube",
+  "claves": "seguridad",
+  "contrasenas": "seguridad",
+  "agenda": "calendario"
+ },
+ "propios": {
+  "nube": "...###...|..#...#..|.#.....##|#.......#|.#######.|....#....|...###...|..#.#.#..|....#....",
+  "jellyfin": "#.#.#.#.#|#########|#.......#|#..#....#|#..##...#|#..###..#|#..##...#|#..#....#|#########",
+  "kodi": ".#.....#.|..#...#..|...#.#...|#########|#.......#|#.#####.#|#.......#|#########|.##...##.",
+  "steam": "..#####..|.#.....#.|#.......#|#..###..#|#..#.#..#|#..###..#|#.......#|.#.....#.|..#####..",
+  "geforcenow": "...###...|..#...##.|.#......#|#..#....#|#..##...#|#..###..#|#..##...#|.###.###.|.........",
+  "heroic": ".#######.|#.......#|#...#...#|#...#...#|#.#####.#|.#..#..#.|..#.#.#..|...#.#...|....#....",
+  "retroarch": "...###...|...###...|....#....|....#....|#########|#.......#|#.##.##.#|#########|.........",
+  "chrome": "..#####..|.##...##.|#..#.#..#|#...#...#|#########|#...#...#|#..#.#..#|.##...##.|..#####..",
+  "firefox": "#########|#.#.#...#|#########|#.......#|#..###..#|#.#.#.#.#|#..###..#|#.......#|#########",
+  "libreoffice": "#########|#...#...#|#########|#...#...#|#########|#...#...#|#########|.........|.........",
+  "obsidian": "....#....|...###...|..#.#.#..|.#..#..#.|#...#...#|.#..#..#.|..#.#.#..|...###...|....#....",
+  "logseq": "##.######|#........|#.##.####|#.#......|#.#.##.##|#........|##.######|.........|.........",
+  "gemini-notebook": "....#....|...###...|....#....|.........|#########|#.......#|#.#####.#|#.......#|#########",
+  "vscode": ".........|.....#...|..#..##..|.#..#..#.|#...#...#|.#..#..#.|..##..#..|...#.....|.........",
+  "freecad": "..######.|.#....##.|########.|#.....#.#|#.....#.#|#.....#.#|#.....##.|#######..|.........",
+  "kicad": ".#.#.#.#.|#########|.#.....#.|##.###.##|.#.#.#.#.|##.###.##|.#.....#.|#########|.#.#.#.#.",
+  "prusaslicer": "#########|#.......#|#..###..#|#...#...#|#.......#|#..###..#|#.#####.#|#########|.........",
+  "ollama": "..#####..|.#.....#.|#.##.##.#|#.......#|#..###..#|.#.....#.|..#.#.#..|..#.#.#..|..#####..",
+  "rustdesk": "#####....|#...#....|#####.#..|..#...##.|######.##|....#####|....#...#|....#####|........."
+ },
+ "significado": {
+  "nube": "nube con flecha de subir",
+  "jellyfin": "pantalla de series con play",
+  "kodi": "tele con antena",
+  "steam": "disco: biblioteca de juegos",
+  "geforcenow": "nube con play: juegos en la nube",
+  "heroic": "escudo con espada",
+  "retroarch": "palanca de máquina arcade",
+  "chrome": "globo terráqueo",
+  "firefox": "ventana con globo",
+  "libreoffice": "planilla y documentos",
+  "obsidian": "cristal de notas",
+  "logseq": "esquema con viñetas",
+  "gemini-notebook": "cuaderno con chispa",
+  "vscode": "código </>",
+  "freecad": "pieza en 3D",
+  "kicad": "chip de placa",
+  "prusaslicer": "impresora 3D",
+  "ollama": "cara de IA local",
+  "rustdesk": "dos pantallas: control remoto"
+ },
+ "conocidas": [
+  {
+   "id": "nube",
+   "nombre": "Mi nube",
+   "categoria": "nube",
+   "comando": "xdg-open {casa}/Nube",
+   "cuando": "rclone"
+  },
+  {
+   "id": "jellyfin",
+   "nombre": "Series",
+   "categoria": "video",
+   "web": "http://127.0.0.1:8096",
+   "cuando": "jellyfin"
+  },
+  {
+   "id": "kodi",
+   "nombre": "Kodi",
+   "categoria": "video",
+   "comando": "kodi"
+  },
+  {
+   "id": "steam",
+   "nombre": "Steam",
+   "categoria": "juego",
+   "comando": "steam"
+  },
+  {
+   "id": "geforcenow",
+   "nombre": "GeForce Now",
+   "categoria": "juego",
+   "comando": "flatpak run com.nvidia.geforcenow",
+   "flatpak": "com.nvidia.geforcenow"
+  },
+  {
+   "id": "heroic",
+   "nombre": "Heroic",
+   "categoria": "juego",
+   "comando": "flatpak run com.heroicgameslauncher.hgl",
+   "flatpak": "com.heroicgameslauncher.hgl"
+  },
+  {
+   "id": "retroarch",
+   "nombre": "RetroArch",
+   "categoria": "juego",
+   "comando": "retroarch"
+  },
+  {
+   "id": "chrome",
+   "nombre": "Chrome",
+   "categoria": "navegador",
+   "comando": "google-chrome-stable"
+  },
+  {
+   "id": "firefox",
+   "nombre": "Firefox",
+   "categoria": "navegador",
+   "comando": "firefox"
+  },
+  {
+   "id": "libreoffice",
+   "nombre": "Oficina",
+   "categoria": "oficina",
+   "comando": "libreoffice"
+  },
+  {
+   "id": "obsidian",
+   "nombre": "Obsidian",
+   "categoria": "cuaderno",
+   "comando": "obsidian"
+  },
+  {
+   "id": "logseq",
+   "nombre": "Logseq",
+   "categoria": "cuaderno",
+   "comando": "logseq"
+  },
+  {
+   "id": "gemini-notebook",
+   "nombre": "Gemini Notebook",
+   "categoria": "cuaderno",
+   "web": "https://notebooklm.google.com"
+  },
+  {
+   "id": "vscode",
+   "nombre": "VS Code",
+   "categoria": "terminal",
+   "comando": "code"
+  },
+  {
+   "id": "freecad",
+   "nombre": "FreeCAD",
+   "categoria": "cad",
+   "comando": "freecad"
+  },
+  {
+   "id": "kicad",
+   "nombre": "KiCad",
+   "categoria": "taller",
+   "comando": "kicad"
+  },
+  {
+   "id": "prusaslicer",
+   "nombre": "PrusaSlicer",
+   "categoria": "taller",
+   "comando": "prusa-slicer"
+  },
+  {
+   "id": "ollama",
+   "nombre": "IA local",
+   "categoria": "ia",
+   "web": "http://127.0.0.1:11434",
+   "cuando": "ollama"
+  },
+  {
+   "id": "rustdesk",
+   "nombre": "RustDesk",
+   "categoria": "red",
+   "comando": "rustdesk"
+  }
+ ],
+ "letras": {
+  "A": ".##.|#..#|####|#..#|#..#",
+  "B": "###.|#..#|###.|#..#|###.",
+  "C": ".###|#...|#...|#...|.###",
+  "D": "###.|#..#|#..#|#..#|###.",
+  "E": "####|#...|###.|#...|####",
+  "F": "####|#...|###.|#...|#...",
+  "G": ".###|#...|#.##|#..#|.###",
+  "H": "#..#|#..#|####|#..#|#..#",
+  "I": "###.|.#..|.#..|.#..|###.",
+  "J": "..##|...#|...#|#..#|.##.",
+  "K": "#..#|#.#.|##..|#.#.|#..#",
+  "L": "#...|#...|#...|#...|####",
+  "M": "#..#|####|####|#..#|#..#",
+  "N": "#..#|##.#|#.##|#..#|#..#",
+  "O": ".##.|#..#|#..#|#..#|.##.",
+  "P": "###.|#..#|###.|#...|#...",
+  "Q": ".##.|#..#|#..#|#.#.|.#.#",
+  "R": "###.|#..#|###.|#.#.|#..#",
+  "S": ".###|#...|.##.|...#|###.",
+  "T": "####|.#..|.#..|.#..|.#..",
+  "U": "#..#|#..#|#..#|#..#|.##.",
+  "V": "#..#|#..#|#..#|.##.|.##.",
+  "W": "#..#|#..#|####|####|#..#",
+  "X": "#..#|.##.|.##.|.##.|#..#",
+  "Y": "#..#|#..#|.##.|.#..|.#..",
+  "Z": "####|..#.|.#..|#...|####",
+  "0": ".##.|#.##|##.#|#..#|.##.",
+  "1": ".#..|##..|.#..|.#..|###.",
+  "2": "###.|...#|.##.|#...|####",
+  "3": "###.|...#|.##.|...#|###.",
+  "4": "#..#|#..#|####|...#|...#",
+  "5": "####|#...|###.|...#|###.",
+  "6": ".##.|#...|###.|#..#|.##.",
+  "7": "####|...#|..#.|.#..|.#..",
+  "8": ".##.|#..#|.##.|#..#|.##.",
+  "9": ".##.|#..#|.###|...#|.##."
+ }
+}

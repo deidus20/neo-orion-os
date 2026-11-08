@@ -133,6 +133,33 @@ canvas.mx-px{width:auto;max-width:100%;background:transparent;border:0}
 .mark span{position:absolute;left:26px;top:2px;font-family:var(--px);font-size:9px;background:var(--lime);color:var(--ink);padding:1px 4px;white-space:nowrap}
 
 /* ---------- modo investigación (agente que investiga y arma un muro 3D) ---------- */
+/* ---- archivo (manifiesto de documentos) y ficha de documento con movimiento ---- */
+.arch .ah{display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin:2px 0 12px}
+.arch .marca{font:700 15px/1 'Silkscreen',monospace;letter-spacing:.04em;color:#fff;text-shadow:0 0 8px rgba(255,255,255,.35)}
+.arch .sub{font:600 14px/1 var(--mono);letter-spacing:.06em;color:#f2f2f2}
+.arch .fil{margin-left:auto;display:flex;gap:10px;align-items:center;font:600 8px/1 var(--mono);letter-spacing:.1em;color:#9a9da3}
+.arch .fil select{font:600 8px var(--mono);padding:3px 18px 3px 5px;background-color:#f1f1f1;color:#111;border:0;min-width:58px}
+.arch table{width:100%;border-collapse:collapse;font:400 10.5px/1 var(--mono);letter-spacing:.03em}
+.arch th{background:#3a3c40;color:#e6e6e6;font-weight:600;font-size:8.5px;letter-spacing:.1em;text-align:left;padding:6px 8px}
+.arch td{padding:6px 8px;color:#d8dadd;white-space:nowrap;text-shadow:0 0 5px rgba(255,255,255,.18)}
+.arch tr.f{cursor:pointer}.arch tr.f:hover td{color:#fff}
+.arch tr.on td{background:var(--lime);color:#120406;text-shadow:none}
+.arch .pie{display:flex;justify-content:space-between;margin-top:10px;font:600 9px/1 var(--mono);letter-spacing:.1em;color:#cfd1d4}
+.doc .g{display:grid;grid-template-columns:minmax(220px,.9fr) 1.4fr;gap:20px}@media(max-width:720px){.doc .g{grid-template-columns:1fr}}
+.doc .tg{display:inline-block;background:var(--lime);color:#120406;font:700 6.5px/1 var(--mono);letter-spacing:.12em;padding:2px 4px;margin:10px 0 4px}
+.doc .big{font:700 clamp(24px,3.4vw,40px)/1.05 var(--mono);color:#fff;letter-spacing:.02em;text-shadow:0 0 10px rgba(255,255,255,.3)}
+.doc .kv{display:grid;grid-template-columns:auto 1fr;gap:6px 20px;font:400 10px/1.25 var(--mono);letter-spacing:.05em;margin-top:8px;color:#d6d8db}
+.doc .kv b{font-weight:400;color:#9a9da3}
+.doc .bt{display:flex;gap:4px;justify-content:flex-end;flex-wrap:wrap;margin-bottom:8px}
+.doc .bt button{background:#f1f1f1;color:#111;border:0;font:700 7.5px/1 var(--mono);letter-spacing:.1em;padding:5px 26px 5px 7px;position:relative;cursor:pointer}
+.doc .bt button::after{content:'▶';position:absolute;right:6px;font-size:6px;top:5px}
+.doc .bt button.on{background:var(--lime);color:#120406}
+.doc canvas{width:100%;height:280px;display:block;border:1px solid #3a3c40;background:#0d0e10}
+.doc .ras{position:relative;padding-left:22px;margin-top:10px}
+.doc .ras::before{content:'';position:absolute;left:5px;top:6px;bottom:6px;width:2px;background:var(--lime)}
+.doc .ras div{position:relative;margin:0 0 14px;font:400 10px/1.35 var(--mono);color:#d6d8db;letter-spacing:.05em}
+.doc .ras div::before{content:'';position:absolute;left:-21px;top:2px;width:10px;height:10px;background:var(--lime)}
+.doc .ras span{color:#9a9da3;margin-left:12px}
 #rs{position:fixed;inset:0;z-index:20;background:radial-gradient(ellipse at 50% 55%,#15171a,#08090a 72%);overflow:hidden;display:none;touch-action:none}
 #rs.on{display:block}
 #rs::after{content:"";position:absolute;inset:0;pointer-events:none;z-index:4;background:repeating-linear-gradient(0deg,#0000 0 2px,#00000038 2px 3px);mix-blend-mode:multiply}
@@ -630,7 +657,7 @@ function fmt(c) {
 function execute(c) {
   if (c.k === 'SET') { TARGET[c.j.id] = c.v; c.j.vel = c.vel; WAVE = null; }
   if (c.k === 'HOME') { JOINTS.forEach(j => { TARGET[j.id] = j.id === 'A6' ? 10 : 0; j.vel = j.vmax * .4; }); WAVE = null; }
-  if (c.k === 'STOP') { JOINTS.forEach(j => TARGET[j.id] = POSE[j.id]); WAVE = null; if (window.MX) MX.alerta('ALTO · GUARDIÁN', 1300); }
+  if (c.k === 'STOP') { JOINTS.forEach(j => TARGET[j.id] = POSE[j.id]); WAVE = null; if (window.MX) MX.banda('ALTO · GUARDIÁN', 1600); }
   if (c.k === 'SAVE') { SAVED[c.name] = { ...TARGET }; }
   if (c.k === 'MACRO') { Object.assign(TARGET, SAVED[c.name]); JOINTS.forEach(j => j.vel = j.vmax * .5); WAVE = null; }
   if (c.k === 'WAVE') { WAVE = { id: c.j.id, A: c.A, f: c.f, k: c.m, c: TARGET[c.j.id], t0: performance.now(), dur: 6 }; }
@@ -1058,9 +1085,10 @@ function armarMuro() {
   const grid = document.createElement('div'); grid.className = 'grid';
   grid.style.setProperty('--cols', angosto ? 2 : 4); grid.style.setProperty('--cw', angosto ? '200px' : '250px');
   const grupos = ['TODO', ...new Set(bl.map(x => x.g))];
-  grid.innerHTML = `<div class="tbar">${grupos.map((g, i) => `<b class="${i ? '' : 'on'}" data-g="${g}">${g}</b>`).join('')}</div>`;
+  grid.innerHTML = `<div class="tbar">${grupos.map((g, i) => `<b class="${i ? '' : 'on'}" data-g="${g}">${g}</b>`).join('')}<b data-arch="1" style="margin-left:auto">ARCHIVO ▸</b></div>`;
+  grid.querySelector('[data-arch]').onclick = e => { e.stopPropagation(); const tm = tema; cerrarInv(); archivoPanel(tm); };
   $('#wall').appendChild(grid);
-  grid.querySelectorAll('.tbar b').forEach(t => t.onclick = e => { e.stopPropagation(); grid.querySelectorAll('.tbar b').forEach(x => x.classList.toggle('on', x === t)); RS.filtro = t.dataset.g === 'TODO' ? null : t.dataset.g; filtrar(); });
+  grid.querySelectorAll('.tbar b:not([data-arch])').forEach(t => t.onclick = e => { e.stopPropagation(); grid.querySelectorAll('.tbar b').forEach(x => x.classList.toggle('on', x === t)); RS.filtro = t.dataset.g === 'TODO' ? null : t.dataset.g; filtrar(); });
   const ex = [];
   bl.forEach((c, i) => setTimeout(() => {
     if (!RS) return;
@@ -1076,6 +1104,139 @@ function armarMuro() {
   // narración: explica los bloques a medida que llegan (sin pisarse)
   let n = 0; const narra = setInterval(() => { if (!RS) return clearInterval(narra); if (n < ex.length && !RS.det) { capRS(ex[n]); hablarRS(ex[n]); n++; } else if (n >= bl.length) clearInterval(narra); }, 2600);
   remember('investigación', `${tema}: ${bl.length} bloques`);
+}
+
+/* =========================================================
+   ARCHIVO · DOCUMENTO · MOVIMIENTO
+   Lo que investiga o guarda Neo Orión aparece como un manifiesto de documentos: una fila de acento
+   recorre la tabla mientras los lee, cada fila abre su ficha, y la ficha muestra el movimiento del
+   documento (de dónde vino y cómo llegó a la memoria) en un diagrama orbital que se mueve.
+   ========================================================= */
+const TIPOS_DOC = ['WEB', 'PDF', 'NOTA', 'CÓDIGO', 'PLANO', 'VIDEO', 'TABLA'];
+function docsDemo(tema) {
+  const T = (tema || 'proyecto').toUpperCase().slice(0, 18), n = 10, hoy = new Date();
+  const nombres = ['RESUMEN GENERAL', 'FICHA TÉCNICA', 'COMPARATIVA DE PRECIOS', 'NORMA APLICABLE', 'REPOSITORIO DE EJEMPLO', 'VIDEO DE MONTAJE',
+    'NOTAS DE LA SESIÓN', 'LISTA DE MATERIALES', 'PLANO DE REFERENCIA', 'PREGUNTAS ABIERTAS'];
+  const origen = ['WEB', 'WEB', 'WEB', 'WEB', 'REPO', 'WEB', 'MEMORIA', 'MEMORIA', 'DISCO', 'MEMORIA'];
+  const tipo = ['WEB', 'PDF', 'TABLA', 'PDF', 'CÓDIGO', 'VIDEO', 'NOTA', 'TABLA', 'PLANO', 'NOTA'];
+  return nombres.map((nm, i) => {
+    const f = new Date(hoy - (n - i) * 36e5 * 7);
+    return { id: 'D-' + String(410 + i * 37).padStart(4, '0'), codigo: 'NO-' + (1000 + i * 391 % 9000) + '-' + String(i * 7 % 97).padStart(2, '0'),
+      nombre: nm, tipo: tipo[i], origen: origen[i], prioridad: ['ALTA', 'MEDIA', 'BAJA'][i % 3], estado: i < 3 ? 'LEÍDO' : i === 6 ? 'RETENIDO' : 'PENDIENTE',
+      tema: T, peso: (12 + i * 41 % 900) + ' KB', fecha: f.toISOString().slice(0, 16).replace('T', ' '),
+      ruta: origen[i] === 'WEB' ? 'web' : '~/Orion/' + (origen[i] === 'MEMORIA' ? 'memoria' : 'archivos') + '/' + nm.toLowerCase().replace(/ /g, '-') };
+  });
+}
+async function archivoPanel(tema) {
+  const p = panel('archivo', 'ARCH', 'Archivo' + (tema ? ' · ' + tema : ''), true); if (!p) return;
+  if (window.MX) await MX.cargando('RECUPERANDO ' + (tema ? 'FUENTES' : 'DOCUMENTOS'), 1200);
+  const r = await accion('archivo', { accion: 'listar', tema: tema || '' }, () => ({ ok: true, docs: docsDemo(tema) }));
+  const docs = (r && r.docs) || [];
+  const caja = el('div', 'arch');
+  caja.innerHTML = `<div class="ah"><span class="marca">NEO ORIÓN</span><span class="sub" id="arsub">MANIFIESTO_DE_DOCUMENTOS</span>
+    <div class="fil">VISTA <select><option>TODO</option></select> ESTADO <select id="arest"><option>TODO</option><option>PENDIENTE</option><option>LEÍDO</option><option>RETENIDO</option></select>
+    ORIGEN <select id="arori"><option>TODO</option><option>WEB</option><option>MEMORIA</option><option>REPO</option><option>DISCO</option></select></div></div>
+    <table><thead><tr><th>ID</th><th></th><th>DOCUMENTO</th><th>TIPO</th><th>ORIGEN</th><th>PRIORIDAD</th><th>ESTADO</th></tr></thead><tbody></tbody></table>
+    <div class="pie"><span>TOTAL <b id="artot" style="margin-left:40px">0</b> DOCUMENTOS EN LÍNEA</span><span>PÁG 1 / 1</span></div>`;
+  p.appendChild(caja);
+  const tb = caja.querySelector('tbody'), q = s => caja.querySelector(s);
+  const pinta = () => {
+    const fe = q('#arest').value, fo = q('#arori').value;
+    tb.innerHTML = '';
+    docs.filter(d => (fe === 'TODO' || d.estado === fe) && (fo === 'TODO' || d.origen === fo)).forEach(d => {
+      const tr = el('tr', 'f'); tr._d = d;
+      tr.innerHTML = `<td>${d.id.slice(-3)}</td><td>${d.codigo}</td><td>${d.nombre}</td><td>${d.tipo}</td><td>${d.origen}</td><td>${d.prioridad}</td><td class="es">${d.estado}</td>`;
+      tr.onclick = () => { if (window.MX) MX.glitch(tr); documentoPanel(d, docs); };
+      tb.appendChild(tr);
+    });
+  };
+  q('#arest').onchange = q('#arori').onchange = pinta;
+  pinta();
+  if (window.MX) { MX.scramble(q('#arsub'), 'MANIFIESTO_DE_DOCUMENTOS', 500); MX.pixelar(caja.querySelector('table'), 700); }
+  // el total sube como si llegaran en línea
+  let tot = 0; const meta = docs.length, sube = setInterval(() => { tot = Math.min(meta, tot + 1); const t = q('#artot'); if (!t) return clearInterval(sube); t.textContent = tot; if (tot >= meta) clearInterval(sube); }, 70);
+  // la fila de acento recorre la tabla y va «leyendo» lo pendiente
+  let i = -1; const recorre = setInterval(() => {
+    if (!document.body.contains(p)) return clearInterval(recorre);
+    const filas = [...tb.querySelectorAll('tr')]; if (!filas.length) return;
+    filas.forEach(x => x.classList.remove('on'));
+    i = (i + 1) % filas.length; const f = filas[i]; f.classList.add('on');
+    if (f._d.estado === 'PENDIENTE' && Math.random() < .45) { f._d.estado = 'LEÍDO'; const c = f.querySelector('.es'); window.MX ? MX.scramble(c, 'LEÍDO', 300) : (c.textContent = 'LEÍDO'); }
+  }, 850);
+  p.insertAdjacentHTML('beforeend', `<div class="dim" style="font-size:11px;margin-top:10px">Toca un documento para ver su ficha y su movimiento. Por voz: «archivo de ${tema || 'lidar'}», «mis documentos».</div>`);
+}
+
+let DOC_ANIM = null;
+function documentoPanel(d, todos) {
+  if (OPEN.documento) { OPEN.documento.remove(); delete OPEN.documento; }
+  const p = panel('documento', 'DOC', 'Documento · ' + d.id, true); if (!p) return;
+  const pasos = [['ENCONTRADO', d.origen === 'WEB' ? 'BÚSQUEDA WEB' : d.origen === 'REPO' ? 'REPOSITORIO ABIERTO' : 'DISCO LOCAL', d.fecha],
+    ['EN LECTURA', 'IA LOCAL // RESUMEN', d.fecha.replace(/(\d\d):(\d\d)$/, (m, h, mi) => String((+h + 1) % 24).padStart(2, '0') + ':' + mi)],
+    [d.estado === 'LEÍDO' ? 'GUARDADO' : d.estado, d.estado === 'LEÍDO' ? 'MEMORIA // ' + d.tema : 'EN COLA', d.estado === 'LEÍDO' ? 'AHORA' : '—']];
+  const caja = el('div', 'doc');
+  caja.innerHTML = `<div class="bt"><button data-v="mov" class="on">MOVIMIENTO</button><button data-v="ras">RASTREO</button><button data-v="abrir">ABRIR</button><button data-v="arch">ARCHIVO</button></div>
+    <div class="g"><div><span class="tg">ID DOCUMENTO</span><div class="big" id="dcid">${d.codigo}</div><span class="tg">ESTADO</span><div class="big" style="font-size:clamp(18px,2.4vw,28px)" id="dces">${d.estado}</div>
+      <span class="tg">FICHA</span><div class="kv"><b>DOCUMENTO</b><span>${d.nombre}</span><b>TIPO</b><span>${d.tipo}</span><b>PESO</b><span>${d.peso}</span>
+      <b>ORIGEN</b><span>${d.origen}</span><b>DESTINO</b><span>MEMORIA // ${d.tema}</span><b>PRIORIDAD</b><span>${d.prioridad}</span><b>ENCONTRADO</b><span>${d.fecha}</span></div></div>
+    <div id="dcvista"></div></div>`;
+  p.appendChild(caja);
+  const vista = caja.querySelector('#dcvista');
+  const verMov = () => { vista.innerHTML = '<canvas></canvas>'; orbita(vista.querySelector('canvas'), d, todos || [d]); if (window.MX) MX.pixelar(vista, 600); };
+  const verRas = () => { cancelAnimationFrame(DOC_ANIM); vista.innerHTML = '<span class="tg">RASTREO</span><div class="ras">' + pasos.map(([a, b, c]) => `<div>${a}<br>${b}<span>${c}</span></div>`).join('') + '</div>';
+    vista.querySelectorAll('.ras div').forEach((x, i) => { x.style.opacity = 0; setTimeout(() => { x.style.opacity = 1; if (window.MX) MX.glitch(x); }, 180 + i * 260); }); };
+  caja.querySelectorAll('.bt button').forEach(b => b.onclick = async () => {
+    const v = b.dataset.v;
+    if (v === 'abrir') { const r = await accion('archivo', { accion: 'abrir', ruta: d.ruta }, { ok: true }); say(r.ok ? 'Abriendo ' + d.nombre.toLowerCase() + '.' : r.error); return; }
+    if (v === 'arch') { archivoPanel(d.tema === 'PROYECTO' ? '' : d.tema.toLowerCase()); return; }
+    caja.querySelectorAll('.bt button').forEach(x => x.classList.toggle('on', x === b));
+    v === 'mov' ? verMov() : verRas();
+  });
+  if (window.MX) { MX.scramble(caja.querySelector('#dcid'), d.codigo, 600); MX.scramble(caja.querySelector('#dces'), d.estado, 700); }
+  verMov();
+}
+
+/* diagrama orbital: el tema al centro, las fuentes giran en órbitas, y el documento viaja por una curva hasta el centro */
+function orbita(cv, d, todos) {
+  cancelAnimationFrame(DOC_ANIM);
+  const dpr = Math.min(2, devicePixelRatio || 1), W0 = cv.clientWidth || 600, H0 = cv.clientHeight || 280;
+  cv.width = W0 * dpr; cv.height = H0 * dpr; const g = cv.getContext('2d'); g.scale(dpr, dpr);
+  const acc = getComputedStyle(document.documentElement).getPropertyValue('--lime').trim() || '#ff2438';
+  const cx = W0 / 2, cy = H0 / 2, R = Math.min(W0, H0) * .44;
+  const orig = [...new Set(todos.map(x => x.origen))];
+  const cuerpos = todos.slice(0, 12).map((x, i) => ({ d: x, r: R * (.38 + .2 * (orig.indexOf(x.origen) % 3)), a: i * 2.4, v: .0016 + (i % 4) * .0007, yo: x === d }));
+  const t0 = performance.now(), liviano = window.LIVIANO;
+  (function dib(t) {
+    if (!document.body.contains(cv)) return;
+    const k = (t - t0) / 1000; g.clearRect(0, 0, W0, H0);
+    // retícula y cruces de esquina
+    g.strokeStyle = '#2a2c30'; g.lineWidth = 1;
+    [[14, 14], [W0 - 14, 14], [14, H0 - 14], [W0 - 14, H0 - 14]].forEach(([x, y]) => { g.beginPath(); g.moveTo(x - 6, y); g.lineTo(x + 6, y); g.moveTo(x, y - 6); g.lineTo(x, y + 6); g.stroke(); });
+    // órbitas
+    [.38, .58, .78, 1].forEach((f, i) => { g.strokeStyle = i % 2 ? '#3a3c40' : '#55575c'; g.beginPath(); g.arc(cx, cy, R * f, 0, 7); g.stroke(); });
+    // centro: el tema
+    const pul = 1 + Math.sin(k * 2) * .04;
+    g.fillStyle = acc; g.beginPath(); g.arc(cx, cy, R * .17 * pul, 0, 7); g.fill();
+    g.fillStyle = '#0d0e10'; g.font = '600 8px monospace'; g.textAlign = 'center'; g.fillText(d.tema.slice(0, 12), cx, cy + 3);
+    // cuerpos
+    cuerpos.forEach(c => {
+      c.a += liviano ? c.v * 2 : c.v * 16 / 16;
+      const x = cx + Math.cos(c.a) * c.r, y = cy + Math.sin(c.a) * c.r * .82;
+      if (c.yo) {
+        // la curva del viaje del documento hacia el centro
+        g.strokeStyle = acc; g.lineWidth = 1.4; g.beginPath(); g.moveTo(x, y);
+        g.quadraticCurveTo((x + cx) / 2 + (y - cy) * .4, (y + cy) / 2 - (x - cx) * .4, cx, cy); g.stroke(); g.lineWidth = 1;
+        const u = (k * .35) % 1, qx = (x + cx) / 2 + (y - cy) * .4, qy = (y + cy) / 2 - (x - cx) * .4;
+        const px = (1 - u) ** 2 * x + 2 * (1 - u) * u * qx + u * u * cx, py = (1 - u) ** 2 * y + 2 * (1 - u) * u * qy + u * u * cy;
+        g.fillStyle = '#fff'; g.fillRect(px - 3, py - 3, 6, 6);
+        g.strokeStyle = '#fff'; g.beginPath(); g.arc(x, y, 13, 0, 7); g.stroke();
+        g.fillStyle = acc; g.beginPath(); g.arc(x, y, 8, 0, 7); g.fill();
+        g.fillStyle = '#e8e8e8'; g.textAlign = 'left'; g.font = '600 8px monospace'; g.fillText(c.d.id + ' // ' + c.d.tipo, x + 17, y - 4); g.fillStyle = '#9a9da3'; g.fillText(c.d.origen, x + 17, y + 7);
+      } else {
+        g.fillStyle = c.d.estado === 'LEÍDO' ? '#d9d9d9' : '#5b5d61'; g.fillRect(x - 3, y - 3, 6, 6);
+      }
+    });
+    DOC_ANIM = requestAnimationFrame(dib);
+  })(t0);
 }
 
 function filtrar() { RS.cards.forEach(el => el.classList.toggle('apagada', !!RS.filtro && el.dataset.g !== RS.filtro)); }
@@ -1357,7 +1518,7 @@ function cargarThree() {   // three.js solo se descarga cuando se abre el CAD (a
 }
 const PEL = () => window.PEL || '#ff4a2a';
 const RGB = a => { const n = parseInt(ACC.slice(1), 16); return `rgba(${n >> 16},${(n >> 8) & 255},${n & 255},${a})`; };
-const SUGG = ['abre chrome', 'abre firefox', 'maneja tú', 'busca en google normativa RIC 18', 'usa claude para crear el informe del robot', 'cambia el color a magenta', 'efecto tele antigua', 'abre el instalador', 'investiga lidar para robots', 'quiero jugar', 'abre geforce now', 'pon mis series', 'muéstrame el lidar del robot', 'muéstrame la carta gantt de la oficina', 'muéstrame el proyecto del brazo', 'dame alternativas del robot', 'diseña una placa de control de bajo costo', 'vista de los lentes', 'radar del entorno', 'conéctate a mi-proyecto', 'muéstrame el soporte del servo', 'reduce el grosor a 3', 'vincular teléfono', 'usa el teléfono como micrófono', 'mis apps', 'escanea el hardware', 'muéstrame el robot', 'mueve el hombro a 45 grados', 'onda en el codo amplitud 25 frecuencia 0.5', 'quiero calibrar con una foto', 'muestra los nodos', 'abre la memoria', 'detente'];
+const SUGG = ['abre chrome', 'abre firefox', 'maneja tú', 'busca en google normativa RIC 18', 'usa claude para crear el informe del robot', 'cambia el color a magenta', 'efecto tele antigua', 'abre el instalador', 'investiga lidar para robots', 'archivo de lidar', 'mis documentos', 'quiero jugar', 'abre geforce now', 'pon mis series', 'muéstrame el lidar del robot', 'muéstrame la carta gantt de la oficina', 'muéstrame el proyecto del brazo', 'dame alternativas del robot', 'diseña una placa de control de bajo costo', 'vista de los lentes', 'radar del entorno', 'conéctate a mi-proyecto', 'muéstrame el soporte del servo', 'reduce el grosor a 3', 'vincular teléfono', 'usa el teléfono como micrófono', 'mis apps', 'escanea el hardware', 'muéstrame el robot', 'mueve el hombro a 45 grados', 'onda en el codo amplitud 25 frecuencia 0.5', 'quiero calibrar con una foto', 'muestra los nodos', 'abre la memoria', 'detente'];
 $('#sugg').innerHTML = SUGG.map(s => `<span class="chip">${s}</span>`).join('');
 $('#sugg').querySelectorAll('.chip').forEach(c => c.onclick = () => handle(c.textContent));
 function say(t) { $('#heard').innerHTML = `<span class="lime">ORION ›</span> ${t}`; if (typeof logChat === 'function') logChat('ia', t); }
@@ -1808,6 +1969,7 @@ function handle(raw) {
   setState('PROCESANDO', true);
   setTimeout(() => {
     setState('ESCUCHANDO', false);
+    if (/^(archivo|documentos|mis documentos|abre el archivo|manifiesto)/.test(t)) { const tm = raw.replace(/^\s*(abre el archivo|mis documentos|archivo|documentos|manifiesto)( de| sobre| del)?\s*/i, ''); archivoPanel(tm); say(tm ? 'Este es el archivo de ' + tm + '.' : 'Tus documentos.'); return; }
     if (/^(investiga|investigar|investigacion|averigua|busca informacion)/.test(t)) { const tema = raw.replace(/^\s*(investiga(r)?|investigación|averigua|busca información)( sobre| de)?\s*/i, '') || 'LiDAR'; investigar(tema); say('Investigando por detrás. Te armo el muro con lo que encuentre.'); return; }
     if (/(que cable|que conductor|seccion del cable|caida de tension|calcula(r)? (el )?(cable|conductor|alimentador))/.test(t) || (/\d\s*(a|amp|amperes?|w|kw|watts?)\b/.test(t) && /\d\s*(m|metros?)\b/.test(t))) { elecPanel(raw).then(r => r && r.ok && say(`${String(r.seccion_mm2).replace('.', ',')} milímetros cuadrados: cae ${String(r.caida_pct).replace('.', ',')} por ciento. ${r.cumple ? 'Cumple el RIC 3.' : 'No cumple.'}`)); return; }
     { const act = (ACT_DEMO.activadores || []).find(x => x.tipo === 'frase' && norm(x.frase).replace(/[^a-z0-9 ]/g, '') === t.replace(/[^a-z0-9 ]/g, '').trim()); if (act) { hacerRutina(act.rutina, `«${act.frase}»`); return; } }
@@ -1821,7 +1983,7 @@ function handle(raw) {
     if (/(driver|controlador|que (grafica|procesador|tarjeta de video)|mi (grafica|procesador)|firmware|bios)/.test(t)) { drvPanel(); return; }
     if (/respald/.test(t)) { respaldoPanel(/ahora|ya|respalda/.test(t)); say('Respaldo de la memoria y los proyectos.'); return; }
     if (/(acceso remoto|escritorio remoto|entrar desde (el )?(telefono|celular|otro)|control remoto del pc|rustdesk|vnc)/.test(t)) { if (/apaga/.test(t)) { accion('remoto', { accion: 'apagar' }, {}); say('Acceso remoto apagado.'); } else { remotoPanel(); say('¿En la casa o desde afuera?'); } return; }
-    if (/(\bcnc\b|fresadora|g-?code|grbl)/.test(t)) { if (/(para|detente|deten)/.test(t)) { accion('cnc', { accion: 'parar' }, {}); MX.alerta('CNC DETENIDA', 1300); say('CNC detenida.'); } else { cncPanel(); say('Modo taller. Abre el G-code y lo reviso antes de cortar.'); } return; }
+    if (/(\bcnc\b|fresadora|g-?code|grbl)/.test(t)) { if (/(para|detente|deten)/.test(t)) { accion('cnc', { accion: 'parar' }, {}); MX.banda('CNC DETENIDA', 1600); say('CNC detenida.'); } else { cncPanel(); say('Modo taller. Abre el G-code y lo reviso antes de cortar.'); } return; }
     if (/(camara|camaras|frigate|vigilancia)/.test(t) && !/foto/.test(t)) { camarasPanel(); say('Cámaras con detección de personas, todo en este equipo.'); return; }
     if (/^(apaga|enciende|prende|sube|baja|abre|cierra|desbloquea|bloquea)\b.*(luz|luces|enchufe|ventilador|estufa|calefaccion|aire|cortina|porton|cerradura|alarma|riego|tele)|(temperatura|humedad) (de|en|del)/.test(t)) { casaPanel(raw); return; }
     if (/^(dicta|dictado|quiero dictar|redacta|escribe (un|una) (informe|documento|acta|carta|memoria))/.test(t)) { dictadoPanel(raw); say('Dicta y lo paso a Word con formato.'); return; }

@@ -245,3 +245,16 @@ sensibilidad (sensible · normal · firme).
   (`module-null-sink media.class=Audio/Source/Virtual`), página HTTPS con certificado propio + WebSocket (PCM 16 bits),
   `pacat` escribe el audio; mientras está conectado es la fuente predeterminada y al soltar vuelve la anterior. Clave de un
   solo uso en el QR, apagado tras 30 min. Probado con Chromium y micrófono simulado por TLS (el audio llega).
+
+## Núcleo en Rust y vistas de archivo (8-nov-2026)
+
+- **Norma: todo en Rust.** Lo nuevo se escribe en Rust; lo que está en Python se migra por etapas sin romper la API
+  (`nucleo/MIGRACION.md`, tabla módulo por módulo). El núcleo `orion-nucleo` reemplaza a `orion_core.servidor`: 9 MB de
+  RAM contra 28 MB, sin intérprete ni recolector de basura. Lo no migrado pasa por `orion_core.legado` (un Python corto
+  por acción, nada de fondo). Compila en la etapa 45 de la ISO; `instalar.sh` baja el binario de Releases.
+- **Archivo · documento · movimiento** (`hud/index.html`): manifiesto de documentos con una fila de acento que recorre la
+  tabla y los va «leyendo», ficha de documento con su ID y estado grandes, diagrama orbital animado (de dónde viene y cómo
+  llega a la memoria) y rastreo en línea de tiempo. Datos reales del núcleo (memoria + Documentos + Descargas).
+  `marathon.js` suma `MX.cargando` (barra por segmentos), `MX.banda` (aviso que corre sobre el acento, usado por el
+  guardián y la CNC) y `MX.pixelar` (aparecer en bloques). Por voz: «archivo de lidar», «mis documentos», o la pestaña
+  ARCHIVO del muro de investigación.

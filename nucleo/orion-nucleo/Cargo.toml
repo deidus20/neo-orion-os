@@ -1,0 +1,23 @@
+[package]
+name = "orion-nucleo"
+description = "Servidor local de Neo Orión (HUD, instalador y herramientas) en Rust"
+edition.workspace = true
+version.workspace = true
+license.workspace = true
+authors.workspace = true
+
+[dependencies]
+tiny_http = "0.12"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+regex = "1"
+ureq = { version = "2", default-features = false, features = ["json"] }
+rusqlite = { version = "0.32", features = ["bundled"] }
+sha1_smol = "1"
+unicode-normalization = "0.1"
+shlex = "1"
+chrono = { version = "0.4", default-features = false, features = ["clock"] }
+mime_guess = "2"
+
+[dev-dependencies]
+tempfile = "3"

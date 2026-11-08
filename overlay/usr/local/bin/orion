@@ -1,15 +1,18 @@
 #!/usr/bin/env bash
-# Neo Orión · comando de consola.  orion hud | orion fit | orion servidor | orion mcp | orion instalar <config.json> | orion version
+# Neo Orión · comando de consola.  orion hud | orion nucleo equipo | orion fit | orion servidor | orion mcp | orion instalar <config.json> | orion version
 export PYTHONPATH=/opt/orion
 PY=/opt/orion/venv/bin/python3; [ -x "$PY" ] || PY=python3
 case "${1:-}" in
   hud)   # la interfaz en una ventana, dentro del escritorio que ya tienes
-    curl -fs -o /dev/null http://127.0.0.1:7700/ 2>/dev/null || { "$PY" -m orion_core.servidor --modo hud --puerto 7700 >/dev/null 2>&1 & sleep 1.5; }
+    curl -fs -o /dev/null http://127.0.0.1:7700/ 2>/dev/null || {
+      if [ -x /usr/local/bin/orion-nucleo ]; then /usr/local/bin/orion-nucleo servir --modo hud --puerto 7700 >/dev/null 2>&1 &
+      else "$PY" -m orion_core.servidor --modo hud --puerto 7700 >/dev/null 2>&1 & fi; sleep 1; }
     URL=http://127.0.0.1:7700/hud/
     if python3 -c "import gi; gi.require_version('WebKit2','4.1')" 2>/dev/null; then exec /usr/local/bin/orion-pantalla "$URL"; fi
     exec xdg-open "$URL" ;;
   fit) shift; exec orion-fit "$@" ;;
-  servidor) shift; exec "$PY" -m orion_core.servidor "$@" ;;
+  servidor) shift; [ -x /usr/local/bin/orion-nucleo ] && exec /usr/local/bin/orion-nucleo servir "$@"; exec "$PY" -m orion_core.servidor "$@" ;;
+  nucleo) shift; exec /usr/local/bin/orion-nucleo "$@" ;;
   mcp) shift; exec "$PY" /opt/orion/orion_mcp/server.py "$@" ;;
   instalar) shift; exec sudo env PYTHONPATH=/opt/orion "$PY" -m orion_core.instalador "$@" ;;
   rendimiento) exec "$PY" -m orion_core.rendimiento ;;

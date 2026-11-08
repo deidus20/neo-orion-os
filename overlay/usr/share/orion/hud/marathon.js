@@ -108,7 +108,8 @@
   function pixel(lineasOIcono, o = {}) {
     const px = o.px || 6, gap = o.gap ?? Math.max(1, Math.round(px / 6)), color = o.color || (() => W.ACC), sombra = o.sombra;
     let mapa;
-    if (ICONOS[lineasOIcono]) mapa = ICONOS[lineasOIcono].split('|');
+    if (Array.isArray(lineasOIcono)) mapa = lineasOIcono;            // ícono propio: filas de «#» y «.»
+    else if (ICONOS[lineasOIcono]) mapa = ICONOS[lineasOIcono].split('|');
     else {
       const lineas = String(lineasOIcono).split('\n'); mapa = [];
       lineas.forEach((ln, li) => { const fs = [...ln].map(filas); for (let r = 0; r < 6; r++) mapa.push(fs.map(f => f[r]).join('.')); if (li < lineas.length - 1) mapa.push(''); });
@@ -169,6 +170,56 @@
     scramble(t, '▲ ' + texto + ' ▲', 300);
     let v = 0; const parp = setInterval(() => { d.style.opacity = (v++ % 2) ? .55 : 1; }, 140);
     return new Promise(res => setTimeout(() => { clearInterval(parp); d.remove(); res(); }, ms));
+  }
+
+
+  // Barra de recuperación por segmentos: «RECUPERANDO DATOS ▮▮▮▮▯▯▯»
+  function cargando(texto = 'RECUPERANDO DATOS', ms = 1400) {
+    const d = document.createElement('div'); d.id = 'mx-carga';
+    const n = innerWidth < 600 ? 18 : 30;
+    d.innerHTML = `<div class="ct"></div><div class="seg">${'<i></i>'.repeat(n)}</div>`;
+    document.body.appendChild(d); scramble(d.querySelector('.ct'), texto, 300);
+    const segs = [...d.querySelectorAll('.seg i')];
+    if (reduce) { segs.forEach(x => x.classList.add('on')); return new Promise(r => setTimeout(() => { d.remove(); r(); }, 300)); }
+    return new Promise(res => {
+      const t0 = performance.now();
+      (function paso(t) { const k = Math.min(1, (t - t0) / ms);
+        // avanza a tirones, como lectura de disco
+        const meta = Math.floor(n * (k < .4 ? k * 1.4 : k < .55 ? .56 : k));
+        segs.forEach((x, i) => x.classList.toggle('on', i < meta));
+        k < 1 ? requestAnimationFrame(paso) : setTimeout(() => { d.classList.add('fuera'); setTimeout(() => { d.remove(); res(); }, 220); }, 160); })(t0);
+    });
+  }
+
+  // Banda de aviso que corre (sobre el acento): «▲ TEXTO ▲ TEXTO …»
+  function banda(texto, ms = 2200, color) {
+    if (reduce) return Promise.resolve();
+    const d = document.createElement('div'); d.id = 'mx-banda'; d.style.background = color || W.ACC;
+    const fila = ('<span>▲ ' + texto + '</span>').repeat(8);
+    d.innerHTML = `<div class="tira"><div class="corre">${fila}${fila}</div></div>`;
+    document.body.appendChild(d);
+    return new Promise(res => setTimeout(() => { d.classList.add('fuera'); setTimeout(() => { d.remove(); res(); }, 260); }, ms));
+  }
+
+  // Pixelado: el elemento se arma (o se desarma) en bloques grises y blancos antes de aparecer
+  function pixelar(el, ms = 520, salir = false) {
+    if (reduce || !el) return Promise.resolve();
+    const r = el.getBoundingClientRect(); if (!r.width) return Promise.resolve();
+    const cv = document.createElement('canvas'), tam = W.LIVIANO ? 26 : 16;
+    const cw = Math.ceil(r.width / tam), ch = Math.ceil(r.height / tam);
+    cv.width = cw; cv.height = ch; cv.className = 'mx-pixelar';
+    Object.assign(cv.style, { left: r.left + 'px', top: r.top + 'px', width: r.width + 'px', height: r.height + 'px' });
+    document.body.appendChild(cv); const g = cv.getContext('2d');
+    if (!salir) el.style.visibility = 'hidden';
+    return new Promise(res => { const t0 = performance.now();
+      (function paso(t) { const k = Math.min(1, (t - t0) / ms); g.clearRect(0, 0, cw, ch);
+        for (let y = 0; y < ch; y++) for (let x = 0; x < cw; x++) {
+          const z = Math.random(); if (z > (salir ? k : 1 - k) * .9 + .05) continue;
+          const v = Math.random(); g.fillStyle = v > .82 ? '#f2f2f2' : v > .55 ? '#6d6f73' : v > .3 ? '#2b2d31' : '#141517'; g.fillRect(x, y, 1, 1);
+        }
+        if (!salir && k > .55) el.style.visibility = '';
+        k < 1 ? requestAnimationFrame(paso) : (cv.remove(), salir && (el.style.visibility = 'hidden'), res()); })(t0);
+    });
   }
 
   // Columna de caracteres al azar (decoración tipo terminal)
@@ -233,6 +284,37 @@
       requestAnimationFrame(cuadro);
     })(t0);
   })();
+
+  // ---------- EFECTO CRT (tele antigua): 'no' | 'suave' (líneas + viñeta + brillo) | 'curva' (además, la curvatura del vidrio)
+  // Se guarda por equipo; en modo liviano la curvatura se apaga sola porque cuesta GPU.
+  function mapaBarril(w, h, k) {
+    const c = document.createElement('canvas'); c.width = w; c.height = h; const g = c.getContext('2d'), im = g.createImageData(w, h), d = im.data;
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+      const nx = x / (w - 1) * 2 - 1, ny = y / (h - 1) * 2 - 1, r2 = nx * nx + ny * ny, i = (y * w + x) * 4;
+      d[i] = 128 + 127 * Math.max(-1, Math.min(1, nx * r2 * k)); d[i + 1] = 128 + 127 * Math.max(-1, Math.min(1, ny * r2 * k)); d[i + 2] = 128; d[i + 3] = 255;
+    }
+    g.putImageData(im, 0, 0); return c.toDataURL();
+  }
+  function curvaSVG() {
+    if (document.getElementById('mx-crt-svg')) return;
+    const ns = 'http://www.w3.org/2000/svg', svg = document.createElementNS(ns, 'svg');
+    svg.id = 'mx-crt-svg'; svg.setAttribute('width', 0); svg.setAttribute('height', 0); svg.style.position = 'absolute';
+    svg.innerHTML = `<filter id="mx-barril" x="0" y="0" width="1" height="1" filterUnits="objectBoundingBox" primitiveUnits="objectBoundingBox" color-interpolation-filters="sRGB">
+      <feImage href="${mapaBarril(128, 128, .5)}" x="0" y="0" width="1" height="1" preserveAspectRatio="none" result="m"/>
+      <feDisplacementMap in="SourceGraphic" in2="m" scale=".09" xChannelSelector="R" yChannelSelector="G"/></filter>`;
+    document.body.appendChild(svg);
+  }
+  function crt(modo) {
+    const OK = ['no', 'suave', 'curva'];
+    if (modo === undefined) { try { modo = localStorage.getItem('orion.crt'); } catch (e) {} modo = OK.includes(modo) ? modo : 'no'; }
+    else { if (modo === true) modo = 'suave'; if (modo === false) modo = 'no'; if (!OK.includes(modo)) modo = 'no'; try { localStorage.setItem('orion.crt', modo); } catch (e) {} }
+    const H = document.documentElement;
+    let capa = document.getElementById('mx-crt');
+    if (modo !== 'no' && !capa && document.body) { capa = document.createElement('div'); capa.id = 'mx-crt'; document.body.appendChild(capa); }
+    if (modo === 'curva' && document.body) curvaSVG();
+    H.classList.toggle('crt', modo !== 'no'); H.classList.toggle('crt-curva', modo === 'curva');
+    W.CRT = modo; W.dispatchEvent(new CustomEvent('orion:crt', { detail: modo })); return modo;
+  }
   acento(guardado || W.ACC, false);
 
   const PALETA = [['ESCARLATA', '#ff2438'], ['MORADO', '#b14bff'], ['MAGENTA', '#ff3d9a'], ['CIAN', '#3ef0ff'],
@@ -264,8 +346,36 @@
   @keyframes mxin{0%{clip-path:inset(0 100% 0 0);opacity:.2}40%{opacity:1}100%{clip-path:inset(0 0 0 0)}}
   .mx-flick{animation:mxf .4s steps(4) both}
   @keyframes mxf{0%{opacity:0}25%{opacity:1}50%{opacity:.2}75%{opacity:1}100%{opacity:1}}
-  @media (prefers-reduced-motion: reduce){.mx-in,.mx-flick,.mx-glitch{animation:none!important}}`;
+  @media (prefers-reduced-motion: reduce){.mx-in,.mx-flick,.mx-glitch{animation:none!important}}
+  #mx-crt{position:fixed;inset:0;z-index:997;pointer-events:none;border-radius:2.2vmin;
+    background:repeating-linear-gradient(to bottom,rgba(0,0,0,0) 0,rgba(0,0,0,0) 2px,rgba(0,0,0,.28) 3px,rgba(0,0,0,0) 4px),
+      radial-gradient(ellipse at center,rgba(0,0,0,0) 58%,rgba(0,0,0,.55) 100%);
+    box-shadow:inset 0 0 6vmin rgba(0,0,0,.7),inset 0 0 1.4vmin rgba(0,0,0,.9);animation:mxcrt 6s steps(60) infinite}
+  #mx-crt::after{content:'';position:absolute;inset:0;background:linear-gradient(to bottom,rgba(255,255,255,0) 0,rgba(255,255,255,.035) 50%,rgba(255,255,255,0) 100%);
+    background-size:100% 18vh;background-repeat:no-repeat;animation:mxbarre 7s linear infinite}
+  @keyframes mxcrt{0%,100%{opacity:1}48%{opacity:.94}50%{opacity:1}73%{opacity:.97}}
+  @keyframes mxbarre{from{background-position:0 -20vh}to{background-position:0 120vh}}
+  html.crt body{text-shadow:.6px 0 rgba(255,40,80,.35),-.6px 0 rgba(40,220,255,.3),0 0 6px color-mix(in srgb,var(--lime) 35%,transparent)}
+  #mx-carga{position:fixed;inset:0;z-index:996;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;background:rgba(14,15,17,.92);pointer-events:none;transition:opacity .22s}
+  #mx-carga.fuera{opacity:0}
+  #mx-carga .ct{font:600 11px/1 var(--mono,monospace);letter-spacing:.14em;color:#e9e9e9}
+  #mx-carga .seg{display:flex;gap:3px}#mx-carga .seg i{width:7px;height:26px;background:#3a3c40;display:block}
+  #mx-carga .seg i.on{background:#f4f4f4;box-shadow:0 0 6px rgba(255,255,255,.5)}
+  #mx-banda{position:fixed;left:0;right:0;top:50%;transform:translateY(-50%);height:34vh;z-index:996;display:flex;align-items:center;pointer-events:none;transition:opacity .26s}
+  #mx-banda.fuera{opacity:0}
+  #mx-banda .tira{width:100%;background:rgba(20,6,8,.92);overflow:hidden;padding:10px 0}
+  #mx-banda .corre{display:flex;white-space:nowrap;animation:mxcorre 5s linear infinite;font:700 clamp(22px,5vw,54px)/1 var(--mono,monospace);letter-spacing:.06em;color:var(--lime)}
+  #mx-banda .corre span{padding-right:1.2em}
+  @keyframes mxcorre{to{transform:translateX(-50%)}}
+  .mx-pixelar{position:fixed;z-index:995;pointer-events:none;image-rendering:pixelated}
+  html.crt-curva body{filter:url(#mx-barril);min-height:100vh}
+  html.crt-curva #mx-crt{border-radius:6vmin/9vmin}
+  html.ligero.crt-curva body{filter:none}
+  html.ligero #mx-crt,html.ligero #mx-crt::after{animation:none}
+  @media (prefers-reduced-motion: reduce){#mx-crt,#mx-crt::after{animation:none}}`;
   const st = document.createElement('style'); st.textContent = css; document.head.appendChild(st);
 
-  W.MX = { liviano, scramble, glitch, glitchAzar, corte: disolver, franjas: corte, disolver, mantener, acento, PALETA, mezcla, pixel, alerta, columna, ICONOS };
+  if (document.body) crt(); else document.addEventListener('DOMContentLoaded', () => crt());
+  try { const q = new URLSearchParams(location.search); if (q.has('crt')) crt(q.get('crt')); } catch (e) {}
+  W.MX = { liviano, crt, cargando, banda, pixelar, scramble, glitch, glitchAzar, corte: disolver, franjas: corte, disolver, mantener, acento, PALETA, mezcla, pixel, alerta, columna, ICONOS };
 })(window);

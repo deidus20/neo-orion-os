@@ -31,6 +31,8 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y debootstrap squashfs-tools xorriso grub-pc-bin grub-efi-amd64-bin grub-common mtools dosfstools
+      - name: Compilar el núcleo Rust
+        run: cd nucleo && cargo build --release --locked && cp target/release/orion-nucleo ../orion-nucleo-x86_64-linux
       - name: Compilar la ISO
         env:
           EDITION: ${{ github.event.inputs.edicion || 'patata' }}
@@ -42,6 +44,7 @@ jobs:
         run: |
           cd out
           sudo chown "$USER" ./*
+          cp ../orion-nucleo-x86_64-linux .
           ls -lh
           gh release view "$ETIQ" >/dev/null 2>&1 || gh release create "$ETIQ" --title "Neo Orión OS ${ETIQ#v}" --notes-file ../docs/NOTAS_VERSION.md
-          gh release upload "$ETIQ" ./*.iso ./*.sha256 --clobber
+          gh release upload "$ETIQ" ./*.iso ./*.sha256 ./orion-nucleo-x86_64-linux --clobber

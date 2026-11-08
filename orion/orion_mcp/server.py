@@ -42,6 +42,7 @@ mcp = FastMCP("orion-linux", instructions=textwrap.dedent(f"""
     Cuando instales un programa que la persona va a abrir, regístralo con apps(accion='registrar'): su ícono
     sigue la REGLA ESTÉTICA (9×9 bloques, un color, pictograma de lo que hace, nunca el logo de la marca).
     Si la persona no tiene micrófono, ofrece usar su teléfono con telefono_microfono.
+    REGLA DE CÓDIGO (obligatoria): todo programa o módulo nuevo de Neo Orión se escribe en Rust (nucleo/).
     REGLA DE ESTÉTICA (obligatoria): todo lo que agregues a la interfaz usa marathon.js y conserva las
     animaciones del sistema (decodificar títulos, bloques que llegan, falla RGB, disolución, barrido) y la
     paleta de la persona. Si algo nuevo no calza, busca la forma de que quede bien antes de mostrarlo.

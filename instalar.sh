@@ -55,7 +55,7 @@ if [ "$QUITAR" = si ]; then
   systemctl enable getty@tty1.service 2>/dev/null || true
   rm -rf /opt/orion /usr/share/orion /etc/systemd/system/orion-sesion.service* /etc/systemd/system/orion-primer-arranque.service \
          /etc/systemd/user/orion-* /usr/local/bin/orion /usr/local/bin/orion-fit /usr/local/bin/orion-pantalla \
-         /usr/local/bin/orion-primer-arranque /usr/local/bin/orion-sesion /usr/share/applications/neo-orion.desktop
+         /usr/local/bin/orion-primer-arranque /usr/local/bin/orion-sesion /usr/local/bin/orion-nucleo /usr/share/applications/neo-orion.desktop
   systemctl daemon-reload 2>/dev/null || true
   info "Listo. /etc/orion quedó por si vuelves a instalar; bórralo a mano si no lo quieres."
   exit 0
@@ -124,6 +124,18 @@ python3 -m venv --system-site-packages "$D/venv"
 "$D/venv/bin/pip" install -q mcp >/dev/null || info "mcp no se pudo instalar ahora (se reintenta después)"
 echo "$D" > "$("$D/venv/bin/python3" -c 'import site;print(site.getsitepackages()[0])')/orion.pth"
 "$D/venv/bin/python3" -c "import orion_core.servidor" || muere "El código de Neo Orión no carga; revisa el mensaje de arriba."
+
+# núcleo nativo en Rust (servidor del HUD): el ya compilado de la versión, o se compila si hay Rust
+NUCLEO_URL="https://github.com/deidus20/neo-orion-os/releases/latest/download/orion-nucleo-x86_64-linux"
+if [ -x "$SRC/nucleo/target/release/orion-nucleo" ]; then
+  install -m755 "$SRC/nucleo/target/release/orion-nucleo" /usr/local/bin/orion-nucleo
+elif curl -fsSL "$NUCLEO_URL" -o /tmp/orion-nucleo 2>/dev/null && chmod +x /tmp/orion-nucleo && /tmp/orion-nucleo --version >/dev/null 2>&1; then
+  install -m755 /tmp/orion-nucleo /usr/local/bin/orion-nucleo
+elif command -v cargo >/dev/null 2>&1; then
+  ( cd "$SRC/nucleo" && cargo build --release --locked -q ) && install -m755 "$SRC/nucleo/target/release/orion-nucleo" /usr/local/bin/orion-nucleo
+fi
+if [ -x /usr/local/bin/orion-nucleo ]; then info "núcleo Rust: $(/usr/local/bin/orion-nucleo --version)"
+else info "sin núcleo Rust por ahora: se usa el servidor Python de respaldo"; fi
 
 # ------------------------------------------------------------------------------- 5 · tu cuenta
 paso "5/7 · Configurando tu cuenta ($USUARIO)"
