@@ -19,8 +19,7 @@
   basura: la memoria se libera en el momento exacto, sin pausas.
 - Lo más pesado de Neo Orión **ya era nativo**: la IA local (Ollama, C++/Go), el oído (Vosk/whisper.cpp, C++), la voz
   (Piper, C++) y la pantalla (WebKit, C++). La ganancia de Rust está en los servicios que corren todo el día.
-- El HUD sigue en HTML/JS: lo dibuja WebKit. La ventana que lo muestra (`orion-pantalla`, hoy Python+GTK) pasa a Rust
-  con `wry`/`webkit2gtk-rs` en la etapa 3.
+- El HUD sigue en HTML/JS: lo dibuja WebKit. La ventana que lo muestra (`orion-pantalla`) ya es Rust (webkit2gtk-rs).
 
 ## Estado, módulo por módulo
 
@@ -44,28 +43,34 @@
 | `orion_core.instalador` + `instalacion` | 552 | ✅ **migrado** | `instalador.rs` (`orion-nucleo instalar`; en simulación da los mismos 68 comandos, en el mismo orden, que el de Python) |
 | `orion_cnc` (GRBL) | 246 | ✅ **migrado** | `cnc.rs` (serialport; vista del recorrido en SVG con la estética del HUD) |
 | `orion_core.detect` + `perfil` | 262 | ✅ **migrado** | `perfil.rs` (catálogo en `config/perfil-catalogo.json`; mismo nivel y mismas elecciones que Python en este equipo) |
+| `orion-fit` (qué IA cabe) | 239 | ✅ **migrado** | `fit.rs` (`orion-nucleo fit`; mismo resultado que el de Python en 7 equipos simulados) |
 | `orion_casa` (Home Assistant) | 103 | ✅ **migrado** (adelantado) | `casa.rs` |
 | `orion_dictado` (Word) | 158 | ✅ **migrado** | `dictado.rs` (docx-rs; hoja A4, verificado abriéndolo con LibreOffice) |
 | `orion_proyectos` (Gantt, presupuesto) | 202 | ✅ **migrado** | `proyectos.rs` (CPM, presupuesto con IVA, RACI, Gantt SVG y Excel con rust_xlsxwriter; mismos números que Python en el caso de la oficina de 30 m²) |
 | `orion_traductor` | 120 | ✅ **migrado** | `traductor.rs` (translateLocally/Bergamot sin internet en vez de Argos, o la IA local) |
 | `orion_repos` | 74 | ✅ **migrado** | `repos.rs` (gh) |
-| `orion_cuaderno`, `orion_puente` | 323 | etapa 3 | `ureq` |
-| `orion_navegador` | 299 | etapa 4 | `chromiumoxide` (CDP) |
-| `orion_juegos`, `orion_vision`, `orion_lidar` | 521 | etapa 4 | `ureq`, `v4l`, `rplidar` por serie |
-| `orion_motion` (robots, senoides, guardián) | 532 | etapa 4 | Rust puro (`nalgebra`) + `r2r` (ROS 2) |
+| `orion_cuaderno`, `orion_puente` | 323 | ✅ **migrado** | `cuaderno.rs` (Open Notebook por su API local), `puente.rs` (claude/gemini/codex/opencode/ollama) |
+| `orion-pantalla` (ventana del HUD) | 70 | ✅ **migrado** | programa aparte `orion-pantalla/` (webkit2gtk-rs, 360 KB; el núcleo no depende de librerías gráficas) |
+| `orion_navegador` | 299 | ✅ **migrado** | `navegador.rs` (Chrome por DevTools con WebSocket propio, Firefox por Marionette; sin Playwright ni Selenium; probado con Chrome real: escribe, hace clic, lee y captura) |
+| `orion_lidar` | 151 | ✅ **migrado** | `lidar.rs` (sin numpy; protocolo RPLidar propio por serie; mapa SVG; `orion-nucleo lidar demo`) |
+| `orion_vision` (Frigate) | 133 | ✅ **migrado** | `vision.rs` (mismos config.yml y docker-compose.yml que Python; cliente MQTT propio para los avisos al Guardián) |
+| `orion_juegos` | 237 | ✅ **migrado** | `juegos.rs` (datos en `config/juegos.json`; ahora sí usa la gráfica real y `hacerlo` sigue todos los pasos) |
+| `orion_motion` (robots, senoides, guardián) | 532 | ✅ **migrado** | `movimiento.rs` (Rust puro; mismas 29 órdenes que Python con 26 frases de prueba, protecciones incluidas; además arregla la coma decimal «12,5») |
+| `nodos/` (despertador en Raspberry) | 248 | ✅ **migrado** | `orion-nucleo despertador <MAC>` (mismo detector de palmadas y Wake-on-LAN del núcleo) |
 | `orion_forma` (CAD por código) | 144 | **queda como programa externo** | CadQuery/FreeCAD son motores CAD hechos en Python/C++ sin equivalente maduro en Rust: el núcleo los llama como cualquier programa, igual que llama a Blender o KiCad |
 
-**Migrado hoy:** ~3.200 líneas de las 7.500. **Al encender ya no corre ningún Python:** el oído, el vigía, el respaldo y el
-primer arranque son `orion-nucleo oido|vigia|respaldo|primer-arranque`.
+**Migración terminada (9-11-2026):** todo Neo Orión corre en Rust (`orion-nucleo` y `orion-pantalla`, 71 pruebas). El
+puente Python y los módulos migrados se borraron. Python queda solo para el CAD por código (`orion/orion_forma`,
+build123d/CadQuery), que el núcleo llama como programa externo, igual que a Blender o KiCad.
 
 ## Etapas
 
 1. ✅ **Núcleo**: servidor, equipo, controladores, RIC, íconos, memoria, archivo, chat. Puente para el resto.
 2. ✅ **Servicios de fondo**: oído y palmadas, vigía de rendimiento, teléfono como micrófono, respaldo, remoto, actualizar.
    Al cerrar esta etapa, **ningún Python corre al encender**.
-3. **Herramientas**: MCP, instalador, CNC, dictado, proyectos, traductor, cuadernos, ventana del HUD.
-4. **Robots y visión**: navegador, juegos, cámaras, LiDAR, movimiento y guardián.
-5. **Limpieza**: se borra `orion/` (salvo los scripts CAD) y el puente.
+3. ✅ **Herramientas**: MCP, instalador, CNC, dictado, proyectos, traductor, cuadernos, ventana del HUD.
+4. ✅ **Robots y visión**: navegador, juegos, cámaras, LiDAR, movimiento y guardián.
+5. ✅ **Limpieza**: se borró `orion/` (salvo el CAD) y el puente; las etapas de la ISO y `instalar.sh` ya no necesitan Python.
 
 ## Compilar y probar
 

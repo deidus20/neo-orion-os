@@ -1,7 +1,7 @@
 //! ¿Quién está hablando? Huella de voz (vector) por frase y un registro por persona.
 //!
 //! Huellas: sherpa-onnx (3D-Speaker/ECAPA, Apache-2.0, por su librería C cargada al vuelo) o la espectral propia
-//! (MFCC + tono, sin modelos). Nombres por contexto: «soy Constanza», «me llamo Jorge»; el vocativo «Jorge, …» con
+//! (MFCC + tono, sin modelos). Nombres por contexto: «soy Camila», «me llamo Jorge»; el vocativo «Jorge, …» con
 //! respuesta de una voz nueva queda como sugerencia hasta repetirse 2 veces.
 //! PRIVACIDAD: la huella es un dato biométrico. Modo «anonimo» (terceros sin huella permanente) por defecto.
 
@@ -388,9 +388,9 @@ mod pruebas {
         let (_, _) = h.identificar(&voz(160.0, &[650.0, 1100.0], 9, 1.5));
         let (i, _) = h.identificar(&voz(111.0, &davis, 7, 1.5));
         assert_eq!(h.personas[i].etiqueta(), "Davis");
-        let j = h.aprender(j, "Hola, me llamo Constanza, traje los materiales");
-        assert_eq!(h.personas[j].nombre, "Constanza");
-        assert!(h.olvidar("constanza"));
+        let j = h.aprender(j, "Hola, me llamo Camila, traje los materiales");
+        assert_eq!(h.personas[j].nombre, "Camila");
+        assert!(h.olvidar("camila"));
         // solo se guarda quien aceptó
         let g: Vec<Persona> = serde_json::from_str(&std::fs::read_to_string(d.path().join("v.json")).unwrap()).unwrap();
         assert_eq!(g.len(), 1);

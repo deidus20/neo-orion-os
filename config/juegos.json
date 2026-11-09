@@ -1,0 +1,372 @@
+{
+ "_nota": "Plataformas de juego y medios (verificadas nov-2026; revisar la disponibilidad en Chile cada cierto tiempo). Lo usa nucleo/orion-nucleo/src/juegos.rs.",
+ "plataformas": [
+  {
+   "clave": "steam",
+   "nombre": "Steam + Proton",
+   "tipo": "local",
+   "instalar": [
+    "sudo dpkg --add-architecture i386",
+    "sudo apt-get update",
+    "sudo apt-get install -y steam-installer steam-devices"
+   ],
+   "lanzar": [
+    "steam"
+   ],
+   "licencia": "propietaria (gratis)",
+   "repo": "",
+   "nota": "Proton corre la mayoría de los juegos de Windows. Steam Input mapea cualquier mando.",
+   "necesita_gpu": true,
+   "detecta": [
+    "steam"
+   ],
+   "chile": "",
+   "modelo": ""
+  },
+  {
+   "clave": "heroic",
+   "nombre": "Heroic (Epic, GOG, Amazon)",
+   "tipo": "local",
+   "instalar": [
+    "flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo",
+    "flatpak install -y flathub com.heroicgameslauncher.hgl"
+   ],
+   "lanzar": [
+    "flatpak",
+    "run",
+    "com.heroicgameslauncher.hgl"
+   ],
+   "licencia": "GPL-3.0",
+   "repo": "Heroic-Games-Launcher/HeroicGamesLauncher",
+   "nota": "",
+   "necesita_gpu": true,
+   "detecta": [
+    "com.heroicgameslauncher.hgl"
+   ],
+   "chile": "",
+   "modelo": ""
+  },
+  {
+   "clave": "lutris",
+   "nombre": "Lutris",
+   "tipo": "local",
+   "instalar": [
+    "sudo apt-get install -y lutris"
+   ],
+   "lanzar": [
+    "lutris"
+   ],
+   "licencia": "GPL-3.0",
+   "repo": "lutris/lutris",
+   "nota": "Instaladores comunitarios para juegos fuera de Steam.",
+   "necesita_gpu": true,
+   "detecta": [
+    "lutris"
+   ],
+   "chile": "",
+   "modelo": ""
+  },
+  {
+   "clave": "retroarch",
+   "nombre": "RetroArch (emuladores)",
+   "tipo": "local",
+   "instalar": [
+    "sudo apt-get install -y retroarch"
+   ],
+   "lanzar": [
+    "retroarch"
+   ],
+   "licencia": "GPL-3.0",
+   "repo": "libretro/RetroArch",
+   "nota": "Con tus propios juegos/ROMs y BIOS sacados de tus consolas.",
+   "necesita_gpu": false,
+   "detecta": [
+    "retroarch"
+   ],
+   "chile": "",
+   "modelo": ""
+  },
+  {
+   "clave": "geforcenow",
+   "nombre": "GeForce NOW",
+   "tipo": "nube",
+   "instalar": [
+    "flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo",
+    "flatpak remote-add --if-not-exists GeForceNOW https://international.download.nvidia.com/GFNLinux/flatpak/geforcenow.flatpakrepo",
+    "flatpak install -y GeForceNOW com.nvidia.geforcenow"
+   ],
+   "lanzar": [
+    "flatpak",
+    "run",
+    "com.nvidia.geforcenow"
+   ],
+   "licencia": "propietaria (cuenta NVIDIA)",
+   "repo": "",
+   "nota": "App nativa oficial para Ubuntu 24.04+. El juego corre en servidores RTX: sirve aunque el equipo no tenga GPU. Pide H.264/H.265 por hardware y buena red (≥15 Mb/s 720p, ≥25 Mb/s 1080p).",
+   "necesita_gpu": false,
+   "detecta": [
+    "com.nvidia.geforcenow"
+   ],
+   "chile": "sí (en Chile lo opera ABYA, socio de NVIDIA: revisar que la cuenta funcione en la app de Linux)",
+   "modelo": "tus juegos"
+  },
+  {
+   "clave": "xboxcloud",
+   "nombre": "Xbox Cloud Gaming",
+   "tipo": "nube",
+   "instalar": [],
+   "lanzar": [
+    "xdg-open",
+    "https://www.xbox.com/play"
+   ],
+   "licencia": "servicio (Game Pass Ultimate)",
+   "repo": "",
+   "nota": "Por navegador (Chrome/Edge); funciona con mando. Se detectó un servidor 'ChileCentral' aún sin anuncio oficial.",
+   "necesita_gpu": false,
+   "detecta": [],
+   "chile": "sí",
+   "modelo": "catálogo"
+  },
+  {
+   "clave": "boosteroid",
+   "nombre": "Boosteroid",
+   "tipo": "nube",
+   "instalar": [],
+   "lanzar": [
+    "xdg-open",
+    "https://cloud.boosteroid.com"
+   ],
+   "licencia": "servicio (suscripción)",
+   "repo": "",
+   "nota": "Tiene app nativa para Linux (.deb desde boosteroid.com) y versión web. Juegos que ya tienes en Steam, Epic, GOG…",
+   "necesita_gpu": false,
+   "detecta": [
+    "boosteroid"
+   ],
+   "chile": "verificar en boosteroid.com (tiene centros de datos en Sudamérica)",
+   "modelo": "tus juegos"
+  },
+  {
+   "clave": "shadow",
+   "nombre": "Shadow PC",
+   "tipo": "nube",
+   "instalar": [
+    "wget -O /tmp/shadow-amd64.deb https://update.shadow.tech/launcher/prod/linux/x86_64/shadow-amd64.deb",
+    "sudo apt-get install -y /tmp/shadow-amd64.deb"
+   ],
+   "lanzar": [
+    "shadow-prod"
+   ],
+   "licencia": "servicio (arriendo de PC)",
+   "repo": "",
+   "nota": "Un PC Windows completo en la nube: instalas lo que quieras, también juegos que no están en otras nubes. Pide decodificación H.264/H.265 por hardware.",
+   "necesita_gpu": false,
+   "detecta": [
+    "shadow-prod"
+   ],
+   "chile": "verificar (centros de datos en Europa y EE.UU.)",
+   "modelo": "PC completo"
+  },
+  {
+   "clave": "luna",
+   "nombre": "Amazon Luna",
+   "tipo": "nube",
+   "instalar": [],
+   "lanzar": [
+    "xdg-open",
+    "https://luna.amazon.com"
+   ],
+   "licencia": "servicio (Prime / Luna+)",
+   "repo": "",
+   "nota": "Por navegador Chrome o Edge.",
+   "necesita_gpu": false,
+   "detecta": [],
+   "chile": "no disponible en Chile (nov-2026)",
+   "modelo": "catálogo"
+  },
+  {
+   "clave": "blacknut",
+   "nombre": "Blacknut",
+   "tipo": "nube",
+   "instalar": [],
+   "lanzar": [
+    "xdg-open",
+    "https://www.blacknut.com"
+   ],
+   "licencia": "servicio (suscripción)",
+   "repo": "",
+   "nota": "Catálogo familiar por navegador.",
+   "necesita_gpu": false,
+   "detecta": [],
+   "chile": "verificar",
+   "modelo": "catálogo"
+  },
+  {
+   "clave": "moonlight",
+   "nombre": "Moonlight (jugar desde otro PC de la casa)",
+   "tipo": "casa",
+   "instalar": [
+    "flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo",
+    "flatpak install -y flathub com.moonlight_stream.Moonlight"
+   ],
+   "lanzar": [
+    "flatpak",
+    "run",
+    "com.moonlight_stream.Moonlight"
+   ],
+   "licencia": "GPL-3.0",
+   "repo": "moonlight-stream/moonlight-qt",
+   "nota": "Recibe el juego que corre en tu torre con Sunshine.",
+   "necesita_gpu": false,
+   "detecta": [
+    "com.moonlight_stream.Moonlight"
+   ],
+   "chile": "",
+   "modelo": ""
+  },
+  {
+   "clave": "steamlink",
+   "nombre": "Steam Remote Play / Steam Link",
+   "tipo": "casa",
+   "instalar": [
+    "flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo",
+    "flatpak install -y flathub com.valvesoftware.SteamLink"
+   ],
+   "lanzar": [
+    "flatpak",
+    "run",
+    "com.valvesoftware.SteamLink"
+   ],
+   "licencia": "propietaria (gratis)",
+   "repo": "",
+   "nota": "Juega en otra pantalla lo que corre en tu PC con Steam.",
+   "necesita_gpu": false,
+   "detecta": [
+    "com.valvesoftware.SteamLink"
+   ],
+   "chile": "",
+   "modelo": ""
+  },
+  {
+   "clave": "sunshine",
+   "nombre": "Sunshine (convertir este PC en servidor de juegos)",
+   "tipo": "casa",
+   "instalar": [
+    "flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo",
+    "flatpak install -y flathub dev.lizardbyte.app.Sunshine"
+   ],
+   "lanzar": [
+    "flatpak",
+    "run",
+    "dev.lizardbyte.app.Sunshine"
+   ],
+   "licencia": "GPL-3.0",
+   "repo": "LizardByte/Sunshine",
+   "nota": "En la torre potente; el teléfono, la tele o un portátil juegan con Moonlight.",
+   "necesita_gpu": true,
+   "detecta": [
+    "dev.lizardbyte.app.Sunshine"
+   ],
+   "chile": "",
+   "modelo": ""
+  },
+  {
+   "clave": "jellyfin",
+   "nombre": "Jellyfin (tus series y películas)",
+   "tipo": "medios",
+   "instalar": [
+    "flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo",
+    "flatpak install -y flathub org.jellyfin.JellyfinServer com.github.iwalton3.jellyfin-media-player"
+   ],
+   "lanzar": [
+    "flatpak",
+    "run",
+    "com.github.iwalton3.jellyfin-media-player"
+   ],
+   "licencia": "GPL-2.0",
+   "repo": "jellyfin/jellyfin",
+   "nota": "Tu propio 'Netflix' en casa con tus archivos; se ve en tele, teléfono y PC.",
+   "necesita_gpu": false,
+   "detecta": [
+    "org.jellyfin.JellyfinServer"
+   ],
+   "chile": "",
+   "modelo": ""
+  },
+  {
+   "clave": "kodi",
+   "nombre": "Kodi (centro multimedia)",
+   "tipo": "medios",
+   "instalar": [
+    "sudo apt-get install -y kodi"
+   ],
+   "lanzar": [
+    "kodi"
+   ],
+   "licencia": "GPL-2.0",
+   "repo": "xbmc/xbmc",
+   "nota": "Pantalla completa para la tele, se maneja con mando o control remoto.",
+   "necesita_gpu": false,
+   "detecta": [
+    "kodi"
+   ],
+   "chile": "",
+   "modelo": ""
+  },
+  {
+   "clave": "servicios",
+   "nombre": "Plataformas oficiales (Netflix, Disney+, Max, YouTube…)",
+   "tipo": "medios",
+   "instalar": [],
+   "lanzar": [
+    "xdg-open",
+    "https://www.netflix.com"
+   ],
+   "licencia": "servicios con suscripción",
+   "repo": "",
+   "nota": "Como app web en el navegador; Neo Orión abre la que pidas.",
+   "necesita_gpu": false,
+   "detecta": [],
+   "chile": "",
+   "modelo": ""
+  }
+ ],
+ "servicios": {
+  "netflix": "https://www.netflix.com",
+  "disney": "https://www.disneyplus.com",
+  "max": "https://play.max.com",
+  "prime": "https://www.primevideo.com",
+  "youtube": "https://www.youtube.com/tv",
+  "crunchyroll": "https://www.crunchyroll.com",
+  "apple": "https://tv.apple.com",
+  "paramount": "https://www.paramountplus.com",
+  "twitch": "https://www.twitch.tv"
+ },
+ "extras": {
+  "gamemode": [
+   "sudo apt-get install -y gamemode",
+   "BSD-3-Clause",
+   "sube el rendimiento mientras juegas"
+  ],
+  "mangohud": [
+   "sudo apt-get install -y mangohud",
+   "MIT",
+   "FPS y temperaturas en pantalla"
+  ],
+  "antimicrox": [
+   "sudo apt-get install -y antimicrox",
+   "GPL-3.0",
+   "usar el mando como teclado/mouse en juegos sin soporte"
+  ],
+  "chiaki-ng": [
+   "flatpak install -y flathub io.github.streetpea.Chiaki4deck",
+   "AGPL-3.0",
+   "Remote Play de tu PS4/PS5 en el PC (cliente libre)"
+  ],
+  "xpadneo": [
+   "git clone https://github.com/atar-axis/xpadneo /tmp/xpadneo && sudo /tmp/xpadneo/install.sh",
+   "GPL-3.0",
+   "mando Xbox por Bluetooth con vibración y batería"
+  ]
+ }
+}

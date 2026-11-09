@@ -170,7 +170,7 @@ const C = { crt: 'no', idioma: 'es-CL', teclado: 'latam', zona: 'America/Santiag
   color: window.ACC, modulos: ['robotica', 'maker', 'proyectos', 'juegos', 'dev'], capa: 'base', usuario: '', equipoNombre: 'orion', frase: false };
 
 /* ---------------- servidor local (en el pendrive real) ---------------- */
-// Servido por orion_core.servidor en http://127.0.0.1:7700 → datos y acciones reales.
+// Servido por orion-nucleo (Rust) en http://127.0.0.1:7700 → datos y acciones reales.
 // Abierto como archivo o en la vista previa → todo simulado, igual que antes.
 const API = { si: false, eq: null, sinMic: false, clave: '' };
 async function api(ruta, datos) {

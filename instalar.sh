@@ -78,7 +78,7 @@ export DEBIAN_FRONTEND=noninteractive
 apt-get update -qq
 apt-get install -y -qq git ca-certificates curl >/dev/null
 AQUI="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" 2>/dev/null && pwd || echo /nada)"
-if [ -d "$AQUI/orion/orion_core" ] && [ -d "$AQUI/hud" ]; then
+if [ -d "$AQUI/nucleo" ] && [ -d "$AQUI/hud" ]; then
   SRC="$AQUI"; info "usando esta copia: $SRC"
 else
   SRC=/opt/orion-src
@@ -90,7 +90,7 @@ lista() { sed -e 's/#.*//' -e '/^[[:space:]]*$/d' "$SRC/config/packages/$1.list"
 
 # ------------------------------------------------------------------------------- 3 · paquetes
 paso "3/7 · Instalando lo que necesita (puede tardar unos minutos)"
-PAQ="$(lista herramientas) $(lista kiosko) python3 python3-venv python3-numpy python3-gi gir1.2-gtk-3.0 alsa-utils pciutils curl zram-tools"
+PAQ="$(lista herramientas) $(lista kiosko) python3 python3-venv alsa-utils pciutils curl zram-tools"
 # se instalan uno por uno los que fallen, para que un paquete ausente no frene todo
 if ! apt-get install -y -qq --no-install-recommends $PAQ >/dev/null 2>&1; then
   for p in $PAQ; do apt-get install -y -qq --no-install-recommends "$p" >/dev/null 2>&1 || info "no se pudo instalar: $p (se sigue)"; done
@@ -100,7 +100,7 @@ fi
 paso "4/7 · Copiando Neo Orión al sistema"
 D=/opt/orion
 mkdir -p "$D" /usr/share/orion/hud /usr/share/orion/instalador /etc/orion
-for m in "$SRC"/orion/orion_* "$SRC"/orion/profiles "$SRC"/orion/modulos; do
+for m in "$SRC"/orion/orion_* "$SRC"/orion/modulos; do
   [ -e "$m" ] && { rm -rf "$D/$(basename "$m")"; cp -a "$m" "$D/"; }
 done
 find "$D" -name __pycache__ -prune -exec rm -rf {} +
@@ -112,16 +112,16 @@ for f in "$SRC"/overlay/etc/orion/*; do [ -e "/etc/orion/$(basename "$f")" ] || 
 cp "$SRC"/hud/index.html "$SRC"/hud/marathon.js /usr/share/orion/hud/
 cp "$SRC"/hud/instalar.html "$SRC"/hud/marathon.js /usr/share/orion/instalador/
 [ -d "$SRC/hud/lib" ] && cp -a "$SRC/hud/lib" /usr/share/orion/hud/
+cp -a "$SRC/config/robots" /usr/share/orion/
 for d in hud instalador; do cp -a "$SRC/hud/fuentes" "/usr/share/orion/$d/"; done
 cp "$SRC/config/ia-catalogo.json" "$SRC/config/modulos.json" "$SRC/config/capas.json" /usr/share/orion/
 cp -a "$SRC/catalogo" /usr/share/orion/
 chmod +x /usr/local/bin/orion* 2>/dev/null || true
 printf 'Neo Orión OS · instalado sobre %s · %s\n' "${PRETTY_NAME:-Linux}" "$(date +%F)" > /etc/orion/version
 
-# entorno Python propio
-python3 -m venv --system-site-packages "$D/venv"
-echo "$D" > "$("$D/venv/bin/python3" -c 'import site;print(site.getsitepackages()[0])')/orion.pth"
-"$D/venv/bin/python3" -c "import orion_core.servidor" || muere "El código de Neo Orión no carga; revisa el mensaje de arriba."
+# entorno Python SOLO para el CAD por código (build123d/CadQuery son Python); todo lo demás es el núcleo en Rust
+python3 -m venv --system-site-packages "$D/venv" && echo "$D" > "$("$D/venv/bin/python3" -c 'import site;print(site.getsitepackages()[0])')/orion.pth" \
+  || info "sin entorno para el CAD por ahora (no afecta al resto)"
 
 # núcleo nativo en Rust (servidor del HUD): el ya compilado de la versión, o se compila si hay Rust
 NUCLEO_URL="https://github.com/deidus20/neo-orion-os/releases/latest/download/orion-nucleo-x86_64-linux"
@@ -132,8 +132,17 @@ elif curl -fsSL "$NUCLEO_URL" -o /tmp/orion-nucleo 2>/dev/null && chmod +x /tmp/
 elif command -v cargo >/dev/null 2>&1; then
   ( cd "$SRC/nucleo" && cargo build --release --locked -q ) && install -m755 "$SRC/nucleo/target/release/orion-nucleo" /usr/local/bin/orion-nucleo
 fi
+# la ventana del HUD (WebKit, Rust): la de la versión, o se compila si hay Rust y WebKit para compilar
+PANTALLA_URL="https://github.com/deidus20/neo-orion-os/releases/latest/download/orion-pantalla-x86_64-linux"
+if [ -x "$SRC/nucleo/target/release/orion-pantalla" ]; then
+  install -m755 "$SRC/nucleo/target/release/orion-pantalla" /usr/local/bin/orion-pantalla
+elif curl -fsSL "$PANTALLA_URL" -o /tmp/orion-pantalla 2>/dev/null; then
+  install -m755 /tmp/orion-pantalla /usr/local/bin/orion-pantalla
+elif command -v cargo >/dev/null 2>&1 && pkg-config --exists webkit2gtk-4.1 2>/dev/null; then
+  ( cd "$SRC/nucleo" && cargo build --release --locked -q -p orion-pantalla ) && install -m755 "$SRC/nucleo/target/release/orion-pantalla" /usr/local/bin/orion-pantalla
+fi
 if [ -x /usr/local/bin/orion-nucleo ]; then info "núcleo Rust: $(/usr/local/bin/orion-nucleo --version)"
-else info "sin núcleo Rust por ahora: se usa el servidor Python de respaldo"; fi
+else muere "No se pudo bajar ni compilar el núcleo (orion-nucleo). Revisa la conexión o instala Rust (https://rustup.rs) y repite."; fi
 
 # ------------------------------------------------------------------------------- 5 · tu cuenta
 paso "5/7 · Configurando tu cuenta ($USUARIO)"
@@ -144,20 +153,23 @@ for g in audio video input render dialout plugdev; do getent group "$g" >/dev/nu
 sudo -u "$USUARIO" mkdir -p "$CASA/Orion" "$CASA/.orion"
 [ -f "$CASA/.orion/acento" ] || echo "#ff2438" | sudo -u "$USUARIO" tee "$CASA/.orion/acento" >/dev/null
 # controladores de este equipo (gráfica y procesador)
-PYTHONPATH=$D "$D/venv/bin/python3" -c "
-import json; from orion_core.controladores import detectar
-open('/etc/orion/controladores.json','w').write(json.dumps(detectar(), ensure_ascii=False, indent=2))" 2>/dev/null \
+/usr/local/bin/orion-nucleo controladores > /etc/orion/controladores.json 2>/dev/null \
   && info "gráfica y procesador detectados → /etc/orion/controladores.json" || info "no se pudo detectar la gráfica (se sigue)"
 # IA recomendada para este equipo
 if [ ! -f /etc/orion/instalacion.json ]; then
-  MODELO=$(python3 /usr/local/bin/orion-fit --json 2>/dev/null | python3 -c "import json,sys;print(json.load(sys.stdin)['recommendation']['best']['tag'])" 2>/dev/null || echo "gemma3:1b")
-  python3 - "$USUARIO" "$MODELO" <<'PY'
-import json, sys
-u, m = sys.argv[1], sys.argv[2]
-json.dump({"modo": "directo", "ia": {"locales": [m]}, "oido": "vosk", "voz": "espeak-ng", "capa": "base",
-           "cuenta": {"usuario": u, "frase": "", "desbloqueo": "clave"}},
-          open("/etc/orion/instalacion.json", "w"), ensure_ascii=False, indent=2)
-PY
+  /usr/local/bin/orion-nucleo fit --json > /tmp/orion-fit.json 2>/dev/null
+  MODELO=$(/usr/local/bin/orion-nucleo config /tmp/orion-fit.json recommendation.best.tag 2>/dev/null)
+  [ -n "$MODELO" ] || MODELO="gemma3:1b"
+  cat > /etc/orion/instalacion.json <<JSON
+{
+  "modo": "directo",
+  "ia": {"locales": ["$MODELO"]},
+  "oido": "vosk",
+  "voz": "espeak-ng",
+  "capa": "base",
+  "cuenta": {"usuario": "$USUARIO", "frase": "", "desbloqueo": "clave"}
+}
+JSON
   info "IA local recomendada para este equipo: $MODELO"
 fi
 # capa personal (solo repo privado)

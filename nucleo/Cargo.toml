@@ -1,7 +1,7 @@
 # Neo Orión · núcleo nativo en Rust (reemplaza a los servicios Python, uno por uno)
 [workspace]
 resolver = "2"
-members = ["orion-nucleo"]
+members = ["orion-nucleo", "orion-pantalla"]
 
 [workspace.package]
 edition = "2021"

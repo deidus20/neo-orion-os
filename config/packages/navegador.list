@@ -7,4 +7,4 @@
 google-chrome-stable
 firefox
 python3-selenium
-wl-clipboard xclip      # copiar el encargo al portapapeles (orion_puente, modo web)
+wl-clipboard xclip      # copiar el encargo al portapapeles (puente entre IAs, modo web)

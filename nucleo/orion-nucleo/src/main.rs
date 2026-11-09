@@ -66,6 +66,49 @@ fn main() {
             let texto: Vec<&str> = args[1..].iter().map(String::as_str).filter(|a| !a.starts_with("--") && *a != pl).collect();
             imprimir(orion_nucleo::dictado::dictar(&texto.join(" "), &pl, "", &serde_json::json!({}), false));
         }
+        "fit" => std::process::exit(orion_nucleo::fit::principal(&args[1..])),
+        "robot" => {
+            // orion-nucleo robot "hombro a 45 grados" ["onda en el codo" …]: pasa por el traductor y el Guardián (simulado)
+            let raiz = std::env::var_os("ORION_ROBOTS").map(PathBuf::from);
+            let dist = std::env::var("ORION_DISTANCIA_MM").ok().and_then(|d| d.parse::<f64>().ok());
+            let mut o = orion_nucleo::movimiento::Orion::new(orion_nucleo::movimiento::perfil_por_defecto(), None, Some(Box::new(move || dist)), raiz.as_deref());
+            for f in &args[1..] {
+                println!("IA  › {f}");
+                for l in o.decir(f) {
+                    println!("     {l}");
+                }
+            }
+            println!("pose {}", o.robot.pose_json());
+            println!("efector {:?}", o.robot.efector());
+        }
+        "lidar" => std::process::exit(orion_nucleo::lidar::principal(&args[1..])),
+        "despertador" => {
+            // Nodo despertador (Raspberry Pi con micrófono USB): escucha palmadas y despierta al PC central por red.
+            //   orion-nucleo despertador <MAC del PC central> [veces=2]
+            use orion_nucleo::voz::activacion as act;
+            let Some(mac) = args.get(1) else {
+                eprintln!("uso: orion-nucleo despertador AA:BB:CC:DD:EE:FF [veces]");
+                std::process::exit(2);
+            };
+            if let Err(e) = act::paquete_magico(mac) {
+                eprintln!("{e}");
+                std::process::exit(2);
+            }
+            let veces: usize = args.get(2).and_then(|v| v.parse().ok()).unwrap_or(2);
+            let mut p = act::palmadas_de(&act::leer());
+            let mut arec = std::process::Command::new("arecord").args(["-q", "-f", "S16_LE", "-r", "16000", "-c", "1", "-t", "raw"]).stdout(std::process::Stdio::piped()).spawn().expect("arecord (alsa-utils)");
+            let mut entrada = arec.stdout.take().unwrap();
+            let mut b = [0u8; 3200];
+            println!("escuchando palmadas · despierto {mac} con {veces}");
+            while std::io::Read::read_exact(&mut entrada, &mut b).is_ok() {
+                let m: Vec<i16> = b.chunks_exact(2).map(|c| i16::from_le_bytes([c[0], c[1]])).collect();
+                if let Some(n) = p.alimentar(&m).filter(|n| *n >= veces) {
+                    let r = act::despertar_equipo(mac, "255.255.255.255", 9);
+                    println!("palmadas: {n} → despertando {mac} {}", if r.is_ok() { "✓" } else { "✗" });
+                }
+            }
+        }
+        "importar-html" => std::process::exit(orion_nucleo::importar::principal(&args[1..])),
         "mcp" => std::process::exit(orion_nucleo::mcp::ejecutar()),
         "primer-arranque" => std::process::exit(orion_nucleo::primer::ejecutar()),
         "llave-desde" => {
@@ -84,7 +127,7 @@ fn main() {
         }
         "version" => println!("orion-nucleo {}", env!("CARGO_PKG_VERSION")),
         _ => {
-            eprintln!("uso: orion-nucleo [servir|mcp|instalar|dictado|vigia|oido|decir|respaldo|primer-arranque|llave-desde|config|equipo|controladores|apps|electrica|memoria] …");
+            eprintln!("uso: orion-nucleo [servir|mcp|importar-html|instalar|dictado|fit|robot|lidar|despertador|vigia|oido|decir|respaldo|primer-arranque|llave-desde|config|equipo|controladores|apps|electrica|memoria] …");
             std::process::exit(2);
         }
     }

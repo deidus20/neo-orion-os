@@ -4,7 +4,7 @@
     "pásala a 3D"        → malla    (TRELLIS.2 / Hunyuan3D / TripoSR) [GPU]  o  silueta extruida [CPU]
     "llévala a CAD"      → sólido   (build123d, STEP + STL a escala real)
     "integra los servos" → bolsillos, ejes y tornillos para cada servo
-Cada paso usa la alternativa que el equipo aguanta (orion_core/perfil.py); el
+Cada paso usa la alternativa que el equipo aguanta (perfil.rs del núcleo); el
 paso CPU (silueta) funciona en cualquier equipo y sirve de respaldo.
 """
 from __future__ import annotations

@@ -312,7 +312,7 @@ body.chat #chattab{display:none}
 /* =========================================================
    Neo Orión OS — prototipo del HUD
    Todo lo de "atrás" (IA, traductor, guardián) está simulado
-   aquí en JS con la misma lógica que orion_motion (Python).
+   aquí en JS con la misma lógica que movimiento.rs (núcleo).
    ========================================================= */
 const $ = s => document.querySelector(s);
 const el = (tag, cls, html) => { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; };
@@ -966,7 +966,7 @@ function placaPanel() {
 }
 
 
-/* ---------- proyectos: Carta Gantt real generada por orion_proyectos (CPM) ---------- */
+/* ---------- proyectos: Carta Gantt real generada por proyectos.rs (CPM) ---------- */
 const GANTT_SVG = "<svg style=\"width:100%%;min-width:640px;display:block\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 980 424\" font-family=\"JetBrains Mono,monospace\" font-size=\"11\"><rect width=\"980\" height=\"424\" fill=\"#101113\"/><text x=\"12\" y=\"22\" fill=\"#cdf564\" font-size=\"13\">HABILITACI\u00d3N OFICINA 30 M\u00b2</text><text x=\"12\" y=\"40\" fill=\"#8b8e94\">17 d\u00edas \u00b7 ruta cr\u00edtica en rojo \u00b7 Cliente particular</text><line x1=\"300.0\" y1=\"48\" x2=\"300.0\" y2=\"424\" stroke=\"#2a2c30\"/><text x=\"302.0\" y=\"58\" fill=\"#55585e\" font-size=\"9\">d0</text><line x1=\"338.8\" y1=\"48\" x2=\"338.8\" y2=\"424\" stroke=\"#2a2c30\"/><text x=\"340.8\" y=\"58\" fill=\"#55585e\" font-size=\"9\">d1</text><line x1=\"377.6\" y1=\"48\" x2=\"377.6\" y2=\"424\" stroke=\"#2a2c30\"/><text x=\"379.6\" y=\"58\" fill=\"#55585e\" font-size=\"9\">d2</text><line x1=\"416.5\" y1=\"48\" x2=\"416.5\" y2=\"424\" stroke=\"#2a2c30\"/><text x=\"418.5\" y=\"58\" fill=\"#55585e\" font-size=\"9\">d3</text><line x1=\"455.3\" y1=\"48\" x2=\"455.3\" y2=\"424\" stroke=\"#2a2c30\"/><text x=\"457.3\" y=\"58\" fill=\"#55585e\" font-size=\"9\">d4</text><line x1=\"494.1\" y1=\"48\" x2=\"494.1\" y2=\"424\" stroke=\"#2a2c30\"/><text x=\"496.1\" y=\"58\" fill=\"#55585e\" font-size=\"9\">d5</text><line x1=\"532.9\" y1=\"48\" x2=\"532.9\" y2=\"424\" stroke=\"#2a2c30\"/><text x=\"534.9\" y=\"58\" fill=\"#55585e\" font-size=\"9\">d6</text><line x1=\"571.8\" y1=\"48\" x2=\"571.8\" y2=\"424\" stroke=\"#2a2c30\"/><text x=\"573.8\" y=\"58\" fill=\"#55585e\" font-size=\"9\">d7</text><line x1=\"610.6\" y1=\"48\" x2=\"610.6\" y2=\"424\" stroke=\"#2a2c30\"/><text x=\"612.6\" y=\"58\" fill=\"#55585e\" font-size=\"9\">d8</text><line x1=\"649.4\" y1=\"48\" x2=\"649.4\" y2=\"424\" stroke=\"#2a2c30\"/><text x=\"651.4\" y=\"58\" fill=\"#55585e\" font-size=\"9\">d9</text><line x1=\"688.2\" y1=\"48\" x2=\"688.2\" y2=\"424\" stroke=\"#2a2c30\"/><text x=\"690.2\" y=\"58\" fill=\"#55585e\" font-size=\"9\">d10</text><line x1=\"727.1\" y1=\"48\" x2=\"727.1\" y2=\"424\" stroke=\"#2a2c30\"/><text x=\"729.1\" y=\"58\" fill=\"#55585e\" font-size=\"9\">d11</text><line x1=\"765.9\" y1=\"48\" x2=\"765.9\" y2=\"424\" stroke=\"#2a2c30\"/><text x=\"767.9\" y=\"58\" fill=\"#55585e\" font-size=\"9\">d12</text><line x1=\"804.7\" y1=\"48\" x2=\"804.7\" y2=\"424\" stroke=\"#2a2c30\"/><text x=\"806.7\" y=\"58\" fill=\"#55585e\" font-size=\"9\">d13</text><line x1=\"843.5\" y1=\"48\" x2=\"843.5\" y2=\"424\" stroke=\"#2a2c30\"/><text x=\"845.5\" y=\"58\" fill=\"#55585e\" font-size=\"9\">d14</text><line x1=\"882.4\" y1=\"48\" x2=\"882.4\" y2=\"424\" stroke=\"#2a2c30\"/><text x=\"884.4\" y=\"58\" fill=\"#55585e\" font-size=\"9\">d15</text><line x1=\"921.2\" y1=\"48\" x2=\"921.2\" y2=\"424\" stroke=\"#2a2c30\"/><text x=\"923.2\" y=\"58\" fill=\"#55585e\" font-size=\"9\">d16</text><line x1=\"960.0\" y1=\"48\" x2=\"960.0\" y2=\"424\" stroke=\"#2a2c30\"/><text x=\"962.0\" y=\"58\" fill=\"#55585e\" font-size=\"9\">d17</text><text x=\"12\" y=\"77\" fill=\"#e6e8ea\">1 Preliminares</text><rect x=\"300.0\" y=\"70\" width=\"155.3\" height=\"5\" fill=\"#e6e8ea\"/><text x=\"24\" y=\"103\" fill=\"#b9bcc1\">1.1 Levantamiento y medici\u00f3n</text><rect x=\"300.0\" y=\"92\" width=\"38.8\" height=\"14\" fill=\"none\" stroke=\"#ff4a2a\"/><rect x=\"300.0\" y=\"92\" width=\"38.8\" height=\"14\" fill=\"#ff4a2a\" opacity=\".85\"/><text x=\"24\" y=\"129\" fill=\"#b9bcc1\">1.2 Permisos y compra de materiale</text><rect x=\"338.8\" y=\"118\" width=\"116.5\" height=\"14\" fill=\"none\" stroke=\"#ff4a2a\"/><rect x=\"338.8\" y=\"118\" width=\"58.2\" height=\"14\" fill=\"#ff4a2a\" opacity=\".85\"/><text x=\"12\" y=\"155\" fill=\"#e6e8ea\">2 Obra gruesa</text><rect x=\"338.8\" y=\"148\" width=\"271.8\" height=\"5\" fill=\"#e6e8ea\"/><text x=\"24\" y=\"181\" fill=\"#b9bcc1\">2.1 Demolici\u00f3n y retiro</text><rect x=\"338.8\" y=\"170\" width=\"77.6\" height=\"14\" fill=\"none\" stroke=\"#cdf564\"/><rect x=\"338.8\" y=\"170\" width=\"0.0\" height=\"14\" fill=\"#cdf564\" opacity=\".85\"/><line x1=\"416.5\" y1=\"177\" x2=\"455.3\" y2=\"177\" stroke=\"#55585e\" stroke-dasharray=\"2 3\"/><text x=\"24\" y=\"207\" fill=\"#b9bcc1\">2.2 Tabiquer\u00eda</text><rect x=\"455.3\" y=\"196\" width=\"155.3\" height=\"14\" fill=\"none\" stroke=\"#ff4a2a\"/><rect x=\"455.3\" y=\"196\" width=\"0.0\" height=\"14\" fill=\"#ff4a2a\" opacity=\".85\"/><text x=\"12\" y=\"233\" fill=\"#e6e8ea\">3 Instalaciones</text><rect x=\"610.6\" y=\"226\" width=\"155.3\" height=\"5\" fill=\"#e6e8ea\"/><text x=\"24\" y=\"259\" fill=\"#b9bcc1\">3.1 Canalizaci\u00f3n el\u00e9ctrica</text><rect x=\"610.6\" y=\"248\" width=\"116.5\" height=\"14\" fill=\"none\" stroke=\"#ff4a2a\"/><rect x=\"610.6\" y=\"248\" width=\"0.0\" height=\"14\" fill=\"#ff4a2a\" opacity=\".85\"/><text x=\"24\" y=\"285\" fill=\"#b9bcc1\">3.2 Tablero y protecciones</text><rect x=\"727.1\" y=\"274\" width=\"38.8\" height=\"14\" fill=\"none\" stroke=\"#ff4a2a\"/><rect x=\"727.1\" y=\"274\" width=\"0.0\" height=\"14\" fill=\"#ff4a2a\" opacity=\".85\"/><text x=\"24\" y=\"311\" fill=\"#b9bcc1\">3.3 Sanitario</text><rect x=\"610.6\" y=\"300\" width=\"77.6\" height=\"14\" fill=\"none\" stroke=\"#cdf564\"/><rect x=\"610.6\" y=\"300\" width=\"0.0\" height=\"14\" fill=\"#cdf564\" opacity=\".85\"/><line x1=\"688.2\" y1=\"307\" x2=\"765.9\" y2=\"307\" stroke=\"#55585e\" stroke-dasharray=\"2 3\"/><text x=\"12\" y=\"337\" fill=\"#e6e8ea\">4 Terminaciones</text><rect x=\"765.9\" y=\"330\" width=\"194.1\" height=\"5\" fill=\"#e6e8ea\"/><text x=\"24\" y=\"363\" fill=\"#b9bcc1\">4.1 Pintura</text><rect x=\"765.9\" y=\"352\" width=\"116.5\" height=\"14\" fill=\"none\" stroke=\"#ff4a2a\"/><rect x=\"765.9\" y=\"352\" width=\"0.0\" height=\"14\" fill=\"#ff4a2a\" opacity=\".85\"/><text x=\"24\" y=\"389\" fill=\"#b9bcc1\">4.2 Pisos</text><rect x=\"882.4\" y=\"378\" width=\"77.6\" height=\"14\" fill=\"none\" stroke=\"#ff4a2a\"/><rect x=\"882.4\" y=\"378\" width=\"0.0\" height=\"14\" fill=\"#ff4a2a\" opacity=\".85\"/><text x=\"24\" y=\"415\" fill=\"#b9bcc1\">4.3 Entrega y TE1</text><rect x=\"955.0\" y=\"405\" width=\"10\" height=\"10\" fill=\"#e6e8ea\" transform=\"rotate(45 960.0 410)\"/></svg>";
 function ganttPanel() {
   const p = panel('gantt', 'PM', 'Carta Gantt · ruta crítica', true); if (!p) return;
@@ -1020,13 +1020,13 @@ const TEMAS = [
         { g: 'FUENTES', k: 'IMAGEN // ESCANEO', h: DIB.lidar(), ex: 'Así ve el robot: sesenta y cuatro rayos por vuelta. Los puntos rojos son obstáculos cerca; ahí actúa el freno.' },
         { g: 'DATOS', k: 'TABLA // REPOS', w2: 1, h: `<table>${LIDAR_REPOS.slice(0, 6).map(r => `<tr><td class="lime">${r[0].split('/')[1]}</td><td>${r[1].toLocaleString('es-CL')}★</td><td class="dim">${r[2]}</td><td class="dim">${r[3]}</td></tr>`).join('')}</table>`, ex: 'La tabla trae la licencia de cada uno. FAST_LIO es GPL: si lo vendes dentro de un producto cerrado, tienes que abrir tu código.' },
         { g: 'DATOS', k: 'LICENCIAS // USO COMERCIAL', r: 1, h: Object.entries(lic).map(([k, v]) => `<div class="row" style="margin:3px 0"><span style="width:62px" class="dim">${k}</span><div class="meter"><div style="width:${v / 3 * 100}%"></div></div><span>${v}</span></div>`).join(''), ex: 'Marqué en rojo lo que importa para vender: las licencias BSD y MIT se pueden usar sin abrir tu código.' },
-        { g: 'RESUMEN', k: 'RECOMENDACIÓN', t: 'Raspberry + RPLidar', b: 'Driver <span class="lime">sllidar_ros2</span> → <span class="lime">slam_toolbox</span> → Nav2. Sin ROS: <span class="lime">orion_lidar</span>, ya probado.', ex: 'Mi recomendación: RPLidar con su driver oficial, slam_toolbox para el mapa y Nav2 para moverse. Si quieres algo más liviano, Neo Orión ya trae su propio módulo.' },
+        { g: 'RESUMEN', k: 'RECOMENDACIÓN', t: 'Raspberry + RPLidar', b: 'Driver <span class="lime">sllidar_ros2</span> → <span class="lime">slam_toolbox</span> → Nav2. Sin ROS: <span class="lime">orion-nucleo lidar</span>, ya probado.', ex: 'Mi recomendación: RPLidar con su driver oficial, slam_toolbox para el mapa y Nav2 para moverse. Si quieres algo más liviano, Neo Orión ya trae su propio módulo.' },
         { g: 'CÓDIGO', k: 'CÓDIGO // ORION_LIDAR', h: `<pre>for e in fuente_rplidar("/dev/ttyUSB0"):
     mapa.actualizar(e)
     d = decision_avance(e, 400)
     if d["accion"] != "SEGUIR":
         guardian.frenar(d)</pre>`, ex: 'Cinco líneas: lee el escaneo, actualiza el mapa y, si algo entra al corredor de cuarenta centímetros, el guardián frena.' },
-        { g: 'FUENTES', k: 'FUENTES // 4', h: [['GITHUB', '9 repositorios comparados'], ['MEMORIA', 'orion_lidar · pruebas'], ['DOCS', 'Nav2 · slam_toolbox'], ['CATÁLOGO', 'catalogo/repos.json']].map(s => `<div class="src"><i>${s[0]}</i>${s[1]}</div>`).join(''), ex: 'Estas son las fuentes. Todo queda en tu memoria para la próxima vez.' },
+        { g: 'FUENTES', k: 'FUENTES // 4', h: [['GITHUB', '9 repositorios comparados'], ['MEMORIA', 'lidar.rs · pruebas'], ['DOCS', 'Nav2 · slam_toolbox'], ['CATÁLOGO', 'catalogo/repos.json']].map(s => `<div class="src"><i>${s[0]}</i>${s[1]}</div>`).join(''), ex: 'Estas son las fuentes. Todo queda en tu memoria para la próxima vez.' },
         { g: 'SIGUIENTE', k: 'SIGUIENTE // INTERFAZ', t: 'Abrir el LiDAR en vivo', b: 'Mapa, personas en rojo y zona de frenado.<br><button class="btn" style="margin-top:8px;font-size:10px;padding:8px" data-go="muéstrame el lidar del robot">ABRIR</button>', ex: 'Si quieres, abro la vista en vivo del LiDAR del robot.' }];
     } },
   { m: /.*/, titulo: null, fases: ['INICIANDO AGENTE', 'BUSCANDO EN LA WEB', 'LEYENDO FUENTES', 'BUSCANDO EN TU MEMORIA', 'ARMANDO MURO'],
@@ -1296,7 +1296,7 @@ function colorPanel() {
 /* =========================================================
    NAVEGADOR — Chrome o Firefox NORMAL (pestañas, barra) y dos modos:
    MANEJAS TÚ (como siempre) · MANEJA NEO ORIÓN (el mismo navegador, a la vista).
-   En el equipo es el navegador real (orion_navegador: CDP en Chrome, Marionette en Firefox);
+   En el equipo es el navegador real (navegador.rs: CDP en Chrome, Marionette en Firefox);
    aquí es una maqueta que muestra cómo se ve y se comporta.
    ========================================================= */
 let NAV = null;
@@ -1346,7 +1346,7 @@ function demoPiloto() {
 }
 
 /* =========================================================
-   COLABORACIÓN ENTRE IAs — misma lógica que orion_puente (Python)
+   COLABORACIÓN ENTRE IAs — misma lógica que puente.rs (núcleo)
    Neo Orión arma un paquete con contexto, lo manda por la vía oficial de la otra IA
    (Claude Code, Gemini CLI, Codex, OpenCode, local) o abre su chat web para que la persona
    apriete enviar, y guarda la respuesta en la memoria.
@@ -1382,7 +1382,7 @@ function colaborarPanel(raw) {
 }
 
 /* =========================================================
-   SALA DE JUEGOS Y MEDIOS — misma lógica que orion_juegos (Python)
+   SALA DE JUEGOS Y MEDIOS — misma lógica que juegos.rs (núcleo)
    Mandos: detección REAL con la Gamepad API (conecta uno y aprieta un botón)
    ========================================================= */
 const JUE = [
@@ -1401,7 +1401,7 @@ const JUE = [
   { g: 'MEDIOS', k: 'jellyfin', n: 'JELLYFIN', d: 'Tu propio "Netflix" con tus series y películas.' },
   { g: 'MEDIOS', k: 'kodi', n: 'KODI', d: 'Pantalla completa para la tele, con mando o control.' },
   { g: 'MEDIOS', k: 'servicios', n: 'PLATAFORMAS', d: 'Netflix, Disney+, Max, Prime, YouTube… como app.' }];
-const JUE_EQ = { gpu: 'RTX 3060 12 GB', red: 180 };   // en el equipo real: orion_core.perfil
+const JUE_EQ = { gpu: 'RTX 3060 12 GB', red: 180 };   // en el equipo real: fit.rs / perfil.rs
 function marcaMando(id) { const l = id.toLowerCase();
   return /xbox|045e|x-box/.test(l) ? 'XBOX' : /dualsense|dualshock|054c|sony|wireless controller/.test(l) ? 'PLAYSTATION' : /nintendo|057e|pro controller|joy-con/.test(l) ? 'NINTENDO' : /8bitdo|2dc8/.test(l) ? '8BITDO' : 'GENÉRICO'; }
 let JUE_RAF = 0;
@@ -1447,7 +1447,7 @@ function lanzarJuego(k) {
 }
 
 /* =========================================================
-   LIDAR EN VIVO — misma lógica que orion_lidar (Python)
+   LIDAR EN VIVO — misma lógica que lidar.rs (núcleo)
    ========================================================= */
 let LID = null;
 function lidarPanel() {
@@ -1542,7 +1542,7 @@ const fila = (k, v) => `<div class="row"><span class="lbl">${k}</span><span>${v}
 const avisosHtml = a => (a || []).map(x => `<div class="dim" style="font-size:11px;margin-top:4px">▸ ${x}</div>`).join('');
 const errHtml = r => r && r.ok === false ? `<div class="dim" style="color:var(--red);margin-top:8px">▸ ${r.error || 'no se pudo'}</div>` : '';
 
-/* ---- calculadora eléctrica (RIC N°03): misma regla que orion_electrica ---- */
+/* ---- calculadora eléctrica (RIC N°03): misma regla que electrica.rs ---- */
 function calcRIC(t) {
   t = t.toLowerCase().replace(',', '.');
   const n = re => { const m = t.match(re); return m ? parseFloat(m[1]) : null; };
@@ -1733,7 +1733,7 @@ async function micTelPanel() {
     const k = [r.activo, r.conectado, Math.round((r.nivel || 0) * 24)].join(); if (k !== antes) { antes = k; pinta(r); } }, 700);
 }
 
-/* ---- aplicaciones instaladas, cada una con su ícono de bloques (regla estética de orion_iconos) ---- */
+/* ---- aplicaciones instaladas, cada una con su ícono de bloques (regla estética de iconos.rs) ---- */
 const APPS_DEMO = [['nube', 'Mi nube', 'nube'], ['jellyfin', 'Series', 'video'], ['steam', 'Steam', 'juego'], ['geforcenow', 'GeForce Now', 'juego'],
   ['chrome', 'Chrome', 'navegador'], ['libreoffice', 'Oficina', 'oficina'], ['freecad', 'FreeCAD', 'cad'], ['gemini-notebook', 'Gemini Notebook', 'cuaderno']];
 const ICO_CAT = {
@@ -1941,7 +1941,7 @@ async function activacionPanel() {
   q('#act-sen').onchange = e => { ACT_DEMO.palmadas = { sensibilidad: e.target.value }; accion('activacion', { accion: 'ajustes', sensibilidad: e.target.value }, {}); };
   q('#act-m').onchange = q('#act-n').onchange = () => { const r = { tras_minutos: +q('#act-m').value, nivel: q('#act-n').value }; ACT_DEMO.reposo = r; accion('activacion', { accion: 'reposo', ...r }, {}); };
   q('#act-w').onclick = async () => { const r = await accion('activacion', { accion: 'wol' }, { ok: true, interfaz: 'enp3s0', mac: '9c:6b:00:12:ab:cd', bios: 'activa «Wake on LAN» en el BIOS para encender desde apagado' });
-    q('#act-wm').innerHTML = r.ok ? `Tarjeta ${r.interfaz} · MAC <span class="lime">${r.mac}</span>. En el nodo: <code>python3 nodo-despertador.py ${r.mac}</code>. ${r.bios}.` : r.error; };
+    q('#act-wm').innerHTML = r.ok ? `Tarjeta ${r.interfaz} · MAC <span class="lime">${r.mac}</span>. En el nodo: <code>orion-nucleo despertador ${r.mac}</code>. ${r.bios}.` : r.error; };
 }
 /* ---- servidor local (equipo instalado): conversación con la IA local ---- */
 const SERV = { si: false, hist: [] };

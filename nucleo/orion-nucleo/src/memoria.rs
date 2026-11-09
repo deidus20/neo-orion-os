@@ -72,14 +72,20 @@ impl Memoria {
     }
 
     pub fn nota(&self, titulo: &str, cuerpo: &str, carpeta: &str) -> std::io::Result<PathBuf> {
+        self.nota_con(titulo, cuerpo, carpeta, &[], true)
+    }
+
+    /// Como `nota`, con campos extra en el encabezado y la opción de reescribir en vez de anexar.
+    pub fn nota_con(&self, titulo: &str, cuerpo: &str, carpeta: &str, meta: &[(&str, &str)], anexar: bool) -> std::io::Result<PathBuf> {
         let f = self.raiz.join(carpeta).join(format!("{}.md", slug(titulo)));
         std::fs::create_dir_all(f.parent().unwrap())?;
-        if f.exists() {
+        if f.exists() && anexar {
             use std::io::Write;
             let mut fh = std::fs::OpenOptions::new().append(true).open(&f)?;
             write!(fh, "\n## {}\n{cuerpo}\n", Local::now().format("%Y-%m-%d %H:%M"))?;
         } else {
-            std::fs::write(&f, format!("---\ntipo: {}\ncreado: {}\n---\n# {titulo}\n\n{cuerpo}\n", carpeta.trim_end_matches('s'), Local::now().format("%Y-%m-%d")))?;
+            let extra: String = meta.iter().map(|(k, v)| format!("{k}: {v}\n")).collect();
+            std::fs::write(&f, format!("---\ntipo: {}\ncreado: {}\n{extra}---\n# {titulo}\n\n{cuerpo}\n", carpeta.trim_end_matches('s'), Local::now().format("%Y-%m-%d")))?;
         }
         let _ = self.indexar(&f);
         Ok(f)
@@ -153,7 +159,7 @@ impl Memoria {
             }
             out += &trozo;
         }
-        out
+        if out.is_empty() { "(sin notas relacionadas)".into() } else { out }
     }
 
     /// Documentos para la vista «Archivo»: notas e investigaciones guardadas.

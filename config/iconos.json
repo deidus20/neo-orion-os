@@ -1,5 +1,5 @@
 {
- "_nota": "Íconos de Neo Orión (fuente única: la usan el núcleo en Rust y las herramientas). Regla en orion_iconos / nucleo iconos.rs.",
+ "_nota": "Íconos de Neo Orión (fuente única: la usan el núcleo en Rust y las herramientas). Regla en nucleo iconos.rs.",
  "regla": "1. Cuadrícula de 9 × 9 bloques. Cada fila es un texto de 9 caracteres: «#» bloque, «.» vacío.\n  2. Un solo color: el acento de la persona (lo pinta el HUD). Sin degradados, sin sombras, sin fotos.\n  3. Entre 20 % y 65 % de la cuadrícula lleno: ni mancha ni hilo.\n  4. Sin bloques sueltos: cada bloque toca a otro (también en diagonal).\n  5. Debe usar al menos 6 filas y 6 columnas (que se lea a distancia).\n  6. Pictograma de lo que HACE el programa, nunca su logo o marca registrada (eso es de su dueño).\n  7. Debajo del ícono va el nombre en letras de bloques y una sigla de 2 letras.\n  8. Ningún ícono se repite: cada programa tiene el suyo, para que se reconozca de un vistazo. Si el de la\n     categoría ya está ocupado y no trae uno propio, se le hace un monograma con su sigla.",
  "categorias": {
   "nube": ".........|...###...|..#...##.|.#......#|#.......#|#.......#|.#######.|.........|.........",

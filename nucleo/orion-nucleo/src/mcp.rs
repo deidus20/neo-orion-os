@@ -3,13 +3,12 @@
 //!   orion-nucleo mcp            (transporte stdio: una línea JSON-RPC por mensaje)
 //!
 //! Cualquier IA compatible con MCP (Claude, o un modelo local con un cliente MCP) se conecta aquí y trabaja «por
-//! detrás». El catálogo (nombres, descripciones y esquemas) vive en config/mcp-herramientas.json, igual al de Python.
-//! Las herramientas cuyo módulo ya está en Rust corren aquí; las demás pasan por el puente corto (un proceso por
-//! llamada, nada queda de fondo) hasta que su módulo se migre.
+//! detrás». El catálogo (nombres, descripciones y esquemas) vive en config/mcp-herramientas.json. Todas las
+//! herramientas corren en Rust; las de CAD llaman a su motor (build123d/CadQuery) como programa externo.
 
 use crate::politica::{Politica, Riesgo};
 use crate::util::{casa, correr, expandir};
-use crate::{actualizar, controladores, electrica, iconos, legado, memoria, rendimiento, remoto, respaldo, telefono, voz};
+use crate::{actualizar, cad, controladores, electrica, iconos, memoria, rendimiento, remoto, respaldo, telefono, voz};
 use serde_json::{json, Map, Value};
 use std::io::{BufRead, Write};
 use std::path::{Path, PathBuf};
@@ -17,12 +16,14 @@ use std::path::{Path, PathBuf};
 const CATALOGO: &str = include_str!("../../../config/mcp-herramientas.json");
 pub const PROTOCOLO: &str = "2025-06-18";
 
-/// Herramientas que ya corren en Rust. Todo lo demás del catálogo va por el puente.
+/// Todas las herramientas del catálogo (la prueba revisa que no falte ninguna).
 pub const NATIVAS: &[&str] = &[
     "sistema_info", "ejecutar", "leer_archivo", "escribir_archivo", "clonar_repo", "instalar", "rendimiento", "controladores",
     "electrica", "respaldo", "remoto", "casa", "actualizar", "apps", "telefono_microfono", "hud_mostrar", "memoria_anotar",
     "memoria_buscar", "memoria_contexto", "modulos", "voz_decir", "identidad", "traductor", "repos_buscar", "repos_verificar", "dictado", "cnc", "proyecto_crear",
-    "proyecto_actualizar", "proyecto_exportar", "perfil_equipo",
+    "proyecto_actualizar", "proyecto_exportar", "perfil_equipo", "colaborar", "cuaderno",
+    "robot_orden", "plc_escribir", "camaras", "jugar", "navegador",
+    "cad_construir", "cad_modificar", "forma_alternativas", "forma_foto_a_3d", "forma_integrar_servos",
 ];
 
 pub struct Servidor {
@@ -30,8 +31,10 @@ pub struct Servidor {
     pub trabajo: PathBuf,
     pub politica: Politica,
     catalogo: Value,
-    /// Para pruebas: en vez del puente Python, esta función.
-    pub puente: fn(&str, &Value) -> Value,
+    /// El motor CAD externo (`python3 -m orion_forma`); las pruebas ponen uno falso.
+    pub cad_externo: fn(&str, &Value, &Path) -> Value,
+    /// El robot queda cargado entre llamadas (pose, macros), como en Python.
+    robot: std::sync::Mutex<Option<crate::movimiento::Orion>>,
 }
 
 fn txt<'a>(a: &'a Value, k: &str, d: &'a str) -> &'a str {
@@ -50,7 +53,7 @@ impl Servidor {
         for d in ["cad", "repos", "forma"] {
             let _ = std::fs::create_dir_all(trabajo.join(d));
         }
-        let mut s = Servidor { politica: Politica::new("libre", &trabajo, &hogar), hogar, trabajo, catalogo: serde_json::from_str(CATALOGO).unwrap(), puente: legado::herramienta_python };
+        let mut s = Servidor { politica: Politica::new("libre", &trabajo, &hogar), hogar, trabajo, catalogo: serde_json::from_str(CATALOGO).unwrap(), cad_externo: cad::forma, robot: Default::default() };
         s.politica.modo = s.identidad()["permisos"].as_str().unwrap_or("libre").into();
         s
     }
@@ -153,14 +156,22 @@ impl Servidor {
     // ------------------------------------------------------------------ herramientas
 
     pub fn llamar(&self, nombre: &str, a: &Value) -> Value {
-        if !NATIVAS.contains(&nombre) {
-            return (self.puente)(nombre, a);
-        }
         match nombre {
+            "cad_construir" => {
+                let r = cad::construir(&self.trabajo, txt(a, "nombre", ""), txt(a, "codigo", ""), &a["params"]);
+                if r["ok"] == true {
+                    self.politica.anotar("cad", &json!({"pieza": txt(a, "nombre", "")}), Riesgo::Escribir, "ok", json!({}));
+                }
+                r
+            }
+            "cad_modificar" => cad::modificar(&self.trabajo, txt(a, "nombre", ""), &a["cambios"]),
+            "forma_alternativas" => (self.cad_externo)("alternativas", a, &self.trabajo),
+            "forma_foto_a_3d" => (self.cad_externo)("foto_a_3d", a, &self.trabajo),
+            "forma_integrar_servos" => (self.cad_externo)("integrar_servos", &json!({"step": a["step"], "servos": a["servos"]}), &self.trabajo),
             "sistema_info" => {
                 let mut info = crate::perfil::escanear();
-                let fit = correr(&["orion-fit", "--json"]);
-                info["ia_local"] = serde_json::from_str::<Value>(&fit.1).ok().map(|v| v["recommendation"].clone()).unwrap_or(Value::Null);
+                let hw = crate::fit::detectar(None, None);
+                info["ia_local"] = crate::fit::recomendar(&hw, &crate::fit::catalogo(), false);
                 info
             }
             "ejecutar" => self.ejecutar(txt(a, "comando", ""), txt(a, "carpeta", ""), a["segundos"].as_u64().unwrap_or(300)),
@@ -330,6 +341,37 @@ impl Servidor {
                 crate::cnc::herramienta(a, false)
             }
             "perfil_equipo" => crate::perfil::perfil(),
+            "cuaderno" => crate::cuaderno::herramienta(a),
+            "navegador" => crate::navegador::herramienta(a),
+            "jugar" => crate::juegos::jugar(txt(a, "pedido", ""), a["hacerlo"] == true, |paso| self.ejecutar(paso, "", 3600)),
+            "camaras" => {
+                if txt(a, "accion", "preparar") != "preparar" {
+                    return json!({"ok": false, "error": "accion: preparar"});
+                }
+                let cams = a["camaras"].as_array().cloned().filter(|c| !c.is_empty()).unwrap_or_else(|| vec![json!({"nombre": "Taller", "fuente": "usb"})]);
+                crate::vision::preparar(&cams, txt(a, "detector", "cpu"), &crate::vision::carpeta())
+            }
+            "robot_orden" => {
+                let mut g = self.robot.lock().unwrap();
+                if g.is_none() {
+                    let perfil = txt(a, "perfil", "");
+                    let robot = if perfil.is_empty() { Ok(crate::movimiento::perfil_por_defecto()) } else { crate::movimiento::Robot::cargar(&expandir(perfil)) };
+                    match robot {
+                        Ok(r) => *g = Some(crate::movimiento::Orion::new(r, None, None, Some(&self.hogar.join("robots")))),
+                        Err(e) => return json!({"ok": false, "error": e}),
+                    }
+                }
+                let o = g.as_mut().unwrap();
+                let lineas = o.decir(txt(a, "texto", ""));
+                self.politica.anotar("robot", &json!({"orden": txt(a, "texto", "")}), Riesgo::Fisico, &lineas.join("; "), json!({}));
+                json!({"resultado": lineas, "pose": o.robot.pose_json()})
+            }
+            "plc_escribir" => {
+                // SIEMPRE espera confirmación humana: una línea real puede lastimar a alguien si arranca sola
+                let det = json!({"ip": a["ip"], "area": a["area"], "direccion": a["direccion"], "valor": a["valor"]});
+                self.politica.compuerta("plc_escribir", det, Riesgo::Fisico, txt(a, "motivo", "")).unwrap_or(json!({}))
+            }
+            "colaborar" => crate::puente::colaborar(txt(a, "tarea", ""), txt(a, "ia", ""), txt(a, "modo", "auto")),
             "proyecto_crear" => crate::proyectos::crear(a),
             "proyecto_actualizar" => crate::proyectos::actualizar(a),
             "proyecto_exportar" => crate::proyectos::exportar(txt(a, "id", ""), &self.trabajo),
@@ -351,7 +393,7 @@ impl Servidor {
                 let _ = std::fs::write(self.hogar.join("identidad.json"), serde_json::to_string_pretty(&id).unwrap());
                 id
             }
-            _ => (self.puente)(nombre, a),
+            otra => json!({"ok": false, "error": format!("herramienta sin implementar: {otra}")}),
         }
     }
 
@@ -470,14 +512,14 @@ pub fn ejecutar() -> i32 {
 mod pruebas {
     use super::*;
 
-    fn puente_falso(n: &str, a: &Value) -> Value {
-        json!({"ok": true, "via": "puente", "herramienta": n, "args": a})
+    fn cad_falso(orden: &str, a: &Value, _: &Path) -> Value {
+        json!({"ok": true, "via": "cad", "orden": orden, "args": a})
     }
 
     fn servidor() -> (tempfile::TempDir, Servidor) {
         let d = tempfile::tempdir().unwrap();
         let mut s = Servidor::new(d.path().join(".orion"), d.path().join("orion"));
-        s.puente = puente_falso;
+        s.cad_externo = cad_falso;
         (d, s)
     }
 
@@ -492,6 +534,9 @@ mod pruebas {
         assert_eq!(h.len(), 43);
         for n in NATIVAS {
             assert!(h.iter().any(|x| x["name"] == *n), "{n} no está en el catálogo");
+        }
+        for x in h {
+            assert!(NATIVAS.contains(&x["name"].as_str().unwrap()), "{} sin implementar", x["name"]);
         }
         let e = h.iter().find(|x| x["name"] == "ejecutar").unwrap();
         assert_eq!(e["inputSchema"]["required"], json!(["comando"]));
@@ -554,11 +599,18 @@ mod pruebas {
     }
 
     #[test]
-    fn lo_que_sigue_en_python_va_por_el_puente() {
+    fn cad_externo_y_ordenes_fisicas() {
         let (_d, s) = servidor();
-        let r = rpc(&s, 1, "tools/call", json!({"name": "camaras", "arguments": {}}));
-        assert_eq!(r["result"]["structuredContent"]["via"], "puente");
+        let r = rpc(&s, 1, "tools/call", json!({"name": "forma_alternativas", "arguments": {"descripcion": "soporte"}}));
+        assert_eq!(r["result"]["structuredContent"]["orden"], "alternativas");
+        assert_eq!(r["result"]["structuredContent"]["args"]["n"], 3);
         // la CNC: mover siempre deja un ticket para la persona
         assert_eq!(s.llamar("cnc", &json!({"accion": "mover", "x": 10.0, "puerto": "/dev/ttyUSB0"}))["estado"], "en-espera");
+        // el robot recuerda la pose entre llamadas; el PLC siempre espera a la persona
+        s.llamar("robot_orden", &json!({"texto": "hombro a 45 grados"}));
+        let r = s.llamar("robot_orden", &json!({"texto": "codo a 10 grados"}));
+        assert_eq!(r["pose"]["A2"], 45.0);
+        assert_eq!(r["resultado"][0], "[OK ] SET A3 10 vel=150");
+        assert_eq!(s.llamar("plc_escribir", &json!({"ip": "10.0.0.5", "area": "DB", "direccion": "1.0", "valor": "1", "motivo": "arrancar cinta"}))["estado"], "en-espera");
     }
 }

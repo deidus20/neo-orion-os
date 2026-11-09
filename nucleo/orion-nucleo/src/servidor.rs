@@ -3,7 +3,7 @@
 //! Escucha solo en 127.0.0.1. Todas las llamadas /api/* exigen la cabecera `X-Orion: 1` (un sitio web no puede
 //! ponerla sin permiso CORS, que aquí no se da). Misma API que la versión Python, para que el HUD no cambie.
 
-use crate::{archivo, controladores, electrica, equipo, ia, iconos, legado, util};
+use crate::{archivo, controladores, electrica, equipo, ia, iconos, util};
 use serde_json::{json, Value};
 use std::io::Read;
 use std::path::{Path, PathBuf};
@@ -205,7 +205,6 @@ pub fn accion(modulo: &str, datos: &Value) -> Value {
             },
             Err(e) => json!({"ok": false, "error": e.to_string()}),
         },
-        m if legado::PENDIENTES.contains(&m) => legado::llamar(m, datos),
         _ => json!({"ok": false, "error": "módulo desconocido"}),
     }
 }

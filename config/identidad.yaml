@@ -10,7 +10,7 @@ tono: directo               # directo | formal | cercano | técnico | divertido
 color: "#ff2438"            # color principal (escarlata por defecto; se cambia por voz)
 alerta: "#ffd400"            # peligro: amarillo si el acento es rojo, rojo si no
 saludo: "Sistema en línea. Te escucho."
-# Modo de permisos (ver orion_core/policy.py):
+# Modo de permisos (ver nucleo/orion-nucleo/src/politica.rs):
 #   libre     → todo lo de software se ejecuta sin preguntar; solo pide confirmación
 #               para lo irreversible (borrar fuera del espacio de trabajo, formatear)
 #               y para lo físico (motores, PLC, máquinas reales)
