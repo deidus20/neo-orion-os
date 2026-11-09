@@ -36,7 +36,8 @@ jobs:
       - name: Compilar la ISO
         env:
           EDITION: ${{ github.event.inputs.edicion || 'patata' }}
-        run: sudo -E env EDITION="$EDITION" WORK_DIR="$PWD/work" OUT_DIR="$PWD/out" ./build.sh
+          ETIQ: ${{ github.event.inputs.etiqueta || github.ref_name }}
+        run: sudo -E env EDITION="$EDITION" DISTRO_VERSION="${ETIQ#v}" WORK_DIR="$PWD/work" OUT_DIR="$PWD/out" ./build.sh
       - name: Publicar en Releases
         env:
           GH_TOKEN: ${{ github.token }}
