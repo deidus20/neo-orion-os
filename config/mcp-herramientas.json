@@ -1,0 +1,954 @@
+{
+ "instrucciones": "\nEres Neo Orión, el sistema operativo por voz Neo Orión. Trabajas por\ndetrás: ejecutas, instalas, clonas y programas sin pedir permiso para tareas de\nsoftware. Antes de una tarea, consulta memoria_contexto; al terminar, deja lo importante con\nmemoria_anotar. Antes de construir algo, busca con repos_buscar si ya existe.\nCuando instales un programa que la persona va a abrir, regístralo con apps(accion='registrar'): su ícono\nsigue la REGLA ESTÉTICA (9×9 bloques, un color, pictograma de lo que hace, nunca el logo de la marca).\nSi la persona no tiene micrófono, ofrece usar su teléfono con telefono_microfono.\nREGLA DE CÓDIGO (obligatoria): todo programa o módulo nuevo de Neo Orión se escribe en Rust (nucleo/).\nREGLA DE ESTÉTICA (obligatoria): todo lo que agregues a la interfaz usa marathon.js y conserva las\nanimaciones del sistema (decodificar títulos, bloques que llegan, falla RGB, disolución, barrido) y la\npaleta de la persona. Si algo nuevo no calza, busca la forma de que quede bien antes de mostrarlo.\nNo muestres pasos intermedios; cuando haya un resultado que la persona\ndeba ver o manipular, llama a hud_mostrar. Si una herramienta devuelve un ticket\n\"en espera\", díselo en una frase y continúa con otra cosa: la persona lo aprueba.\n",
+ "herramientas": [
+  {
+   "name": "sistema_info",
+   "description": "Qué equipo es (torre, notebook, Raspberry, Jetson, Android…), qué tiene\nconectado (ESP32, cámaras, teléfonos, micrófonos) y qué IA local cabe.",
+   "inputSchema": {
+    "type": "object",
+    "properties": {},
+    "required": []
+   }
+  },
+  {
+   "name": "ejecutar",
+   "description": "Ejecuta un comando de shell. Software: sin preguntar. Irreversible: espera confirmación.",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "comando": {
+      "type": "string"
+     },
+     "carpeta": {
+      "type": "string",
+      "default": ""
+     },
+     "segundos": {
+      "type": "integer",
+      "default": 300
+     }
+    },
+    "required": [
+     "comando"
+    ]
+   }
+  },
+  {
+   "name": "leer_archivo",
+   "description": "Lee un archivo de texto.",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "ruta": {
+      "type": "string"
+     },
+     "max_bytes": {
+      "type": "integer",
+      "default": 200000
+     }
+    },
+    "required": [
+     "ruta"
+    ]
+   }
+  },
+  {
+   "name": "escribir_archivo",
+   "description": "Crea o reemplaza un archivo (guarda copia .bak si ya existía).",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "ruta": {
+      "type": "string"
+     },
+     "contenido": {
+      "type": "string"
+     }
+    },
+    "required": [
+     "ruta",
+     "contenido"
+    ]
+   }
+  },
+  {
+   "name": "clonar_repo",
+   "description": "Clona (o actualiza si ya existe) un repositorio git en el espacio de trabajo.\nEj.: 'conéctate a mi-proyecto' → clonar_repo('github.com/<usuario>/mi-proyecto').",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "url": {
+      "type": "string"
+     },
+     "nombre": {
+      "type": "string",
+      "default": ""
+     }
+    },
+    "required": [
+     "url"
+    ]
+   }
+  },
+  {
+   "name": "instalar",
+   "description": "Instala software: gestor = apt | pip | flatpak | npm | ollama (modelos).",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "paquetes": {
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     },
+     "gestor": {
+      "type": "string",
+      "default": "apt"
+     }
+    },
+    "required": [
+     "paquetes"
+    ]
+   }
+  },
+  {
+   "name": "jugar",
+   "description": "Juegos y medios: 'quiero jugar X', 'GeForce NOW', 'pon Netflix', 'mis series', 'emulador'.\nDecide local / nube / desde otro PC según el equipo, detecta teclado, mouse y mandos,\ne instala lo que falte. Con hacerlo=True ejecuta los pasos (pasan por los permisos de siempre).\nNo integra fuentes de descarga de juegos crackeados ni IPTV sin licencia.",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "pedido": {
+      "type": "string"
+     },
+     "hacerlo": {
+      "type": "boolean",
+      "default": false
+     }
+    },
+    "required": [
+     "pedido"
+    ]
+   }
+  },
+  {
+   "name": "rendimiento",
+   "description": "¿El equipo está rindiendo? Mide memoria, CPU, temperatura, batería y (si se pasa) la velocidad\nde la IA. Devuelve NORMAL / LIVIANO / PATATA con las razones y qué conviene apagar o mover a la nube.",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "tok_s": {
+      "type": "number"
+     }
+    },
+    "required": []
+   }
+  },
+  {
+   "name": "colaborar",
+   "description": "Pásale trabajo a otra IA con el contexto de la memoria: 'usa Claude para crear el documento…'.\nia: claude | gemini | codex | opencode | local (vacío = la que se nombre en la tarea, si no Claude).\nmodo: auto (por su app/CLI oficial con la cuenta de la persona) | web (abre su chat con el encargo\ncopiado; la persona aprieta enviar). La respuesta queda en la memoria (colaboraciones/).",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "tarea": {
+      "type": "string"
+     },
+     "ia": {
+      "type": "string",
+      "default": ""
+     },
+     "modo": {
+      "type": "string",
+      "default": "auto"
+     }
+    },
+    "required": [
+     "tarea"
+    ]
+   }
+  },
+  {
+   "name": "controladores",
+   "description": "Procesador y gráfica(s) del equipo y sus drivers. accion: ver (qué hay, qué driver usa y el plan) |\nal_dia (¿Ubuntu recomienda un driver NVIDIA más nuevo?) | instalar (aplica el plan: microcódigo, Mesa/VA-API,\ndriver NVIDIA recomendado; SISTEMA) | firmware (actualizaciones de BIOS/firmware por fwupd: solo informa,\ninstalarlas es IRREVERSIBLE y lo aprueba la persona).",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "accion": {
+      "type": "string",
+      "default": "ver"
+     }
+    },
+    "required": []
+   }
+  },
+  {
+   "name": "electrica",
+   "description": "Calculadora eléctrica chilena (RIC N°03): sección por caída de tensión (≤3 % alimentadores/subalimentadores,\n≤5 % total), mínimos de 4 y 2,5 mm², protección (In ≥ Ib; In ≤ Iz si se entrega Iz de la tabla RIC N°04).\npregunta en palabras («4500 W a 40 metros en 220») o los valores sueltos.",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "pregunta": {
+      "type": "string",
+      "default": ""
+     },
+     "corriente_a": {
+      "type": "number",
+      "default": 0
+     },
+     "largo_m": {
+      "type": "number",
+      "default": 0
+     },
+     "tension_v": {
+      "type": "number",
+      "default": 220
+     },
+     "fases": {
+      "type": "integer",
+      "default": 1
+     },
+     "tipo": {
+      "type": "string",
+      "default": "subalimentador"
+     },
+     "material": {
+      "type": "string",
+      "default": "cobre"
+     },
+     "iz_a": {
+      "type": "number"
+     },
+     "caida_previa_pct": {
+      "type": "number",
+      "default": 0
+     }
+    },
+    "required": []
+   }
+  },
+  {
+   "name": "respaldo",
+   "description": "Respaldo de la memoria, proyectos y configuración. accion: ahora | listar | discos | configurar (destino =\nauto | /ruta | rclone:remoto:carpeta) | restaurar (sello, carpeta → ~/Restaurado/, no pisa lo actual).",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "accion": {
+      "type": "string",
+      "default": "ahora"
+     },
+     "destino": {
+      "type": "string",
+      "default": ""
+     },
+     "sello": {
+      "type": "string",
+      "default": ""
+     },
+     "carpeta": {
+      "type": "string",
+      "default": "Orion"
+     }
+    },
+    "required": []
+   }
+  },
+  {
+   "name": "remoto",
+   "description": "Escritorio remoto. accion: estado | casa (VNC en la red local con clave y TLS) | afuera (ID de RustDesk) | apagar.\nLa clave queda guardada en ~/.config/wayvnc; no se lee en voz alta.",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "accion": {
+      "type": "string",
+      "default": "estado"
+     }
+    },
+    "required": []
+   }
+  },
+  {
+   "name": "cnc",
+   "description": "Fresadora CNC (GRBL). accion: revisar (archivo .nc/.gcode: medidas, tiempo, profundidad, si cabe; sin mover nada) |\nestado | casa | desbloquear | cero (pieza) | mover (x,y,z en mm) | iniciar (archivo) | pausa | seguir | parar.\nmover, casa e iniciar son FÍSICAS: piden confirmación humana. parar y pausa no.",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "accion": {
+      "type": "string"
+     },
+     "archivo": {
+      "type": "string",
+      "default": ""
+     },
+     "x": {
+      "type": "number",
+      "default": 0
+     },
+     "y": {
+      "type": "number",
+      "default": 0
+     },
+     "z": {
+      "type": "number",
+      "default": 0
+     },
+     "puerto": {
+      "type": "string",
+      "default": "/dev/ttyUSB0"
+     }
+    },
+    "required": [
+     "accion"
+    ]
+   }
+  },
+  {
+   "name": "camaras",
+   "description": "Cámaras con Frigate (detección de personas, grabación local). accion: preparar (camaras = [{nombre, fuente:\nrtsp|usb, dispositivo, zonas}] → config y docker-compose; las claves RTSP van en ~/.orion/claves/camaras.json).\nUna persona en una zona 'robot', 'cnc' o 'taller' frena las máquinas como el LiDAR.",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "accion": {
+      "type": "string",
+      "default": "preparar"
+     },
+     "camaras": {
+      "type": "array",
+      "items": {
+       "type": "object"
+      }
+     },
+     "detector": {
+      "type": "string",
+      "default": "cpu"
+     }
+    },
+    "required": []
+   }
+  },
+  {
+   "name": "casa",
+   "description": "Casa inteligente con Home Assistant: «apaga la luz del taller», «qué temperatura hay en la pieza».\nCerraduras, alarmas y portones piden confirmación. El token lo pega la persona en ~/.orion/claves/home-assistant.",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "orden": {
+      "type": "string"
+     }
+    },
+    "required": [
+     "orden"
+    ]
+   }
+  },
+  {
+   "name": "dictado",
+   "description": "Dictado → documento Word con formato. plantilla: informe-duoc (logo DUOC arriba a la derecha) |\nmemoria-electrica | carta | acta. Marcas al dictar: «título», «sección», «subtítulo», «punto», «punto aparte», «tabla».",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "texto": {
+      "type": "string"
+     },
+     "plantilla": {
+      "type": "string",
+      "default": "informe-duoc"
+     },
+     "nombre": {
+      "type": "string",
+      "default": ""
+     },
+     "asignatura": {
+      "type": "string",
+      "default": ""
+     },
+     "docente": {
+      "type": "string",
+      "default": ""
+     },
+     "integrantes": {
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     },
+     "pulir": {
+      "type": "boolean",
+      "default": true
+     }
+    },
+    "required": [
+     "texto"
+    ]
+   }
+  },
+  {
+   "name": "actualizar",
+   "description": "Actualizaciones. que: revisar (¿hay una versión nueva de Neo Orión?) | neo-orion (baja, verifica SHA-256 e instala) |\nsistema (apt update + full-upgrade).",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "que": {
+      "type": "string",
+      "default": "revisar"
+     }
+    },
+    "required": []
+   }
+  },
+  {
+   "name": "apps",
+   "description": "Programas que la persona ve en el HUD, cada uno con su ícono de bloques.\naccion: listar | registrar (después de instalar un programa) | quitar | abrir | regla.\nregistrar: id (minúsculas), nombre, categoria (nube, video, juego, musica, navegador, terminal, oficina, ia,\nchat, foto, cad, robot, red, correo, calendario, seguridad, taller, cuaderno, app), comando o web, e icono\nopcional: 9 filas de 9 caracteres «#»/«.» separadas por «|». Ningún ícono se repite. Si no cumple la regla o\nya lo usa otro programa, se rechaza con el motivo: corrígelo, o déjalo vacío (categoría libre o monograma).",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "accion": {
+      "type": "string",
+      "default": "listar"
+     },
+     "id": {
+      "type": "string",
+      "default": ""
+     },
+     "nombre": {
+      "type": "string",
+      "default": ""
+     },
+     "categoria": {
+      "type": "string",
+      "default": ""
+     },
+     "comando": {
+      "type": "string",
+      "default": ""
+     },
+     "web": {
+      "type": "string",
+      "default": ""
+     },
+     "icono": {
+      "type": "string",
+      "default": ""
+     }
+    },
+    "required": []
+   }
+  },
+  {
+   "name": "telefono_microfono",
+   "description": "Usa el teléfono (iPhone o Android, sin instalar nada) como micrófono REAL del PC: sirve para Neo Orión,\njuegos en la nube, Discord o Meet. accion: iniciar (devuelve la dirección; el HUD muestra el QR) | estado | parar.\nAl iniciar, muestra el panel con hud_mostrar para que la persona escanee el código.",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "accion": {
+      "type": "string",
+      "default": "iniciar"
+     }
+    },
+    "required": []
+   }
+  },
+  {
+   "name": "traductor",
+   "description": "Traductor en vivo para conversar: lo que dice uno sale en el idioma del otro (voz + texto). Sin internet con\nArgos Translate; si no, con la IA local.",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "texto": {
+      "type": "string"
+     },
+     "idioma_a": {
+      "type": "string",
+      "default": "es"
+     },
+     "idioma_b": {
+      "type": "string",
+      "default": "en"
+     },
+     "decir": {
+      "type": "boolean",
+      "default": true
+     }
+    },
+    "required": [
+     "texto"
+    ]
+   }
+  },
+  {
+   "name": "cuaderno",
+   "description": "Cuadernos de investigación con fuentes. Gemini Notebook (antes NotebookLM) u Open Notebook (local).\naccion: preparar (arma las fuentes del tema desde la memoria en ~/Orion/exportar/cuaderno/) |\ngemini (prepara + abre Gemini Notebook; la persona sube las fuentes: no tiene API personal y no se maneja por código) |\nrecibir (texto = lo que respondió el cuaderno → memoria) | local (todo automático en Open Notebook, si está corriendo) |\ninstalar_local (pasos para instalar Open Notebook con Ollama).",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "accion": {
+      "type": "string"
+     },
+     "tema": {
+      "type": "string"
+     },
+     "texto": {
+      "type": "string",
+      "default": ""
+     },
+     "archivos": {
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     }
+    },
+    "required": [
+     "accion",
+     "tema"
+    ]
+   }
+  },
+  {
+   "name": "navegador",
+   "description": "Chrome o Firefox (en = chrome | firefox), normal y a la vista (pestañas, barra, extensiones). La persona lo usa como siempre y\nNeo Orión puede manejar ESE MISMO Chrome cuando se lo pida.\naccion: abrir (que = url, atajo 'youtube' o texto a buscar) | pestanas | nueva (que) | ir (que) |\nclick (que = texto o selector) | escribir (que = selector, texto) | leer (que = selector) |\nsoltar (devuelve el control a la persona) | automatizar (en segundo plano, con pasos).\nLos chats de IA no se manejan por código (sus términos lo prohíben): se abren y los usa la persona.",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "accion": {
+      "type": "string"
+     },
+     "que": {
+      "type": "string",
+      "default": ""
+     },
+     "texto": {
+      "type": "string",
+      "default": ""
+     },
+     "en": {
+      "type": "string",
+      "default": "chrome"
+     },
+     "pasos": {
+      "type": "array",
+      "items": {
+       "type": "object"
+      }
+     }
+    },
+    "required": [
+     "accion"
+    ]
+   }
+  },
+  {
+   "name": "cad_construir",
+   "description": "Crea una pieza 3D por código (build123d, núcleo OpenCascade, libre) y exporta\nSTEP (para FreeCAD/Fusion/SolidWorks) y STL (para imprimir).\n`codigo` debe usar PARAMS[...] y dejar el resultado en la variable `pieza`.",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "nombre": {
+      "type": "string"
+     },
+     "codigo": {
+      "type": "string"
+     },
+     "params": {
+      "type": "object"
+     }
+    },
+    "required": [
+     "nombre",
+     "codigo",
+     "params"
+    ]
+   }
+  },
+  {
+   "name": "cad_modificar",
+   "description": "Cambia parámetros de una pieza existente y la regenera.\nEj.: 'reduce el grosor a 3 mm' → cad_modificar('soporte_servo', {'grosor': 3}).",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "nombre": {
+      "type": "string"
+     },
+     "cambios": {
+      "type": "object"
+     }
+    },
+    "required": [
+     "nombre",
+     "cambios"
+    ]
+   }
+  },
+  {
+   "name": "robot_orden",
+   "description": "Manda una orden en palabras al robot ('hombro a 45 grados, luego onda en el codo').\nPasa por el traductor y el Guardián; la IA nunca mueve motores directo.",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "texto": {
+      "type": "string"
+     },
+     "perfil": {
+      "type": "string",
+      "default": ""
+     }
+    },
+    "required": [
+     "texto"
+    ]
+   }
+  },
+  {
+   "name": "plc_escribir",
+   "description": "Escribe a un PLC (Siemens S7 vía snap7, Modbus, OPC UA). SIEMPRE espera\nconfirmación humana: una línea real puede lastimar a alguien si arranca sola.",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "ip": {
+      "type": "string"
+     },
+     "area": {
+      "type": "string"
+     },
+     "direccion": {
+      "type": "string"
+     },
+     "valor": {
+      "type": "string"
+     },
+     "motivo": {
+      "type": "string"
+     }
+    },
+    "required": [
+     "ip",
+     "area",
+     "direccion",
+     "valor",
+     "motivo"
+    ]
+   }
+  },
+  {
+   "name": "hud_mostrar",
+   "description": "Hace aparecer un panel en el HUD. tipo = modelo3d | tabla | grafico | codigo |\nplano | robot | camara | texto | qr. El usuario podrá pedir cambios sobre él.",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "tipo": {
+      "type": "string"
+     },
+     "titulo": {
+      "type": "string"
+     },
+     "datos": {
+      "type": "object"
+     }
+    },
+    "required": [
+     "tipo",
+     "titulo",
+     "datos"
+    ]
+   }
+  },
+  {
+   "name": "memoria_anotar",
+   "description": "Guarda en la memoria. Sin título → diario del día; con título → nota propia (usa [[enlaces]]).",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "texto": {
+      "type": "string"
+     },
+     "titulo": {
+      "type": "string",
+      "default": ""
+     },
+     "carpeta": {
+      "type": "string",
+      "default": "temas"
+     },
+     "etiquetas": {
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     }
+    },
+    "required": [
+     "texto"
+    ]
+   }
+  },
+  {
+   "name": "memoria_buscar",
+   "description": "Busca en todo lo registrado (palabras y, si hay embeddings, por significado).",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "consulta": {
+      "type": "string"
+     },
+     "n": {
+      "type": "integer",
+      "default": 8
+     }
+    },
+    "required": [
+     "consulta"
+    ]
+   }
+  },
+  {
+   "name": "memoria_contexto",
+   "description": "Notas relevantes listas para leer antes de responder. Úsalo al empezar cualquier tarea.",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "consulta": {
+      "type": "string"
+     }
+    },
+    "required": [
+     "consulta"
+    ]
+   }
+  },
+  {
+   "name": "perfil_equipo",
+   "description": "Nivel del equipo (micro…estacion) y qué alternativa se usa para oído, voz, memoria, 3D, imagen.",
+   "inputSchema": {
+    "type": "object",
+    "properties": {},
+    "required": []
+   }
+  },
+  {
+   "name": "modulos",
+   "description": "Módulos instalables/instalados. Respeta 'mostrar_marca': usa nombre_visible al hablar con la persona.",
+   "inputSchema": {
+    "type": "object",
+    "properties": {},
+    "required": []
+   }
+  },
+  {
+   "name": "proyecto_crear",
+   "description": "Crea un proyecto. tareas: [{id:'1.1', nombre, dias, depende:['1.0'], responsable, raci:{}, costo, avance}].\nDevuelve programa CPM (ruta crítica) y presupuesto con IVA 19 %.",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "id": {
+      "type": "string"
+     },
+     "nombre": {
+      "type": "string"
+     },
+     "tareas": {
+      "type": "array",
+      "items": {
+       "type": "object"
+      }
+     },
+     "cliente": {
+      "type": "string",
+      "default": ""
+     },
+     "inicio": {
+      "type": "string",
+      "default": ""
+     },
+     "gg": {
+      "type": "number",
+      "default": 0.15
+     },
+     "utilidad": {
+      "type": "number",
+      "default": 0.1
+     },
+     "contingencia": {
+      "type": "number",
+      "default": 0.05
+     }
+    },
+    "required": [
+     "id",
+     "nombre",
+     "tareas"
+    ]
+   }
+  },
+  {
+   "name": "proyecto_actualizar",
+   "description": "Cambia tareas existentes o agrega nuevas: [{id:'2.1', avance:0.5}, {id:'5.1', nombre:'…', dias:2, depende:['4.2']}].",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "id": {
+      "type": "string"
+     },
+     "cambios": {
+      "type": "array",
+      "items": {
+       "type": "object"
+      }
+     }
+    },
+    "required": [
+     "id",
+     "cambios"
+    ]
+   }
+  },
+  {
+   "name": "proyecto_exportar",
+   "description": "Carta Gantt (SVG para el HUD) + Excel (programa, Gantt, presupuesto, RACI).",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "id": {
+      "type": "string"
+     }
+    },
+    "required": [
+     "id"
+    ]
+   }
+  },
+  {
+   "name": "forma_alternativas",
+   "description": "Imágenes de variantes de un diseño (necesita GPU o nube).",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "descripcion": {
+      "type": "string"
+     },
+     "n": {
+      "type": "integer",
+      "default": 3
+     }
+    },
+    "required": [
+     "descripcion"
+    ]
+   }
+  },
+  {
+   "name": "forma_foto_a_3d",
+   "description": "Foto → modelo 3D. Usa TRELLIS.2/Hunyuan3D/TripoSR si están; si no, silueta extruida a escala (CPU).",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "imagen": {
+      "type": "string"
+     },
+     "alto_real_mm": {
+      "type": "number",
+      "default": 100
+     },
+     "espesor_mm": {
+      "type": "number",
+      "default": 10
+     }
+    },
+    "required": [
+     "imagen"
+    ]
+   }
+  },
+  {
+   "name": "forma_integrar_servos",
+   "description": "Corta bolsillos, ejes y tornillos. servos: [{modelo:'MG996R'|'SG90'|'STS3215'|'NEMA17', x, y, rot, eje:'A2'}].",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "step": {
+      "type": "string"
+     },
+     "servos": {
+      "type": "array",
+      "items": {
+       "type": "object"
+      }
+     }
+    },
+    "required": [
+     "step",
+     "servos"
+    ]
+   }
+  },
+  {
+   "name": "repos_buscar",
+   "description": "ANTES de construir algo nuevo: busca en GitHub si ya existe (estrellas, licencia, actividad,\nsi sirve para uso comercial). Si nada sirve, constrúyelo y guárdalo en ~/orion/repos/propios.",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "consulta": {
+      "type": "string"
+     },
+     "n": {
+      "type": "integer",
+      "default": 8
+     }
+    },
+    "required": [
+     "consulta"
+    ]
+   }
+  },
+  {
+   "name": "repos_verificar",
+   "description": "Confirma repositorios conocidos ('dueño/nombre'): existencia, licencia y última actividad.",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "repos": {
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     }
+    },
+    "required": [
+     "repos"
+    ]
+   }
+  },
+  {
+   "name": "voz_decir",
+   "description": "Habla por el parlante (piper, kokoro, espeak-ng o ElevenLabs si hay clave).",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "texto": {
+      "type": "string"
+     },
+     "motor": {
+      "type": "string",
+      "default": "auto"
+     }
+    },
+    "required": [
+     "texto"
+    ]
+   }
+  },
+  {
+   "name": "identidad",
+   "description": "Cambia nombre, voz, género, tono o color del asistente ('desde ahora te llamas Vega').",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "cambios": {
+      "type": "object"
+     }
+    },
+    "required": [
+     "cambios"
+    ]
+   }
+  }
+ ]
+}

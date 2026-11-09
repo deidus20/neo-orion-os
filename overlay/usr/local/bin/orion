@@ -13,9 +13,9 @@ case "${1:-}" in
   fit) shift; exec orion-fit "$@" ;;
   servidor) shift; [ -x /usr/local/bin/orion-nucleo ] && exec /usr/local/bin/orion-nucleo servir "$@"; exec "$PY" -m orion_core.servidor "$@" ;;
   nucleo) shift; exec /usr/local/bin/orion-nucleo "$@" ;;
-  mcp) shift; exec "$PY" /opt/orion/orion_mcp/server.py "$@" ;;
-  instalar) shift; exec sudo env PYTHONPATH=/opt/orion "$PY" -m orion_core.instalador "$@" ;;
-  rendimiento) exec "$PY" -m orion_core.rendimiento ;;
+  mcp) shift; exec /usr/local/bin/orion-nucleo mcp "$@" ;;
+  instalar) shift; exec sudo /usr/local/bin/orion-nucleo instalar "$@" ;;
+  rendimiento) exec /usr/local/bin/orion-nucleo vigia ;;
   version|--version) cat /etc/orion/version 2>/dev/null || echo "Neo Orión" ;;
   *) echo "uso: orion hud | fit | servidor | mcp | instalar <config.json> | rendimiento | version" ;;
 esac

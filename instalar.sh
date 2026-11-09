@@ -120,8 +120,6 @@ printf 'Neo Orión OS · instalado sobre %s · %s\n' "${PRETTY_NAME:-Linux}" "$(
 
 # entorno Python propio
 python3 -m venv --system-site-packages "$D/venv"
-"$D/venv/bin/pip" install -q --upgrade pip >/dev/null
-"$D/venv/bin/pip" install -q mcp >/dev/null || info "mcp no se pudo instalar ahora (se reintenta después)"
 echo "$D" > "$("$D/venv/bin/python3" -c 'import site;print(site.getsitepackages()[0])')/orion.pth"
 "$D/venv/bin/python3" -c "import orion_core.servidor" || muere "El código de Neo Orión no carga; revisa el mensaje de arriba."
 

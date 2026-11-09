@@ -22,6 +22,9 @@ pub fn categoria(c: &str) -> &'static str {
 pub fn propio(id: &str) -> Option<&'static str> {
     mapa("propios").get(id).and_then(Value::as_str)
 }
+pub fn categorias() -> Vec<&'static str> {
+    mapa("categorias").keys().map(String::as_str).collect()
+}
 pub fn conocidas() -> &'static Vec<Value> {
     DATOS["conocidas"].as_array().expect("lista")
 }

@@ -132,10 +132,6 @@ pub fn ejecutar() -> i32 {
         let t = oido.rsplit('-').next().filter(|t| ["tiny", "base", "small", "medium"].contains(t)).unwrap_or(if oido.starts_with("moonshine") { "tiny" } else { "base" });
         paso(instalar_whisper(&casa, t), "whisper.cpp");
     }
-    // puente temporal (etapa 3 lo quita): el servidor MCP todavía es Python
-    if Path::new("/opt/orion/venv/bin/pip").exists() && correr(&["/opt/orion/venv/bin/python3", "-c", "import mcp"]).0 != 0 {
-        paso(correr(&["/opt/orion/venv/bin/pip", "install", "-q", "mcp"]).0 == 0, "mcp");
-    }
     // kokoro → Piper mientras koko (kokoros) no venga empaquetado
     if matches!(cfg["voz"].as_str().unwrap_or("espeak-ng"), "piper" | "kokoro") {
         paso(instalar_piper(&casa), "Piper");

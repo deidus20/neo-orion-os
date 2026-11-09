@@ -28,10 +28,8 @@ PIPCERT=""
 if [ -n "${ORION_CA:-}" ] && [ -f "$ORION_CA" ]; then cp "$ORION_CA" "$CHROOT/tmp/orion-ca.crt"; PIPCERT="--cert /tmp/orion-ca.crt"; fi
 cat <<IN | in_chroot
 python3 -m venv --system-site-packages $D/venv
-$D/venv/bin/pip install -q --no-cache-dir $PIPCERT --upgrade pip
-$D/venv/bin/pip install -q --no-cache-dir $PIPCERT mcp || echo "aviso: mcp no se pudo instalar (se reintenta en el primer arranque)"
 echo "$D" > \$($D/venv/bin/python3 -c 'import site;print(site.getsitepackages()[0])')/orion.pth
-python3 -c "import sys; sys.path.insert(0,'$D'); import orion_core.servidor, orion_core.instalador" && echo "módulos de Neo Orión: OK"
+python3 -c "import sys; sys.path.insert(0,'$D'); import orion_core.legado" && echo "puente de Neo Orión: OK"
 systemctl enable orion-primer-arranque.service
 if command -v cage >/dev/null; then systemctl enable orion-sesion.service; systemctl disable getty@tty1.service 2>/dev/null || true; fi
 systemctl set-default multi-user.target

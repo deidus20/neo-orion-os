@@ -12,8 +12,14 @@ from pathlib import Path
 
 try:                                   # SDK MCP 2.x
     from mcp.server.mcpserver import MCPServer as FastMCP
-except ImportError:                    # SDK MCP 1.x
-    from mcp.server.fastmcp import FastMCP
+except ImportError:
+    try:                               # SDK MCP 1.x
+        from mcp.server.fastmcp import FastMCP
+    except ImportError:                # sin el SDK: el servidor MCP es el núcleo en Rust (orion-nucleo mcp) y
+        class FastMCP:                 # aquí solo se usan las funciones, a través del puente corto
+            def __init__(self, *a, **k): self.instrucciones = k.get("instructions", "")
+            def tool(self): return lambda f: f
+            def run(self): raise SystemExit("usa: orion-nucleo mcp")
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from orion_core import detect                        # noqa: E402

@@ -111,19 +111,19 @@ fn lanzar_instalacion(est: &Estado, mut cfg: Value) -> Value {
         return json!({"ok": false, "error": "el servidor del instalador no corre como administrador"});
     }
     let clave = cfg.as_object_mut().and_then(|o| o.remove("clave")).and_then(|v| v.as_str().map(String::from)).unwrap_or_default();
-    let rev = legado::llamar("instalar", &json!({"accion": "revisar", "config": cfg}));
-    if let Some(e) = rev["errores"].as_array().filter(|e| !e.is_empty()) {
-        return json!({"ok": false, "error": e.iter().filter_map(Value::as_str).collect::<Vec<_>>().join("; ")});
+    let errores = crate::instalador::revisar(&cfg);
+    if !errores.is_empty() {
+        return json!({"ok": false, "error": errores.join("; ")});
     }
     let ruta = std::env::temp_dir().join(format!("orion-inst-{}.json", std::process::id()));
     if std::fs::write(&ruta, cfg.to_string()).is_err() || std::fs::write(&est.progreso, "").is_err() {
         return json!({"ok": false, "error": "no se pudo preparar la instalación"});
     }
     let err = std::fs::File::create("/run/orion-instalacion.err").map(Stdio::from).unwrap_or_else(|_| Stdio::null());
-    match Command::new(legado::python())
-        .args(["-m", "orion_core.instalador", &ruta.to_string_lossy(), "--progreso", &est.progreso.to_string_lossy()])
+    let yo = std::env::current_exe().unwrap_or_else(|_| "/usr/local/bin/orion-nucleo".into());
+    match Command::new(yo)
+        .args(["instalar", &ruta.to_string_lossy(), "--progreso", &est.progreso.to_string_lossy()])
         .env("ORION_CLAVE", clave)
-        .env("PYTHONPATH", legado::raiz_python())
         .stdout(Stdio::null())
         .stderr(err)
         .spawn()
@@ -193,6 +193,9 @@ pub fn accion(modulo: &str, datos: &Value) -> Value {
         "actualizar" => crate::actualizar::accion(datos),
         "telefono" => crate::telefono::ordenar(if a == "iniciar" || a == "parar" { a } else { "estado" }),
         "llave" => crate::voz::llave::accion(datos),
+        "traductor" => crate::traductor::accion(datos),
+        "dictado" => crate::dictado::accion(datos),
+        "cnc" => crate::cnc::accion(datos),
         "casa" => crate::casa::Casa::cargar().ordenar(&txt("texto"), datos["confirmado"] == true),
         "memoria" => match crate::memoria::Memoria::abrir(None) {
             Ok(m) => match a {
@@ -202,7 +205,7 @@ pub fn accion(modulo: &str, datos: &Value) -> Value {
             },
             Err(e) => json!({"ok": false, "error": e.to_string()}),
         },
-        m if legado::PENDIENTES.contains(&m) && m != "instalar" => legado::llamar(m, datos),
+        m if legado::PENDIENTES.contains(&m) => legado::llamar(m, datos),
         _ => json!({"ok": false, "error": "módulo desconocido"}),
     }
 }

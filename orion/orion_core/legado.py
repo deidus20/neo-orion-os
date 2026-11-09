@@ -17,6 +17,11 @@ def main(argv: list[str]) -> int:
         datos = json.loads(sys.stdin.read() or "{}")
     except ValueError:
         datos = {}
+    if modulo == "mcp":                            # una herramienta MCP que todavía es Python
+        from orion_mcp import server
+        r = getattr(server, datos["herramienta"])(**(datos.get("args") or {}))
+        sys.stdout.write(json.dumps(r, ensure_ascii=False, default=str))
+        return 0
     if modulo == "instalar":                       # solo la revisión previa; el núcleo lanza el instalador
         from orion_core.instalador import revisar
         r = {"ok": True, "errores": revisar(dict(datos.get("config") or {}))}

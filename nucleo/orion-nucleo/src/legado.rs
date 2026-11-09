@@ -9,7 +9,7 @@ use std::io::Write;
 use std::process::{Command, Stdio};
 
 /// Módulos que todavía se atienden en Python (la lista se achica en cada etapa de la migración).
-pub const PENDIENTES: &[&str] = &["cnc", "dictado", "traductor", "instalar"];
+pub const PENDIENTES: &[&str] = &[]; // el HUD ya no usa el puente: solo quedan herramientas MCP
 
 pub fn raiz_python() -> String {
     std::env::var("ORION_PY").unwrap_or_else(|_| if std::path::Path::new("/opt/orion/orion_core").is_dir() { "/opt/orion".into() } else { "orion".into() })
@@ -23,6 +23,15 @@ pub fn llamar(modulo: &str, datos: &Value) -> Value {
     if !PENDIENTES.contains(&modulo) {
         return json!({"ok": false, "error": "módulo desconocido"});
     }
+    lanzar(modulo, datos)
+}
+
+/// Una herramienta MCP cuyo módulo sigue en Python (solo la usa `orion-nucleo mcp`, nunca el HUD por HTTP).
+pub fn herramienta_python(nombre: &str, args: &Value) -> Value {
+    lanzar("mcp", &json!({"herramienta": nombre, "args": args}))
+}
+
+fn lanzar(modulo: &str, datos: &Value) -> Value {
     let hijo = Command::new(python())
         .args(["-m", "orion_core.legado", modulo])
         .env("PYTHONPATH", raiz_python())

@@ -190,3 +190,36 @@ mod pruebas {
         assert_eq!(revisar_al_dia(ud, "nvidia-driver-570")["hay_nuevo"], false);
     }
 }
+
+/// Actualizaciones de firmware disponibles (fwupd/LVFS). Solo informa: instalar pide confirmación.
+pub fn firmware_desde(salida: &str, error: &str) -> Value {
+    let Ok(d) = serde_json::from_str::<Value>(if salida.trim().is_empty() { "{}" } else { salida }) else {
+        let e = if error.is_empty() { "fwupd no respondió" } else { error };
+        return json!({"ok": false, "error": e.chars().rev().take(200).collect::<Vec<_>>().into_iter().rev().collect::<String>()});
+    };
+    let disp: Vec<Value> = d["Devices"]
+        .as_array()
+        .into_iter()
+        .flatten()
+        .filter(|x| x["Releases"].as_array().is_some_and(|r| !r.is_empty()))
+        .map(|x| json!({"equipo": x["Name"], "version": x["Version"], "nueva": x["Releases"][0]["Version"]}))
+        .collect();
+    json!({"ok": true, "actualizaciones": disp})
+}
+
+pub fn firmware() -> Value {
+    let o = crate::util::correr(&["fwupdmgr", "get-updates", "--json"]);
+    firmware_desde(&o.1, &o.2)
+}
+
+#[cfg(test)]
+mod pruebas_firmware {
+    use super::*;
+
+    #[test]
+    fn lee_fwupd() {
+        let j = r#"{"Devices":[{"Name":"UEFI","Version":"1.2","Releases":[{"Version":"1.5"}]},{"Name":"SSD","Version":"3","Releases":[]}]}"#;
+        assert_eq!(firmware_desde(j, ""), json!({"ok": true, "actualizaciones": [{"equipo": "UEFI", "version": "1.2", "nueva": "1.5"}]}));
+        assert_eq!(firmware_desde("no json", "")["ok"], false);
+    }
+}

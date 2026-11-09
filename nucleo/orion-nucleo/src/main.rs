@@ -59,6 +59,14 @@ fn main() {
                 _ => println!("{} notas indexadas", m.reindexar()),
             }
         }
+        "instalar" => std::process::exit(orion_nucleo::instalador::principal(&args[1..])),
+        "dictado" => {
+            // orion-nucleo dictado "título … sección …" [--plantilla informe-duoc|memoria-electrica|carta|acta]
+            let pl = opcion(&args, "--plantilla").unwrap_or_else(|| "informe-duoc".into());
+            let texto: Vec<&str> = args[1..].iter().map(String::as_str).filter(|a| !a.starts_with("--") && *a != pl).collect();
+            imprimir(orion_nucleo::dictado::dictar(&texto.join(" "), &pl, "", &serde_json::json!({}), false));
+        }
+        "mcp" => std::process::exit(orion_nucleo::mcp::ejecutar()),
         "primer-arranque" => std::process::exit(orion_nucleo::primer::ejecutar()),
         "llave-desde" => {
             // orion-nucleo llave-desde "<frase>" <modo> <wav…>: la llave de voz con lo grabado en el instalador
@@ -76,7 +84,7 @@ fn main() {
         }
         "version" => println!("orion-nucleo {}", env!("CARGO_PKG_VERSION")),
         _ => {
-            eprintln!("uso: orion-nucleo [servir|vigia|oido|decir|respaldo|primer-arranque|llave-desde|config|equipo|controladores|apps|electrica|memoria] …");
+            eprintln!("uso: orion-nucleo [servir|mcp|instalar|dictado|vigia|oido|decir|respaldo|primer-arranque|llave-desde|config|equipo|controladores|apps|electrica|memoria] …");
             std::process::exit(2);
         }
     }

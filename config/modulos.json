@@ -3,11 +3,9 @@
   "orion-linux": {
     "tipo": "mcp",
     "comando": [
-      "python3",
-      "-m",
-      "orion_mcp.server"
+      "/usr/local/bin/orion-nucleo",
+      "mcp"
     ],
-    "cwd": "/usr/lib/orion",
     "nombre_visible": "sistema",
     "mostrar_marca": true,
     "siempre": true

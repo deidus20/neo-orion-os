@@ -137,10 +137,10 @@ def recibir(via: str, tarea: str, respuesta: str, memoria=None) -> dict:
 def config_vuelta(raiz: Path | None = None) -> dict:
     """Cómo conectar Neo Orión a Claude para que Claude le pida cosas al PC."""
     raiz = raiz or Path(__file__).resolve().parents[2]
-    srv = {"command": "python3", "args": [str(raiz / "orion/orion_mcp/server.py")]}
+    srv = {"command": "/usr/local/bin/orion-nucleo", "args": ["mcp"]}
     escritorio = Path(os.path.expanduser("~/.config/Claude/claude_desktop_config.json"))
     return {
-        "claude_code": f"claude mcp add orion-linux -- python3 {raiz / 'orion/orion_mcp/server.py'}",
+        "claude_code": "claude mcp add orion-linux -- /usr/local/bin/orion-nucleo mcp",
         "claude_escritorio": {"archivo": str(escritorio), "agregar": {"mcpServers": {"orion-linux": srv}}},
         "nota": "Con esto, desde el chat de Claude puedes decir «pídele a mi PC que…» y Neo Orión lo hace. "
                 "Lo físico (robots, PLC) y lo irreversible siguen pidiendo tu confirmación en el PC.",

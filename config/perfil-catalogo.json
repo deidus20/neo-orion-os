@@ -1,0 +1,452 @@
+{
+ "_nota": "Catálogo de alternativas por pieza y nivel de equipo (lo usa nucleo/orion-nucleo/src/perfil.rs). La primera instalada gana; la persona puede forzar en ~/.orion/backends.json.",
+ "niveles": [
+  "micro",
+  "patata",
+  "ligero",
+  "medio",
+  "potente",
+  "estacion"
+ ],
+ "piezas": [
+  "oido",
+  "voz",
+  "vad",
+  "memoria_indice",
+  "memoria_app",
+  "imagen",
+  "foto_a_3d",
+  "escaneo_3d",
+  "cuerpo_3d",
+  "editar_imagen"
+ ],
+ "catalogo": {
+  "oido": {
+   "micro": [
+    {
+     "id": "vosk-small-es",
+     "lic": "Apache-2.0",
+     "nota": "~40 MB, streaming, corre hasta en Pi Zero"
+    }
+   ],
+   "ligero": [
+    {
+     "id": "moonshine-tiny",
+     "lic": "MIT (inglés) / Community no comercial (español)",
+     "nota": "streaming, <300 ms en Pi 5"
+    },
+    {
+     "id": "whisper.cpp-base",
+     "lic": "MIT",
+     "nota": "más lento, muy preciso"
+    },
+    {
+     "id": "vosk-small-es",
+     "lic": "Apache-2.0",
+     "nota": "respaldo"
+    }
+   ],
+   "medio": [
+    {
+     "id": "faster-whisper-small",
+     "lic": "MIT",
+     "nota": "CPU int8"
+    },
+    {
+     "id": "moonshine-base",
+     "lic": "MIT / Community",
+     "nota": "menor latencia"
+    }
+   ],
+   "potente": [
+    {
+     "id": "faster-whisper-large-v3-turbo",
+     "lic": "MIT",
+     "nota": "GPU, máxima precisión"
+    },
+    {
+     "id": "moonshine-medium",
+     "lic": "MIT / Community",
+     "nota": ""
+    }
+   ],
+   "estacion": [
+    {
+     "id": "faster-whisper-large-v3",
+     "lic": "MIT",
+     "nota": "con diarización (quién habla)"
+    }
+   ]
+  },
+  "voz": {
+   "micro": [
+    {
+     "id": "espeak-ng",
+     "lic": "GPL-3.0",
+     "nota": "robótica, casi sin recursos"
+    }
+   ],
+   "ligero": [
+    {
+     "id": "piper",
+     "lic": "GPL-3.0 (piper1-gpl) / licencia según cada voz",
+     "nota": "natural, ~60 MB por voz"
+    }
+   ],
+   "medio": [
+    {
+     "id": "piper",
+     "lic": "GPL-3.0 / según voz",
+     "nota": ""
+    },
+    {
+     "id": "kokoro-82m",
+     "lic": "Apache-2.0",
+     "nota": "más expresiva"
+    }
+   ],
+   "potente": [
+    {
+     "id": "kokoro-82m",
+     "lic": "Apache-2.0",
+     "nota": ""
+    },
+    {
+     "id": "xtts-v2",
+     "lic": "Coqui Public (no comercial)",
+     "nota": "clona voces"
+    }
+   ],
+   "estacion": [
+    {
+     "id": "xtts-v2",
+     "lic": "Coqui Public (no comercial)",
+     "nota": ""
+    }
+   ],
+   "_nube": [
+    {
+     "id": "elevenlabs",
+     "lic": "servicio pagado",
+     "nota": "se enlaza con tu clave"
+    }
+   ]
+  },
+  "vad": {
+   "micro": [
+    {
+     "id": "energia",
+     "lic": "propio",
+     "nota": "umbral de energía"
+    }
+   ],
+   "ligero": [
+    {
+     "id": "webrtcvad",
+     "lic": "BSD",
+     "nota": ""
+    }
+   ],
+   "medio": [
+    {
+     "id": "silero-vad",
+     "lic": "MIT",
+     "nota": "más fino con ruido"
+    }
+   ],
+   "potente": [
+    {
+     "id": "silero-vad",
+     "lic": "MIT",
+     "nota": ""
+    }
+   ],
+   "estacion": [
+    {
+     "id": "silero-vad",
+     "lic": "MIT",
+     "nota": ""
+    }
+   ]
+  },
+  "memoria_indice": {
+   "micro": [
+    {
+     "id": "sqlite-fts5",
+     "lic": "dominio público",
+     "nota": "búsqueda por palabras, 0 RAM extra"
+    }
+   ],
+   "ligero": [
+    {
+     "id": "sqlite-fts5+embeddings-mini",
+     "lic": "Apache-2.0",
+     "nota": "all-MiniLM vía Ollama/ONNX"
+    }
+   ],
+   "medio": [
+    {
+     "id": "sqlite-fts5+nomic-embed",
+     "lic": "Apache-2.0",
+     "nota": "búsqueda por significado"
+    }
+   ],
+   "potente": [
+    {
+     "id": "lancedb+bge-m3",
+     "lic": "Apache-2.0 / MIT",
+     "nota": "millones de notas"
+    }
+   ],
+   "estacion": [
+    {
+     "id": "qdrant+bge-m3",
+     "lic": "Apache-2.0",
+     "nota": "servidor vectorial"
+    }
+   ]
+  },
+  "memoria_app": {
+   "_todos": [
+    {
+     "id": "carpeta-markdown",
+     "lic": "—",
+     "nota": "base: archivos .md, nada que instalar"
+    },
+    {
+     "id": "obsidian",
+     "lic": "propietaria gratuita (no es código abierto)",
+     "nota": "abre la carpeta directo"
+    },
+    {
+     "id": "logseq",
+     "lic": "AGPL-3.0",
+     "nota": "abre la carpeta directo; diario por día"
+    },
+    {
+     "id": "silverbullet",
+     "lic": "MIT",
+     "nota": "web liviana: ideal para Raspberry y teléfono"
+    },
+    {
+     "id": "zettlr",
+     "lic": "GPL-3.0",
+     "nota": "editor Markdown académico"
+    },
+    {
+     "id": "joplin",
+     "lic": "AGPL-3.0",
+     "nota": "importa la carpeta; sincroniza cifrado"
+    },
+    {
+     "id": "trilium-notes",
+     "lic": "AGPL-3.0",
+     "nota": "importa Markdown; árbol jerárquico"
+    },
+    {
+     "id": "siyuan",
+     "lic": "AGPL-3.0",
+     "nota": "importa Markdown; bloques"
+    }
+   ]
+  },
+  "imagen": {
+   "micro": [],
+   "ligero": [
+    {
+     "id": "nube",
+     "lic": "según servicio",
+     "nota": "no alcanza localmente"
+    }
+   ],
+   "medio": [
+    {
+     "id": "sd-1.5-lcm",
+     "lic": "CreativeML OpenRAIL-M",
+     "nota": "4–6 GB VRAM o CPU lento"
+    }
+   ],
+   "potente": [
+    {
+     "id": "flux.1-schnell",
+     "lic": "Apache-2.0",
+     "nota": "12 GB+ (cuantizado)"
+    },
+    {
+     "id": "sdxl-turbo",
+     "lic": "Stability no comercial",
+     "nota": ""
+    }
+   ],
+   "estacion": [
+    {
+     "id": "flux.1-schnell",
+     "lic": "Apache-2.0",
+     "nota": ""
+    }
+   ]
+  },
+  "foto_a_3d": {
+   "micro": [
+    {
+     "id": "silueta-extruida",
+     "lic": "propio",
+     "nota": "contorno de la foto → sólido (CPU)"
+    }
+   ],
+   "ligero": [
+    {
+     "id": "silueta-extruida",
+     "lic": "propio",
+     "nota": ""
+    }
+   ],
+   "medio": [
+    {
+     "id": "triposr",
+     "lic": "MIT",
+     "nota": "~6 GB VRAM; CPU tarda minutos"
+    },
+    {
+     "id": "silueta-extruida",
+     "lic": "propio",
+     "nota": "respaldo"
+    }
+   ],
+   "potente": [
+    {
+     "id": "hunyuan3d-2.1-forma",
+     "lic": "Tencent Community (no UE/UK/Corea, tope comercial)",
+     "nota": "~10 GB solo forma"
+    },
+    {
+     "id": "triposr",
+     "lic": "MIT",
+     "nota": ""
+    }
+   ],
+   "estacion": [
+    {
+     "id": "trellis.2",
+     "lic": "MIT",
+     "nota": "24 GB, la mejor calidad abierta"
+    },
+    {
+     "id": "hunyuan3d-2.1",
+     "lic": "Tencent Community",
+     "nota": "forma + textura ~29 GB"
+    }
+   ]
+  },
+  "escaneo_3d": {
+   "micro": [
+    {
+     "id": "capturar-y-enviar",
+     "lic": "—",
+     "nota": "toma las fotos; otro equipo procesa"
+    }
+   ],
+   "ligero": [
+    {
+     "id": "capturar-y-enviar",
+     "lic": "—",
+     "nota": ""
+    }
+   ],
+   "medio": [
+    {
+     "id": "colmap+openmvs",
+     "lic": "BSD / AGPL-3.0",
+     "nota": "fotogrametría en CPU (lento, preciso)"
+    },
+    {
+     "id": "meshroom",
+     "lic": "MPL-2.0",
+     "nota": "fotogrametría con interfaz"
+    }
+   ],
+   "potente": [
+    {
+     "id": "nerfstudio-splatfacto",
+     "lic": "Apache-2.0",
+     "nota": "gaussian splatting desde video del teléfono"
+    },
+    {
+     "id": "colmap+openmvs",
+     "lic": "BSD / AGPL-3.0",
+     "nota": "malla para CAD/impresión"
+    }
+   ],
+   "estacion": [
+    {
+     "id": "nerfstudio-splatfacto",
+     "lic": "Apache-2.0",
+     "nota": ""
+    }
+   ]
+  },
+  "cuerpo_3d": {
+   "medio": [
+    {
+     "id": "smpl-x",
+     "lic": "no comercial (investigación)",
+     "nota": "cuerpo paramétrico: se ajusta forma y pose"
+    }
+   ],
+   "potente": [
+    {
+     "id": "smpl-x",
+     "lic": "no comercial (investigación)",
+     "nota": ""
+    }
+   ],
+   "estacion": [
+    {
+     "id": "smpl-x",
+     "lic": "no comercial (investigación)",
+     "nota": ""
+    }
+   ]
+  },
+  "editar_imagen": {
+   "potente": [
+    {
+     "id": "qwen-image-edit",
+     "lic": "Apache-2.0",
+     "nota": "edición por instrucción"
+    }
+   ],
+   "estacion": [
+    {
+     "id": "qwen-image-edit",
+     "lic": "Apache-2.0",
+     "nota": ""
+    }
+   ],
+   "_nube": [
+    {
+     "id": "nube",
+     "lic": "según servicio",
+     "nota": ""
+    }
+   ]
+  }
+ },
+ "usb": {
+  "10c4:ea60": "ESP32/placa con CP210x",
+  "1a86:7523": "ESP32/Arduino con CH340",
+  "1a86:55d4": "ESP32 con CH9102",
+  "303a:1001": "ESP32-S3/C3 (USB nativo)",
+  "303a:0002": "ESP32-S2 (USB nativo)",
+  "2341:0043": "Arduino Uno",
+  "2341:0042": "Arduino Mega",
+  "2e8a:0005": "Raspberry Pi Pico (MicroPython)",
+  "2e8a:0003": "Raspberry Pi Pico (bootloader)",
+  "0483:3748": "ST-Link v2 (STM32)",
+  "0483:374b": "ST-Link v2.1 (STM32)",
+  "0403:6001": "adaptador FTDI (servos/serie)",
+  "0403:6014": "FTDI FT232H",
+  "18d1:4ee7": "teléfono Android (adb)",
+  "05ac:12a8": "iPhone"
+ }
+}

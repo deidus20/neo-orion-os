@@ -39,13 +39,17 @@
 | `orion_core.rendimiento` (vigía) | 170 | ✅ **migrado** | `rendimiento.rs` |
 | `orion_respaldo`, `orion_remoto`, `orion_actualizar` | 394 | ✅ **migrado** | `respaldo.rs`, `remoto.rs`, `actualizar.rs` |
 | `orion-primer-arranque` (bash + Python) | 60 | ✅ **migrado** | `primer.rs` (Vosk, whisper.cpp y Piper nativos; sin pip) |
-| `orion_mcp` (servidor MCP) | 720 | etapa 3 | `rmcp` (SDK oficial MCP en Rust) |
-| `orion_core.instalador` | 449 | etapa 3 | particionado con `sgdisk`/`mkfs` vía `std::process` |
-| `orion_cnc` (GRBL) | 246 | etapa 3 | `serialport` |
+| `orion_mcp` (servidor MCP) | 720 | ✅ **migrado** (22 de 43 herramientas nativas; el resto por el puente hasta que su módulo pase) | `mcp.rs` (JSON-RPC por stdio, 5 MB en reposo; catálogo en `config/mcp-herramientas.json`) |
+| `orion_core.policy` (permisos de la IA) | 76 | ✅ **migrado** | `politica.rs` (los tickets en espera quedan en `~/.orion/pendientes.json`) |
+| `orion_core.instalador` + `instalacion` | 552 | ✅ **migrado** | `instalador.rs` (`orion-nucleo instalar`; en simulación da los mismos 68 comandos, en el mismo orden, que el de Python) |
+| `orion_cnc` (GRBL) | 246 | ✅ **migrado** | `cnc.rs` (serialport; vista del recorrido en SVG con la estética del HUD) |
+| `orion_core.detect` + `perfil` | 262 | ✅ **migrado** | `perfil.rs` (catálogo en `config/perfil-catalogo.json`; mismo nivel y mismas elecciones que Python en este equipo) |
 | `orion_casa` (Home Assistant) | 103 | ✅ **migrado** (adelantado) | `casa.rs` |
-| `orion_dictado` (Word) | 158 | etapa 3 | `docx-rs` |
-| `orion_proyectos` (Gantt, presupuesto) | 202 | etapa 3 | `rust_xlsxwriter`, `plotters` |
-| `orion_traductor`, `orion_cuaderno`, `orion_puente`, `orion_repos` | 517 | etapa 3 | `ureq` |
+| `orion_dictado` (Word) | 158 | ✅ **migrado** | `dictado.rs` (docx-rs; hoja A4, verificado abriéndolo con LibreOffice) |
+| `orion_proyectos` (Gantt, presupuesto) | 202 | ✅ **migrado** | `proyectos.rs` (CPM, presupuesto con IVA, RACI, Gantt SVG y Excel con rust_xlsxwriter; mismos números que Python en el caso de la oficina de 30 m²) |
+| `orion_traductor` | 120 | ✅ **migrado** | `traductor.rs` (translateLocally/Bergamot sin internet en vez de Argos, o la IA local) |
+| `orion_repos` | 74 | ✅ **migrado** | `repos.rs` (gh) |
+| `orion_cuaderno`, `orion_puente` | 323 | etapa 3 | `ureq` |
 | `orion_navegador` | 299 | etapa 4 | `chromiumoxide` (CDP) |
 | `orion_juegos`, `orion_vision`, `orion_lidar` | 521 | etapa 4 | `ureq`, `v4l`, `rplidar` por serie |
 | `orion_motion` (robots, senoides, guardián) | 532 | etapa 4 | Rust puro (`nalgebra`) + `r2r` (ROS 2) |
