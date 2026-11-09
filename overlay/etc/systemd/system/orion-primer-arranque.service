@@ -7,7 +7,6 @@ ConditionPathExists=!/var/lib/orion/primer-arranque.hecho
 
 [Service]
 Type=oneshot
-Environment=PYTHONPATH=/opt/orion
 ExecStart=/usr/local/bin/orion-primer-arranque
 # sin internet todavía: reintenta cada 10 min hasta que lo logre
 Restart=on-failure

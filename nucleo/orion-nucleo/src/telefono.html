@@ -1,0 +1,36 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#0b0c0d">
+<title>Neo Orión · micrófono</title><style>
+:root{--acc:__ACC__}*{box-sizing:border-box}html,body{margin:0;height:100%;background:#0b0c0d;color:#e6e8ea;font:15px ui-monospace,Menlo,monospace}
+body{display:flex;flex-direction:column;justify-content:center;gap:22px;padding:28px max(22px,env(safe-area-inset-left))}
+.k{font-size:11px;letter-spacing:.18em;color:#8b8e94}.t{font-size:28px;font-weight:700;letter-spacing:.06em;color:var(--acc)}
+button{font:inherit;font-weight:700;letter-spacing:.14em;font-size:17px;padding:22px;border:0;background:var(--acc);color:#111;width:100%}
+button.off{background:none;border:1px solid var(--acc);color:var(--acc)}
+#vu{display:flex;gap:4px;height:46px;align-items:flex-end}#vu i{flex:1;background:#24272b;height:100%}#vu i.on{background:var(--acc)}
+.d{font-size:12px;color:#8b8e94;line-height:1.6}.e{color:#ffd400}</style></head><body>
+<div><div class="k">NEO ORIÓN // TELÉFONO</div><div class="t">MICRÓFONO</div></div>
+<div class="d" id="est">Toca el botón y acepta el permiso del micrófono. Deja esta página abierta y la pantalla encendida mientras hablas.</div>
+<div id="vu"></div><button id="b">USAR COMO MICRÓFONO</button>
+<div class="d">Funciona como un micrófono real del PC: Neo Orión, juegos en la nube, Discord, Meet. Usa audífonos en el PC para que no haya eco.</div>
+<script>
+const vu=document.getElementById('vu');for(let i=0;i<24;i++)vu.appendChild(document.createElement('i'));
+const est=document.getElementById('est'),b=document.getElementById('b');let ws,ctx,src,nodo,stream,lock;
+function nivel(v){const n=Math.min(24,Math.round(v*60));[...vu.children].forEach((x,i)=>x.classList.toggle('on',i<n))}
+async function parar(){try{ws&&ws.close()}catch(e){}try{stream&&stream.getTracks().forEach(t=>t.stop())}catch(e){}try{ctx&&ctx.close()}catch(e){}
+ try{lock&&lock.release()}catch(e){}ws=ctx=stream=null;b.textContent='USAR COMO MICRÓFONO';b.className='';nivel(0)}
+b.onclick=async()=>{if(ws){parar();est.textContent='Micrófono soltado: el PC volvió a su micrófono anterior.';return}
+ try{stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true,channelCount:1}})}
+ catch(e){est.innerHTML='<span class="e">No hay permiso de micrófono.</span> Revisa los permisos del navegador para esta página.';return}
+ ctx=new (window.AudioContext||window.webkitAudioContext)();await ctx.resume();
+ ws=new WebSocket('wss://'+location.host+'/ws'+location.search);ws.binaryType='arraybuffer';
+ ws.onopen=()=>{ws.send(JSON.stringify({tasa:ctx.sampleRate}));est.textContent='Conectado: el PC te está escuchando.';b.textContent='SOLTAR';b.className='off'};
+ ws.onmessage=m=>{try{const r=JSON.parse(m.data);if(r.error){est.innerHTML='<span class="e">'+r.error+'</span>';parar()}}catch(e){}};
+ ws.onclose=()=>{if(ws){est.textContent='Se cortó la conexión. Toca el botón para volver a conectar.';parar()}};
+ src=ctx.createMediaStreamSource(stream);nodo=ctx.createScriptProcessor(1024,1,1);
+ nodo.onaudioprocess=e=>{const f=e.inputBuffer.getChannelData(0);let m=0;const s=new Int16Array(f.length);
+  for(let i=0;i<f.length;i++){const v=Math.max(-1,Math.min(1,f[i]));s[i]=v*32767;const a=Math.abs(v);if(a>m)m=a}
+  nivel(m);if(ws&&ws.readyState===1&&ws.bufferedAmount<64000)ws.send(s.buffer)};
+ const mudo=ctx.createGain();mudo.gain.value=0;src.connect(nodo);nodo.connect(mudo);mudo.connect(ctx.destination);
+ try{lock=await navigator.wakeLock.request('screen')}catch(e){}};
+document.addEventListener('visibilitychange',()=>{if(document.hidden&&ws)est.innerHTML='<span class="e">La página quedó atrás: algunos teléfonos cortan el micrófono. Vuelve a esta pestaña.</span>'});
+</script></body></html>

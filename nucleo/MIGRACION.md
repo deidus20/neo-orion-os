@@ -34,14 +34,15 @@
 | `orion_memoria` | 168 | ✅ **migrado** (sin embeddings aún) | `memoria.rs` (rusqlite + FTS5, mismo índice) |
 | chat con la IA local | — | ✅ **migrado** | `ia.rs` (ureq → Ollama) |
 | vista Archivo | — | ✅ **nuevo en Rust** | `archivo.rs` |
-| `orion_telefono` | 337 | etapa 2 | `tokio-tungstenite` + `rustls` (WebSocket TLS) |
-| `orion_voz` (oído, palmadas, llave, hablantes) | 1.117 | etapa 2 | `vosk` (crate), `cpal` (audio), `ort` (huella de voz ONNX) |
-| `orion_core.rendimiento` (vigía) | 170 | etapa 2 | `sysinfo` |
-| `orion_respaldo`, `orion_remoto`, `orion_actualizar` | 394 | etapa 2 | `std::process` (rsync, rclone, wayvnc, apt) |
+| `orion_telefono` | 337 | ✅ **migrado** | `telefono.rs` (rustls + WebSocket propio, micrófono virtual de PipeWire) |
+| `orion_voz` (oído, palmadas, llave, hablantes) | 1.117 | ✅ **migrado** | `voz/` (VAD WebRTC, libvosk y sherpa-onnx cargados al vuelo, whisper.cpp, huella MFCC con rustfft) |
+| `orion_core.rendimiento` (vigía) | 170 | ✅ **migrado** | `rendimiento.rs` |
+| `orion_respaldo`, `orion_remoto`, `orion_actualizar` | 394 | ✅ **migrado** | `respaldo.rs`, `remoto.rs`, `actualizar.rs` |
+| `orion-primer-arranque` (bash + Python) | 60 | ✅ **migrado** | `primer.rs` (Vosk, whisper.cpp y Piper nativos; sin pip) |
 | `orion_mcp` (servidor MCP) | 720 | etapa 3 | `rmcp` (SDK oficial MCP en Rust) |
 | `orion_core.instalador` | 449 | etapa 3 | particionado con `sgdisk`/`mkfs` vía `std::process` |
 | `orion_cnc` (GRBL) | 246 | etapa 3 | `serialport` |
-| `orion_casa` (MQTT / Home Assistant) | 103 | etapa 3 | `rumqttc`, `ureq` |
+| `orion_casa` (Home Assistant) | 103 | ✅ **migrado** (adelantado) | `casa.rs` |
 | `orion_dictado` (Word) | 158 | etapa 3 | `docx-rs` |
 | `orion_proyectos` (Gantt, presupuesto) | 202 | etapa 3 | `rust_xlsxwriter`, `plotters` |
 | `orion_traductor`, `orion_cuaderno`, `orion_puente`, `orion_repos` | 517 | etapa 3 | `ureq` |
@@ -50,14 +51,15 @@
 | `orion_motion` (robots, senoides, guardián) | 532 | etapa 4 | Rust puro (`nalgebra`) + `r2r` (ROS 2) |
 | `orion_forma` (CAD por código) | 144 | **queda como programa externo** | CadQuery/FreeCAD son motores CAD hechos en Python/C++ sin equivalente maduro en Rust: el núcleo los llama como cualquier programa, igual que llama a Blender o KiCad |
 
-**Migrado hoy:** ~1.400 líneas de las 7.500 (los servicios que corren todo el día).
+**Migrado hoy:** ~3.200 líneas de las 7.500. **Al encender ya no corre ningún Python:** el oído, el vigía, el respaldo y el
+primer arranque son `orion-nucleo oido|vigia|respaldo|primer-arranque`.
 
 ## Etapas
 
 1. ✅ **Núcleo**: servidor, equipo, controladores, RIC, íconos, memoria, archivo, chat. Puente para el resto.
-2. **Servicios de fondo**: oído y palmadas, vigía de rendimiento, teléfono como micrófono, respaldo, remoto, actualizar.
+2. ✅ **Servicios de fondo**: oído y palmadas, vigía de rendimiento, teléfono como micrófono, respaldo, remoto, actualizar.
    Al cerrar esta etapa, **ningún Python corre al encender**.
-3. **Herramientas**: MCP, instalador, CNC, casa, dictado, proyectos, traductor, cuadernos, ventana del HUD.
+3. **Herramientas**: MCP, instalador, CNC, dictado, proyectos, traductor, cuadernos, ventana del HUD.
 4. **Robots y visión**: navegador, juegos, cámaras, LiDAR, movimiento y guardián.
 5. **Limpieza**: se borra `orion/` (salvo los scripts CAD) y el puente.
 

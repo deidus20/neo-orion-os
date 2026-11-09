@@ -137,7 +137,7 @@ fn lanzar_instalacion(est: &Estado, mut cfg: Value) -> Value {
 }
 
 /// Graba 3 s del micrófono para la llave de voz.
-fn grabar_frase(n: i64, instalador: bool) -> Value {
+pub fn grabar_frase(n: i64, instalador: bool) -> Value {
     if !(0..=3).contains(&n) {
         return json!({"ok": false, "error": "número de frase inválido"});
     }
@@ -187,6 +187,13 @@ pub fn accion(modulo: &str, datos: &Value) -> Value {
             "abrir" => archivo::abrir(&txt("ruta")),
             _ => archivo::listar(&txt("tema")),
         },
+        "activacion" => crate::voz::activacion::accion(datos),
+        "respaldo" => crate::respaldo::accion(datos),
+        "remoto" => crate::remoto::accion(datos),
+        "actualizar" => crate::actualizar::accion(datos),
+        "telefono" => crate::telefono::ordenar(if a == "iniciar" || a == "parar" { a } else { "estado" }),
+        "llave" => crate::voz::llave::accion(datos),
+        "casa" => crate::casa::Casa::cargar().ordenar(&txt("texto"), datos["confirmado"] == true),
         "memoria" => match crate::memoria::Memoria::abrir(None) {
             Ok(m) => match a {
                 "buscar" => json!({"ok": true, "resultados": m.buscar(&txt("texto"), 8)}),

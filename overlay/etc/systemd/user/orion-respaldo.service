@@ -3,7 +3,6 @@ Description=Neo Orión · respaldo de memoria y proyectos
 
 [Service]
 Type=oneshot
-Environment=PYTHONPATH=/opt/orion
-ExecStart=/opt/orion/venv/bin/python3 -m orion_respaldo
+ExecStart=/usr/local/bin/orion-nucleo respaldo
 Nice=15
 IOSchedulingClass=idle

@@ -32,6 +32,18 @@ fn main() {
                 std::process::exit(1);
             }
         }
+        "vigia" => orion_nucleo::rendimiento::vigilar(5),
+        "oido" => std::process::exit(orion_nucleo::voz::servicio()),
+        "decir" => {
+            let motor = opcion(&args, "--motor").unwrap_or_else(|| "auto".into());
+            let texto: Vec<&str> = args[1..].iter().map(String::as_str).filter(|a| !a.starts_with("--") && *a != motor).collect();
+            orion_nucleo::voz::hablar(&texto.join(" "), &motor, "", true);
+        }
+        "respaldo" => {
+            let r = orion_nucleo::respaldo::accion(&serde_json::json!({}));
+            println!("{r}");
+            std::process::exit(if r["ok"] == true { 0 } else { 1 });
+        }
         "equipo" => imprimir(equipo::equipo()),
         "controladores" => imprimir(controladores::detectar()),
         "apps" => imprimir(serde_json::json!(iconos::listar(args.iter().any(|a| a == "--todas")))),
@@ -47,9 +59,24 @@ fn main() {
                 _ => println!("{} notas indexadas", m.reindexar()),
             }
         }
+        "primer-arranque" => std::process::exit(orion_nucleo::primer::ejecutar()),
+        "llave-desde" => {
+            // orion-nucleo llave-desde "<frase>" <modo> <wav…>: la llave de voz con lo grabado en el instalador
+            let frase = args.get(1).cloned().unwrap_or_default();
+            let modo = args.get(2).cloned().unwrap_or_else(|| "voz_o_clave".into());
+            let wavs: Vec<PathBuf> = args.iter().skip(3).map(PathBuf::from).collect();
+            imprimir(orion_nucleo::voz::llave::configurar_desde_archivos(&frase, &wavs, &modo));
+        }
+        "config" => {
+            // orion-nucleo config <archivo.json> <ruta.con.puntos>: lee un valor (para guiones de consola)
+            let v: serde_json::Value = std::fs::read_to_string(args.get(1).map(String::as_str).unwrap_or("/etc/orion/instalacion.json")).ok().and_then(|s| serde_json::from_str(&s).ok()).unwrap_or_default();
+            let mut x = &v;
+            for k in args.get(2).map(String::as_str).unwrap_or("").split('.').filter(|k| !k.is_empty()) { x = &x[k]; }
+            match x { serde_json::Value::String(s) => println!("{s}"), serde_json::Value::Array(a) => println!("{}", a.iter().map(|e| e.as_str().map(String::from).unwrap_or(e.to_string())).collect::<Vec<_>>().join(" ")), serde_json::Value::Null => {}, o => println!("{o}") }
+        }
         "version" => println!("orion-nucleo {}", env!("CARGO_PKG_VERSION")),
         _ => {
-            eprintln!("uso: orion-nucleo [servir|equipo|controladores|apps|electrica|memoria] …");
+            eprintln!("uso: orion-nucleo [servir|vigia|oido|decir|respaldo|primer-arranque|llave-desde|config|equipo|controladores|apps|electrica|memoria] …");
             std::process::exit(2);
         }
     }

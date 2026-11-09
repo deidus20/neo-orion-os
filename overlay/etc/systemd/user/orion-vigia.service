@@ -2,8 +2,7 @@
 Description=Neo Orión · vigía de rendimiento (modo patata automático)
 
 [Service]
-Environment=PYTHONPATH=/opt/orion
-ExecStart=/opt/orion/venv/bin/python3 -m orion_core.rendimiento
+ExecStart=/usr/local/bin/orion-nucleo vigia
 Restart=always
 Nice=10
 

@@ -3,8 +3,7 @@ Description=Neo Orión — oído siempre activo (VAD + STT → memoria + IA)
 After=pipewire.service sound.target
 
 [Service]
-Environment=PYTHONPATH=/opt/orion
-ExecStart=/opt/orion/venv/bin/python3 -m orion_voz.servicio
+ExecStart=/usr/local/bin/orion-nucleo oido
 Restart=always
 RestartSec=5
 

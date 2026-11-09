@@ -9,7 +9,7 @@ use std::io::Write;
 use std::process::{Command, Stdio};
 
 /// Módulos que todavía se atienden en Python (la lista se achica en cada etapa de la migración).
-pub const PENDIENTES: [&str; 11] = ["respaldo", "remoto", "cnc", "casa", "dictado", "activacion", "llave", "actualizar", "traductor", "telefono", "instalar"];
+pub const PENDIENTES: &[&str] = &["cnc", "dictado", "traductor", "instalar"];
 
 pub fn raiz_python() -> String {
     std::env::var("ORION_PY").unwrap_or_else(|_| if std::path::Path::new("/opt/orion/orion_core").is_dir() { "/opt/orion".into() } else { "orion".into() })
